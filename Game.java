@@ -2,10 +2,36 @@ import java.util.*;
 
 public class Game {
     public static void main (String[] args){
-        System.out.println("I have figured this out!");
+        
         
         
     }
   
   
+}
+
+
+class character {
+	int health;
+	Item[] inventory;
+	
+	void character(int h){
+		health = h;
+	
+	
+	}
+
+
+
+}
+
+class Item {
+	String name;
+
+	Item(String n){
+		name = n;
+	
+	}
+
+
 }
