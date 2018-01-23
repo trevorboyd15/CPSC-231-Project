@@ -12,6 +12,8 @@ public class Game {
 
 
 class character {
+	int posX;
+	int posY;
 	int health;
 	Item[] inventory;
 	
