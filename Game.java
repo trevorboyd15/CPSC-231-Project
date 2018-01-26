@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Game {
+public class Game {//where the game runs
     public static void main (String[] args){
         Map m = new Map();
 		m.resetMap();
@@ -13,7 +13,7 @@ public class Game {
 }
 
 
-class Unit {
+class Unit {// generic unit
 
 	private int posX;
 	private int posY;
@@ -33,7 +33,7 @@ class Unit {
 
 }
 
-class Building {
+class Building {// generic building
 
 	private String name;
 	private int posX;
@@ -46,11 +46,11 @@ class Building {
 	}
 }
 
-class Map {
+class Map {// the map of the world
 	private int size = 25;
 	private String[][] map = new String[size][size];
 	
-	void resetMap (){
+	void resetMap (){// sets the board to an empty state
 		for (int i = 0;i<this.size;i++){
 			for (int j = 0; j<this.size; j++){
 				this.map[i][j] = "--";
@@ -58,7 +58,7 @@ class Map {
 		}
 	}
 	
-	void display(){
+	void display(){// displays what is on the board
 		for (int i = 0;i<this.size;i++){
 			for (int j = 0; j<this.size; j++){
 				System.out.print(this.map[i][j] + " ");
@@ -68,7 +68,7 @@ class Map {
 	}
 }
 
-class Resource {
+class Resource {// generic resource
 	
 	private String type;
 	private int amount;
@@ -79,13 +79,13 @@ class Resource {
 
 }
 
-class GameState {
+class GameState {// the game state that holds all information required to run the game
 	
 
 
 }
 
-class Player {
+class Player {// generic player
 	private String pNum;
 	private List <Unit> units;
 	private List <Building> buildings;
