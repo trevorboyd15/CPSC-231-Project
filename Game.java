@@ -3,7 +3,9 @@ import java.util.*;
 public class Game {//where the game runs
     public static void main (String[] args){
 		GameState gs = new GameState();
-		gs.addPlayer(1);
+		gs.addHumanPlayer(1);
+		gs.addHumanPlayer(2);
+		gs.doTurns();
 		gs.updateBoard();
 		gs.displayBoard();
         
@@ -124,9 +126,16 @@ class GameState {// the game state that holds all information required to run th
 	private List <Player> players = new ArrayList<Player>();
 	private Map map = new Map();
 	
+	void doTurns(){
+		for (int i = 0; i<players.size(); i++){
+			players.get(i).turn();
+		}
 	
-	void addPlayer(int num){//creates a new player
-		players.add(new Player(num));
+	}
+	
+	
+	void addHumanPlayer(int num) {
+		players.add(new HumanPlayer(num));
 	}
 	
 	void updateBoard(){//itereates through each player placing the units and buildings on the board
@@ -151,20 +160,71 @@ class GameState {// the game state that holds all information required to run th
 
 class Player {// generic player
 	private int pNum;
+	
 	private List <Unit> units = new ArrayList<Unit>(0);
 	private List <Building> buildings = new ArrayList<Building>(0);
+	private List <Character> selectables = new ArrayList<Character>(0);
+	private List <String> actions = new ArrayList<String>(0);
+	private List <String> construct = new ArrayList<String>(0);
+	
+	private Character selection;
+	private String actionSelected;
+	private String item;
+	
 	
 	Player(int num){//saves the player number
 		pNum = num;
-	}
-
-	void buildUnit(String selection,Building b){//uses the building pos to create a unit next to it
-		if (selection == "worker"){
-			units.add(new Worker(b.getX()+1,b.getY()+1));
-		
+		if (pNum == 1){
+			buildings.add(new MainBase("mb",1,23,200));
+		}else if (pNum == 2){
+			buildings.add(new MainBase("mb",23,1,200));
 		}
 	}
 	
+	void turn(){//gets overwritten by inherited class just need to be defined here for now
+	}
+	
+	void findSelectables(){//combines the list of units and buildings
+		selectables.clear();
+		for (int i = 0; i<buildings.size(); i++){
+			if (buildings.get(i).getName() == "mb"){
+				selectables.add(buildings.get(i));
+			}	
+		}
+		for (int i = 0; i<buildings.size(); i++){
+			if (buildings.get(i).getName() == "wk"){
+				selectables.add(buildings.get(i));
+			}
+		}
+	
+	
+	}
+
+	void findActions(Character c){//finds what the given character can do
+		actions.clear();
+		if (c instanceof Unit){
+			actions.add("move");
+			actions.add("attack");
+			if (c instanceof Worker){
+				actions.add("build");
+			}
+		}else{
+			actions.add("construct");
+		}
+	
+	}
+	
+	List<String> getActions(){//returns actions
+		return actions;
+	}
+	
+	void buildUnit(String selection,Building b){//uses the building pos to create a unit next to it
+		
+		if (selection == "worker" ){
+			units.add(new Worker(b.getX()+1,b.getY()+1));
+		}
+	}
+	 
 	List<Unit> getUnitList(){//get function for unit list
 		return units;
 	}
@@ -177,6 +237,37 @@ class Player {// generic player
 		return pNum;
 	}
 
+	List<Character> getSelectables(){//returns selectables
+		return selectables;
+	}
+	
+	Character getSelection(){
+		return selection;
+	}
+	
+	void setSelection(Character c){
+		selection = c;
+	}
+	
+	String getActionSelected(){
+		return actionSelected;
+	}
+	
+	void setActionSelected(String s){
+		actionSelected = s;
+	}
+
+	
+	
+	
+	void createQueue(){
+	
+	
+	}
+	void doTurn(){
+	
+	
+	}
 	
 }
 
@@ -186,12 +277,13 @@ class MainBase extends Building{// The core structure of an army
 	super(n,x,y,h);
 	}
 	
-
 }
 
 
 class Worker extends Unit {//the resource gatherer of the army
 
+	private String state;
+	
 	Worker (int x, int y){
 		super ("wk",20,0,x,y,1);
 	}
@@ -199,13 +291,108 @@ class Worker extends Unit {//the resource gatherer of the army
 }
 
 
+class HumanPlayer extends Player{
+
+	private Scanner sc = new Scanner(System.in);
+	private String input;
+	private boolean valid;
+	private int nInput;
+	
+	HumanPlayer(int num){
+		super(num);
+	}
+	
+	void turn(){
+		getInput();
+	
+	}
+	
+	void getInput(){
+		valid = false;
+		while (valid == false){
+			findSelectables();
+			System.out.println("what would you like to select? (number) "+ getSelectables());
+			input = sc.next();
+			try{
+			nInput = Integer.parseInt(input);
+				if (nInput >= getSelectables().size() || nInput < 0){
+					throw new NumberFormatException("number to high or low");
+				}
+			}catch (NumberFormatException e){
+			System.out.println("that is not a valid input");
+			continue;
+			}
+			setSelection(getSelectables().get(nInput));
+			findActions(getSelection());
+			while (valid == false){
+				System.out.println("what would you like to do with that? (String) " +getActions());
+				input = sc.next();
+				for (int i = 0; i <getActions().size(); i++){
+					if (input.contains(getActions().get(i))){
+						setActionSelected(getActions().get(i));
+						valid = true;
+						break;
+					}
+				}
+				if (valid == false){
+					System.out.println("that is not an action");
+				}
+			}
+			valid = false;
+			while (valid == false){
+				if (getActionSelected() == "construct"){
+					System.out.println("what would you like to construct with that? (String) ");
+					valid = true; 
+					break;
+				
+				
+				
+				}
+			
+			}
+			
+		}
+	}
+	
+	
+
+}
 
 
+class Queue {
+	private int timeLeft;
+	private String action;
+	private Character selection;
+	private String item;
+	
+	Queue(int t, String a, Character c, String i){
+		timeLeft = t;
+		action = a;
+		selection = c;
+		item = i;
+	}
+	
+	void decrementTime(){//decrease the time left in the que
+		timeLeft --;
+	}
 
+	boolean execute(){//returns if the action should be done
+		return timeLeft <= 0;
+	}
 
-
-
-
+	String getAction(){//returns action
+		return action;
+	}
+	
+	Character getSelection(){//returns selection
+		return selection;
+	}
+	
+	String getItem(){//returns item
+		return item;
+	}
+	
+}
 
 
 
