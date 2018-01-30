@@ -5,9 +5,11 @@ public class Game {//where the game runs
 		GameState gs = new GameState();
 		gs.addHumanPlayer(1);
 		gs.addHumanPlayer(2);
-		gs.doTurns();
-		gs.updateBoard();
-		gs.displayBoard();
+		while(true){
+			gs.doTurns();
+			gs.updateBoard();
+			gs.displayBoard();
+		}
         
     }
   
@@ -166,6 +168,7 @@ class Player {// generic player
 	private List <Character> selectables = new ArrayList<Character>(0);
 	private List <String> actions = new ArrayList<String>(0);
 	private List <String> construct = new ArrayList<String>(0);
+	private List <Queue> queues = new ArrayList<Queue>(0);
 	
 	private Character selection;
 	private String actionSelected;
@@ -191,9 +194,9 @@ class Player {// generic player
 				selectables.add(buildings.get(i));
 			}	
 		}
-		for (int i = 0; i<buildings.size(); i++){
-			if (buildings.get(i).getName() == "wk"){
-				selectables.add(buildings.get(i));
+		for (int i = 0; i<units.size(); i++){
+			if (units.get(i).getName() == "wk"){
+				selectables.add(units.get(i));
 			}
 		}
 	
@@ -218,8 +221,7 @@ class Player {// generic player
 		return actions;
 	}
 	
-	void buildUnit(String selection,Building b){//uses the building pos to create a unit next to it
-		
+	void buildUnit(String selection,Character b){//uses the building pos to create a unit next to it
 		if (selection == "worker" ){
 			units.add(new Worker(b.getX()+1,b.getY()+1));
 		}
@@ -257,16 +259,56 @@ class Player {// generic player
 		actionSelected = s;
 	}
 
+	void findConstruct(Character b){
+		construct.clear();
+		if (b.getName() == "mb"){
+			construct.add("worker");
+		}
+	}
 	
+	List<String> getConstruct(){
+		return construct;
+	}
 	
+	String getItem(){
+		return item;
+	}
 	
-	void createQueue(){
+	void setItem(String i){
+		item = i;
+	}
 	
+	void createQueue(String a, Character c, String i){
+		if (i == "worker"){
+			queues.add(new Queue(2,a,c,i));
+		}
+		
 	
 	}
+	
 	void doTurn(){
+		createQueue(actionSelected,selection,item);
+		updateQueues();
+	}
 	
-	
+	void updateQueues(){
+		for (int i = 0; i < queues.size();i++){
+			Queue q = queues.get(i);
+			q.decrementTime();
+			if (q.execute()){
+				if (q.getSelection() instanceof Building){
+					if (q.getSelection() instanceof MainBase){
+						if (q.getAction() == "construct" && q.getItem() == "worker"){
+							buildUnit(q.getItem(),q.getSelection());
+							
+						}
+					}
+				}
+				
+			
+			}
+		
+		}
 	}
 	
 }
@@ -304,7 +346,7 @@ class HumanPlayer extends Player{
 	
 	void turn(){
 		getInput();
-	
+		doTurn();
 	}
 	
 	void getInput(){
@@ -340,13 +382,28 @@ class HumanPlayer extends Player{
 			}
 			valid = false;
 			while (valid == false){
+				
 				if (getActionSelected() == "construct"){
-					System.out.println("what would you like to construct with that? (String) ");
-					valid = true; 
+					findConstruct(getSelection());
+					System.out.println("what would you like to construct with that? (String) "+ getConstruct());
+					input = sc.next();
+					for (int i = 0; i<getConstruct().size(); i++){
+						if (input.contains(getConstruct().get(i))){
+							setItem(getConstruct().get(i));
+							valid = true;
+							break;
+						}
+					}
+					if (valid == false){
+						System.out.println("that cannot be constructed");
+					}
+				}else if(getActionSelected() == "move"){
 					break;
 				
-				
-				
+				}else if(getActionSelected() == "attack"){
+					break;
+				}else if (getActionSelected() == "build"){
+					break;
 				}
 			
 			}
