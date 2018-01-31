@@ -6,9 +6,10 @@ public class Game {//where the game runs
 		gs.addHumanPlayer(1);
 		gs.addHumanPlayer(2);
 		while(true){
-			gs.doTurns();
 			gs.updateBoard();
 			gs.displayBoard();
+			gs.doTurns();
+			
 		}
         
     }
@@ -55,8 +56,6 @@ class Character {//base object that all placeable things inheret from
 	
 }
 
-
-
 class Unit extends Character {// generic unit
 
 	private int damage;
@@ -86,7 +85,7 @@ class Building extends Character{// generic building
 }
 
 class Map {// the map of the world
-	private int size = 25;
+	private int size = 10;
 	private String[][] map = new String[size][size];
 	
 	void resetMap (){// sets the board to an empty state
@@ -178,9 +177,9 @@ class Player {// generic player
 	Player(int num){//saves the player number
 		pNum = num;
 		if (pNum == 1){
-			buildings.add(new MainBase("mb",1,23,200));
+			buildings.add(new MainBase("mb",1,8,200));
 		}else if (pNum == 2){
-			buildings.add(new MainBase("mb",23,1,200));
+			buildings.add(new MainBase("mb",8,1,200));
 		}
 	}
 	
@@ -321,7 +320,6 @@ class MainBase extends Building{// The core structure of an army
 	
 }
 
-
 class Worker extends Unit {//the resource gatherer of the army
 
 	private String state;
@@ -331,7 +329,6 @@ class Worker extends Unit {//the resource gatherer of the army
 	}
 
 }
-
 
 class HumanPlayer extends Player{
 
@@ -345,41 +342,55 @@ class HumanPlayer extends Player{
 	}
 	
 	void turn(){
+		System.out.println("Player: "+getNum()+" it is your turn.");
 		getInput();
 		doTurn();
 	}
 	
-	void getInput(){
+	boolean inputSelection(){//used to get a selection from user
+		findSelectables();
+		System.out.println("what would you like to select? (number) "+ getSelectables());
+		input = sc.next();
+		try{
+		nInput = Integer.parseInt(input);
+			if (nInput >= getSelectables().size() || nInput < 0){
+				throw new NumberFormatException("number to high or low");
+			}
+		}catch (NumberFormatException e){
+			System.out.println("that is not a valid input");
+			return false;
+		}
+		setSelection(getSelectables().get(nInput));	
+		return true;
+		
+	}
+	
+	void inputAction(){//used to get the desired action from user
+		boolean valid = false;
+		findActions(getSelection());
+		while (valid == false){
+			System.out.println("what would you like to do with that? (String) " +getActions());
+			input = sc.next();
+			for (int i = 0; i <getActions().size(); i++){
+				if (input.contains(getActions().get(i))){
+					setActionSelected(getActions().get(i));
+					valid = true;
+					break;
+				}
+			}
+			if (valid == false){
+				System.out.println("that is not an action");
+			}
+		}
+	}
+	
+	void getInput(){//uses inputSelection and inputAction with extra code to get input from user
 		valid = false;
 		while (valid == false){
-			findSelectables();
-			System.out.println("what would you like to select? (number) "+ getSelectables());
-			input = sc.next();
-			try{
-			nInput = Integer.parseInt(input);
-				if (nInput >= getSelectables().size() || nInput < 0){
-					throw new NumberFormatException("number to high or low");
-				}
-			}catch (NumberFormatException e){
-			System.out.println("that is not a valid input");
-			continue;
+			if(inputSelection() == false){
+				continue;
 			}
-			setSelection(getSelectables().get(nInput));
-			findActions(getSelection());
-			while (valid == false){
-				System.out.println("what would you like to do with that? (String) " +getActions());
-				input = sc.next();
-				for (int i = 0; i <getActions().size(); i++){
-					if (input.contains(getActions().get(i))){
-						setActionSelected(getActions().get(i));
-						valid = true;
-						break;
-					}
-				}
-				if (valid == false){
-					System.out.println("that is not an action");
-				}
-			}
+			inputAction();
 			valid = false;
 			while (valid == false){
 				
@@ -415,8 +426,7 @@ class HumanPlayer extends Player{
 
 }
 
-
-class Queue {
+class Queue {//used to store actions that need to be executed
 	private int timeLeft;
 	private String action;
 	private Character selection;
@@ -451,7 +461,10 @@ class Queue {
 	
 }
 
+//class constructQueue extends Queue {
+	
 
+//}
 
 
 
