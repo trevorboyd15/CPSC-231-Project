@@ -23,6 +23,7 @@ class Character {//base object that all placeable things inheret from
 	private int health;
 	private String name;
 	private List<Queue> myQueues = new ArrayList<Queue>(0);
+	private List<String> myActions = new ArrayList<String>(0);
 	
 	public String toString(){
 		return name + " at " + posX +","+posY;
@@ -63,8 +64,14 @@ class Character {//base object that all placeable things inheret from
 		return myQueues;
 	}
 	
+	void addMyActions(String ma){
+		myActions.add(ma);
+	}
+	
+	List<String> getMyActions(){
+		return myActions;
+	}
 }
-
 class Unit extends Character {// generic unit
 
 	private int damage;
@@ -217,17 +224,7 @@ class Player {// generic player
 	}
 
 	void findActions(Character c){//finds what the given character can do
-		actions.clear();
-		if (c instanceof Unit){
-			actions.add("move");
-			actions.add("attack");
-			if (c instanceof Worker){
-				actions.add("build");
-			}
-		}else{
-			actions.add("construct");
-		}
-	
+		actions = c.getMyActions();
 	}
 	
 	List<String> getActions(){//returns actions
@@ -293,7 +290,7 @@ class Player {// generic player
 	
 	void createQueue(String action, Character charac, String item){
 		if (charac instanceof MainBase && item == "worker" && action == "construct"){
-			charac.getMyQueues().add(new BuildingQueue(action,charac,item,2));
+			charac.getMyQueues().add(new ConstructQueue(action,charac,item,2));
 		}
 		
 	
@@ -329,7 +326,6 @@ class Player {// generic player
 				buildings.get(index).getMyQueues().get(0).decrementTime();
 				}
 			}
-		
 		}
 	}
 	
@@ -339,6 +335,8 @@ class MainBase extends Building{// The core structure of an army
 	
 	MainBase (String n, int x, int y,int h){
 	super(n,x,y,h);
+	addMyActions( "construct");
+	
 	}
 	
 }
@@ -349,6 +347,10 @@ class Worker extends Unit {//the resource gatherer of the army
 	
 	Worker (int x, int y){
 		super ("wk",20,0,x,y,1);
+		addMyActions("move");
+		addMyActions("build");
+		addMyActions("collect");
+		addMyActions("attack");
 	}
 
 }
@@ -437,11 +439,17 @@ class HumanPlayer extends Player{
 						System.out.println("that cannot be constructed");
 					}
 				}else if(getActionSelected() == "move"){
+					valid = true;
 					break;
 				
 				}else if(getActionSelected() == "attack"){
+					valid = true;
 					break;
 				}else if (getActionSelected() == "build"){
+					valid = true;
+					break;
+				}else if (getActionSelected() == "collect"){
+					valid = true;
 					break;
 				}
 			
@@ -486,11 +494,11 @@ class Queue{
 	
 }
 
-class BuildingQueue extends Queue{//used to store actions that need to be executed for buildings
+class ConstructQueue extends Queue{//used to store actions that need to be executed for buildings
 	 int timeLeft;
 	
 	
-	BuildingQueue(String a, Character c, String i,int t){
+	ConstructQueue(String a, Character c, String i,int t){
 		super(a,c,i);
 		timeLeft = t;
 		
@@ -505,6 +513,24 @@ class BuildingQueue extends Queue{//used to store actions that need to be execut
 	}
 	
 }
+
+class MoveQueue{//will move to the location over several turns
+
+}
+
+class AttackQueue{// combination of moving and attacking
+
+
+}
+
+
+class BuildQueue{// a worker uses this to construct a new building
+
+
+}
+
+
+
 
 
 
