@@ -52,6 +52,10 @@ class Character {//base object that all placeable things inheret from
 	int getHealth(){// returns health
 		return health;
 	}
+	
+	void setHealth(int h){
+		health = h;
+	}
 
 	void setX(int x){// changes posX
 		posX = x;
@@ -91,7 +95,7 @@ class Unit extends Character {// generic unit
 	}
 
   void attackUnit(Character enemy){//Used to attack a unit
- 		enemy.setHealth(enemy.getHealth-damage);
+ 		enemy.setHealth(enemy.getHealth()-damage);
  	}
 }
 
@@ -282,7 +286,7 @@ class Player {// generic player
 		construct.clear();
 		if (b.getName() == "mb"){
 			construct.add("worker");
-      construct.add("soldier");
+			construct.add("soldier");
 		}
 	}
 	
@@ -301,8 +305,8 @@ class Player {// generic player
 	void createQueue(String action, Character charac, String item){
 		if (charac instanceof MainBase && item == "worker" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,2));
-		} else if (Charac instanceof MainBase && iteam == "soldier" && action == "construct"){
-      charac.getMyQueues().add(new ConstructQueue(action,charac,item,3));
+		} else if (charac instanceof MainBase && item == "soldier" && action == "construct"){
+			charac.getMyQueues().add(new ConstructQueue(action,charac,item,3));
     }
 		
 	
