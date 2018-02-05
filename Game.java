@@ -72,6 +72,7 @@ class Character {//base object that all placeable things inheret from
 		return myActions;
 	}
 }
+
 class Unit extends Character {// generic unit
 
 	private int damage;
@@ -522,7 +523,6 @@ class AttackQueue{// combination of moving and attacking
 
 
 }
-
 
 class BuildQueue{// a worker uses this to construct a new building
 
