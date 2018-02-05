@@ -1,3 +1,4 @@
+
 import java.util.*;
 
 public class Game {//where the game runs
@@ -89,6 +90,9 @@ class Unit extends Character {// generic unit
 		setY(y);
 	}
 
+  void attackUnit(Character enemy){//Used to attack a unit
+ 		enemy.setHealth(enemy.getHealth-damage);
+ 	}
 }
 
 class Building extends Character{// generic building
@@ -218,8 +222,10 @@ class Player {// generic player
 		for (int i = 0; i<units.size(); i++){
 			if (units.get(i).getName() == "wk"){
 				selectables.add(units.get(i));
-			}
-		}
+			}else if (units.get(i).getName() == "sd"){
+        selectables.add(units.get(i));
+      }
+    }
 	
 	
 	}
@@ -235,7 +241,9 @@ class Player {// generic player
 	void buildUnit(String selection,Character b){//uses the building pos to create a unit next to it
 		if (selection == "worker" ){
 			units.add(new Worker(b.getX()+1,b.getY()+1));
-		}
+		}else if (selection == "soldier"){
+      units.add(new Soldier(b.getX()+1,b.getY()));
+ 		}
 	}
 	 
 	List<Unit> getUnitList(){//get function for unit list
@@ -274,6 +282,7 @@ class Player {// generic player
 		construct.clear();
 		if (b.getName() == "mb"){
 			construct.add("worker");
+      construct.add("soldier");
 		}
 	}
 	
@@ -292,7 +301,9 @@ class Player {// generic player
 	void createQueue(String action, Character charac, String item){
 		if (charac instanceof MainBase && item == "worker" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,2));
-		}
+		} else if (Charac instanceof MainBase && iteam == "soldier" && action == "construct"){
+      charac.getMyQueues().add(new ConstructQueue(action,charac,item,3));
+    }
 		
 	
 	}
@@ -314,7 +325,7 @@ class Player {// generic player
 					a = buildings.get(index).getMyQueues().get(0).getAction();
 					c = buildings.get(index).getMyQueues().get(0).getSelection();
 					i = buildings.get(index).getMyQueues().get(0).getItem();
-					if (c instanceof MainBase && i == "worker"){
+					if (c instanceof MainBase && (i == "worker"|| i == "soldier") ){
 						if (gameS.getMap().getMap()[c.getX()+1][c.getY()+1] == "---"){
 							buildUnit(i,c);
 							done = true;
@@ -356,6 +367,13 @@ class Worker extends Unit {//the resource gatherer of the army
 
 }
 
+class Soldier extends Unit {//the main fighting unit of the army
+  Soldier (int x, int y){
+ 		super ("sd",80,0,x,y,20);
+    addMyActions("move");
+    addMyActions("attack");
+ 	}
+ }
 class HumanPlayer extends Player{
 
 	private Scanner sc = new Scanner(System.in);
@@ -528,6 +546,7 @@ class BuildQueue{// a worker uses this to construct a new building
 
 
 }
+
 
 
 
