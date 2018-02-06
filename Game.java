@@ -361,7 +361,7 @@ class Player {// generic player
 				if (units.get(index).getMyQueues().get(0) instanceof MoveQueue){
 					int x = units.get(index).getMyQueues().get(0).getX();
 					int y = units.get(index).getMyQueues().get(0).getY();
-					if (gameS.getMap().getMap()[x][y] == "---"){
+					if (gameS.getMap().getBoard()[x][y] == "---"){
 						done = true;
 						units.get(index).moveUnit(x,y);
 					}
