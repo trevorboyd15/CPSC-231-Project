@@ -134,7 +134,7 @@ class Map {// the map of the world
 		map[c.getY()][c.getX()] = p + c.getName();
 	}
 	
-	String[][] getMap(){
+	String[][] getBoard(){
 		return map;
 	}
 }
@@ -329,8 +329,8 @@ class Player {// generic player
 					a = buildings.get(index).getMyQueues().get(0).getAction();
 					c = buildings.get(index).getMyQueues().get(0).getSelection();
 					i = buildings.get(index).getMyQueues().get(0).getItem();
-					if (c instanceof MainBase && (i == "worker"|| i == "soldier") ){
-						if (gameS.getMap().getMap()[c.getX()+1][c.getY()+1] == "---"){
+					if (c instanceof MainBase && (i == "worker" || i == "soldier") ){
+						if (gameS.getMap().getBoard()[c.getX()+1][c.getY()+1] == "---"){
 							buildUnit(i,c);
 							done = true;
 						}	
@@ -372,12 +372,14 @@ class Worker extends Unit {//the resource gatherer of the army
 }
 
 class Soldier extends Unit {//the main fighting unit of the army
+
   Soldier (int x, int y){
  		super ("sd",80,0,x,y,20);
     addMyActions("move");
     addMyActions("attack");
  	}
  }
+ 
 class HumanPlayer extends Player{
 
 	private Scanner sc = new Scanner(System.in);
