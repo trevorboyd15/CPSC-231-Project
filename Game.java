@@ -134,6 +134,10 @@ class Map {// the map of the world
 		map[c.getY()][c.getX()] = p + c.getName();
 	}
 	
+	int getSize(){
+		return size;
+	}
+	
 	String[][] getBoard(){
 		return map;
 	}
@@ -202,6 +206,8 @@ class Player {// generic player
 	private Character selection;
 	private String actionSelected;
 	private String item;
+	private int desX;
+	private int desY;
 	
 	
 	Player(int num){//saves the player number
@@ -246,7 +252,7 @@ class Player {// generic player
 		if (selection == "worker" ){
 			units.add(new Worker(b.getX()+1,b.getY()+1));
 		}else if (selection == "soldier"){
-      units.add(new Soldier(b.getX()+1,b.getY()));
+			units.add(new Soldier(b.getX()+1,b.getY()));
  		}
 	}
 	 
@@ -307,13 +313,16 @@ class Player {// generic player
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,2));
 		} else if (charac instanceof MainBase && item == "soldier" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,3));
-    }
-		
+		}
+	}
 	
+	void createQueue(String action, Character charac, int x, int y){
+		if (charac instanceof Unit && action == "move"){
+			charac.getMyQueues().add(new MoveQueue(action,charac,x,y));
+		}
 	}
 	
 	void doTurn(GameState s){
-		createQueue(actionSelected,selection,item);
 		updateQueues(s);
 	}
 	
@@ -343,8 +352,48 @@ class Player {// generic player
 				}
 			}
 		}
+		
+		for (int index = 0; index < units.size(); index++){
+			done = false;
+			
+			if (units.get(index).getMyQueues().size() > 0){
+				System.out.println("cool");
+				if (units.get(index).getMyQueues().get(0) instanceof MoveQueue){
+					int x = units.get(index).getMyQueues().get(0).getX();
+					int y = units.get(index).getMyQueues().get(0).getY();
+					if (gameS.getMap().getMap()[x][y] == "---"){
+						done = true;
+						units.get(index).moveUnit(x,y);
+					}
+				}
+				if ( done){
+					units.get(index).getMyQueues().remove(0);
+				}
+			
+			}
+		}
+					
+		
+		
+		
 	}
 	
+	void setX(int x){
+		desX = x;
+	}
+	
+	int getX(){
+		return desX;
+	}
+	
+	void setY(int y){
+		desY = y;
+	}
+	
+	int getY(){
+		return desY;
+	}
+		
 }
 
 class MainBase extends Building{// The core structure of an army
@@ -393,7 +442,7 @@ class HumanPlayer extends Player{
 	
 	void turn(GameState s){
 		System.out.println("Player: "+getNum()+" it is your turn.");
-		getInput();
+		getInput(s);
 		doTurn(s);
 	}
 	
@@ -439,7 +488,7 @@ class HumanPlayer extends Player{
 		}
 	}
 	
-	void getInput(){//uses inputSelection and inputAction with extra code to get input from user
+	void getInput(GameState gs){//uses inputSelection and inputAction with extra code to get input from user
 		valid = false;
 		while (valid == false){
 			if(inputSelection() == false){
@@ -456,6 +505,7 @@ class HumanPlayer extends Player{
 					for (int i = 0; i<getConstruct().size(); i++){
 						if (input.contains(getConstruct().get(i))){
 							setItem(getConstruct().get(i));
+							createQueue(getActionSelected(),getSelection(),getItem());
 							valid = true;
 							break;
 						}
@@ -464,8 +514,24 @@ class HumanPlayer extends Player{
 						System.out.println("that cannot be constructed");
 					}
 				}else if(getActionSelected() == "move"){
-					valid = true;
-					break;
+					System.out.println("where would you like to move (x y)");
+					try{
+					input = sc.next();
+					setX(Integer.parseInt(input));
+					input = sc.next();
+					setY(Integer.parseInt(input));
+					} catch (NumberFormatException e1) {
+						System.out.println("that is not a number");
+						continue;
+					}
+					if (gs.getMap().getSize() -1 >= getX() && getX() >= 0 
+					&& gs.getMap().getSize()-1 >= getY() && getY() >= 0){
+						valid = true;
+						createQueue(getActionSelected(),getSelection(),getX(),getY());
+						break;
+					}else{
+						System.out.println("That is not on the board");
+					}
 				
 				}else if(getActionSelected() == "attack"){
 					valid = true;
@@ -491,12 +557,28 @@ class Queue{
 
 	private String action;
 	private Character selection;
+	private Character selectionTwo;
 	private String item;
+	private int desX;
+	private int desY;
 
 	Queue(String a, Character c, String i){
 		action = a;
 		selection = c;
 		item = i;
+	}
+	
+	Queue(String a, Character c,int x, int y){
+		action = a;
+		selection = c;
+		desX = x;
+		desY = y;
+	}
+	
+	Queue(String a, Character c, Character cTwo){
+		action = a;
+		selection = c;
+		selectionTwo =cTwo;
 	}
 	
 	String getAction(){//returns action
@@ -514,13 +596,22 @@ class Queue{
 	boolean ready(){
 		return true;
 	}
+	
+	int getX(){
+		return desX;
+	}
+	
+	int getY(){
+		return desY;
+	}
+	
 	void decrementTime(){
 	}
 	
 }
 
 class ConstructQueue extends Queue{//used to store actions that need to be executed for buildings
-	 int timeLeft;
+	 private int timeLeft;
 	
 	
 	ConstructQueue(String a, Character c, String i,int t){
@@ -539,12 +630,19 @@ class ConstructQueue extends Queue{//used to store actions that need to be execu
 	
 }
 
-class MoveQueue{//will move to the location over several turns
-
+class MoveQueue extends Queue {//will move to the location over several turns
+	
+	MoveQueue (String a, Character c,int x, int y){
+		super(a,c,x,y);
+	}
+	
 }
 
-class AttackQueue{// combination of moving and attacking
+class AttackQueue extends Queue {// combination of moving and attacking
 
+	AttackQueue(String a, Character c, Character cTwo){
+		super(a,c,cTwo);
+	}
 
 }
 
