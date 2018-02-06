@@ -7,8 +7,6 @@ public class Game {//where the game runs
 		gs.addHumanPlayer(1);
 		gs.addHumanPlayer(2);
 		while(true){
-			gs.updateBoard();
-			gs.displayBoard();
 			gs.doTurns();
 			
 		}
@@ -160,7 +158,10 @@ class GameState {// the game state that holds all information required to run th
 	
 	void doTurns(){
 		for (int i = 0; i<players.size(); i++){
+			updateBoard();
+			displayBoard();
 			players.get(i).turn(this);
+			
 		}
 	
 	}
@@ -339,10 +340,10 @@ class Player {// generic player
 					c = buildings.get(index).getMyQueues().get(0).getSelection();
 					i = buildings.get(index).getMyQueues().get(0).getItem();
 					if (c instanceof MainBase && (i == "worker" || i == "soldier") ){
-						if (gameS.getMap().getBoard()[c.getX()+1][c.getY()+1] == "---"){
+						if (gameS.getMap().getBoard()[c.getY()+1][c.getX()+1] == "---"){
 							buildUnit(i,c);
 							done = true;
-						}	
+						}
 					}
 					if (done){
 						buildings.get(index).getMyQueues().remove(0);
@@ -350,18 +351,19 @@ class Player {// generic player
 				}else{
 				buildings.get(index).getMyQueues().get(0).decrementTime();
 				}
+				
 			}
+			
 		}
 		
 		for (int index = 0; index < units.size(); index++){
 			done = false;
 			
 			if (units.get(index).getMyQueues().size() > 0){
-				System.out.println("cool");
 				if (units.get(index).getMyQueues().get(0) instanceof MoveQueue){
 					int x = units.get(index).getMyQueues().get(0).getX();
 					int y = units.get(index).getMyQueues().get(0).getY();
-					if (gameS.getMap().getBoard()[x][y] == "---"){
+					if (gameS.getMap().getBoard()[y][x] == "---"){
 						done = true;
 						units.get(index).moveUnit(x,y);
 					}
@@ -442,6 +444,7 @@ class HumanPlayer extends Player{
 	
 	void turn(GameState s){
 		System.out.println("Player: "+getNum()+" it is your turn.");
+		
 		getInput(s);
 		doTurn(s);
 	}
