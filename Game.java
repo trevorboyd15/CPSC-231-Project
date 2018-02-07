@@ -7,6 +7,7 @@ public class Game {//where the game runs
 		gs.addHumanPlayer(1);
 		gs.addHumanPlayer(2);
 		while(true){
+			
 			gs.doTurns();
 			
 		}
@@ -92,9 +93,13 @@ class Unit extends Character {// generic unit
 		setY(y);
 	}
 
-  void attackUnit(Character enemy){//Used to attack a unit
+	void attackUnit(Character enemy){//Used to attack a unit
  		enemy.setHealth(enemy.getHealth()-damage);
  	}
+
+	int collectResources(int r){
+		return(r+5);
+	}
 }
 
 class Building extends Character{// generic building
@@ -161,7 +166,6 @@ class GameState {// the game state that holds all information required to run th
 			updateBoard();
 			displayBoard();
 			players.get(i).turn(this);
-			
 		}
 	
 	}
@@ -197,6 +201,7 @@ class GameState {// the game state that holds all information required to run th
 
 class Player {// generic player
 	private int pNum;
+	private int resources;
 	
 	private List <Unit> units = new ArrayList<Unit>(0);
 	private List <Building> buildings = new ArrayList<Building>(0);
@@ -215,8 +220,10 @@ class Player {// generic player
 		pNum = num;
 		if (pNum == 1){
 			buildings.add(new MainBase("mb",1,8,200));
+			resources += 20;
 		}else if (pNum == 2){
 			buildings.add(new MainBase("mb",8,1,200));
+			resources += 20;
 		}
 	}
 	
@@ -234,7 +241,7 @@ class Player {// generic player
 			if (units.get(i).getName() == "wk"){
 				selectables.add(units.get(i));
 			}else if (units.get(i).getName() == "sd"){
-        selectables.add(units.get(i));
+				selectables.add(units.get(i));
       }
     }
 	
@@ -288,6 +295,14 @@ class Player {// generic player
 	void setActionSelected(String s){
 		actionSelected = s;
 	}
+	
+	int getResources(){
+		return resources;
+	}
+	
+	void setResources(int r){
+		resources = r;
+	}
 
 	void findConstruct(Character b){
 		construct.clear();
@@ -322,6 +337,12 @@ class Player {// generic player
 			charac.getMyQueues().add(new MoveQueue(action,charac,x,y));
 		}
 	}
+		
+	void createQueue(String action, Character charac){
+		if (charac instanceof Worker && action == "collect"){
+			charac.getMyQueues().add(new CollectionQueue(action,charac));
+		}
+	}
 	
 	void doTurn(GameState s){
 		updateQueues(s);
@@ -343,7 +364,7 @@ class Player {// generic player
 						if (gameS.getMap().getBoard()[c.getY()+1][c.getX()+1] == "---"){
 							buildUnit(i,c);
 							done = true;
-						}
+						}	
 					}
 					if (done){
 						buildings.get(index).getMyQueues().remove(0);
@@ -351,15 +372,14 @@ class Player {// generic player
 				}else{
 				buildings.get(index).getMyQueues().get(0).decrementTime();
 				}
-				
 			}
-			
 		}
 		
 		for (int index = 0; index < units.size(); index++){
 			done = false;
 			
 			if (units.get(index).getMyQueues().size() > 0){
+				System.out.println("cool");
 				if (units.get(index).getMyQueues().get(0) instanceof MoveQueue){
 					int x = units.get(index).getMyQueues().get(0).getX();
 					int y = units.get(index).getMyQueues().get(0).getY();
@@ -367,8 +387,10 @@ class Player {// generic player
 						done = true;
 						units.get(index).moveUnit(x,y);
 					}
+				} else if (units.get(index).getMyQueues().get(0) instanceof CollectionQueue){
+					resources = units.get(index).collectResources(resources);
 				}
-				if ( done){
+				if (done){
 					units.get(index).getMyQueues().remove(0);
 				}
 			
@@ -408,17 +430,16 @@ class MainBase extends Building{// The core structure of an army
 	
 }
 
-
-class Barracks extends Building{
+class Barracks extends Building{// The core structure of an army
 	
-	Barracks (String n, int x, int y, int h){
-		super(n, x, y, h);
-		addMyActions("construct");
+	Barracks (String n, int x, int y,int h){
+		super(n,x,y,h);
+		addMyActions( "construct");
+	
 	}
 	
 }
-	
-		
+
 class Worker extends Unit {//the resource gatherer of the army
 
 	private String state;
@@ -454,8 +475,7 @@ class HumanPlayer extends Player{
 	}
 	
 	void turn(GameState s){
-		System.out.println("Player: "+getNum()+" it is your turn.");
-		
+		System.out.println("Player: "+getNum()+" it is your turn. You have "+getResources()+" resources.");
 		getInput(s);
 		doTurn(s);
 	}
@@ -554,6 +574,8 @@ class HumanPlayer extends Player{
 					valid = true;
 					break;
 				}else if (getActionSelected() == "collect"){
+					System.out.println("You have gained 5 resources.");
+					createQueue(getActionSelected(),getSelection());
 					valid = true;
 					break;
 				}
@@ -593,6 +615,11 @@ class Queue{
 		action = a;
 		selection = c;
 		selectionTwo =cTwo;
+	}
+	
+	Queue(String a, Character c){
+		action = a;
+		selection = c;
 	}
 	
 	String getAction(){//returns action
@@ -658,6 +685,13 @@ class AttackQueue extends Queue {// combination of moving and attacking
 		super(a,c,cTwo);
 	}
 
+}
+
+class CollectionQueue extends Queue {
+	
+	CollectionQueue(String a, Character c){
+		super(a,c);
+	}
 }
 
 class BuildQueue{// a worker uses this to construct a new building
