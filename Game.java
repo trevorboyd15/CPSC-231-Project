@@ -177,12 +177,7 @@ class Map {// the map of the world
 		return map;
 	}
 }
-	
-	private String type;
-	private int amount;
-	private int posX;
-	private int posY;
-	private int mineAmount;
+
 
 
 }
@@ -436,7 +431,7 @@ class Player {//generic player, used for human and AI
 	}
 	
 	void createQueue (String action, Character select, Character target){//Creates queue for attacking
-		if (charac instanceof Unit && action == "attack"){
+		if (select instanceof Unit && action == "attack"){
 			select.getMyQueues().add(new AttackQueue(action,select,target));
 		}
 	}
