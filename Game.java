@@ -9,6 +9,11 @@ public class Game {//where the game runs
 		while(true){
 			
 			gs.doTurns();
+			gs.checkBase();
+			if (gs.wonGame()){
+				System.out.println("Player " + gs.getPlayers().get(0).getNum() + " has won the game!");
+				break;
+			}
 			
 		}
         
@@ -193,6 +198,20 @@ class GameState {// the game state that holds all information required to run th
 			players.get(i).turn(this);
 		}
 	
+	}
+	
+	boolean wonGame(){
+		return (players.size() == 1);
+	}
+	
+	void checkBase(){
+		
+		for (int index = 0; index < players.size(); index++){
+			if (players.get(index).getBuildingList().size()== 0 ||
+			!(players.get(index).getBuildingList().get(0) instanceof MainBase)){
+				players.remove(index);
+			}
+		}
 	}
 	
 	boolean checkRange(Character attacker, Character target){//Checks range for attacks
