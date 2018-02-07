@@ -262,10 +262,10 @@ class Player {// generic player
 	Player(int num){//saves the player number
 		pNum = num;
 		if (pNum == 1){
-			buildings.add(new MainBase("mb",1,8,200,20000));
+			buildings.add(new MainBase("mb",1,8,100,20000));
 			resources += 20;
 		}else if (pNum == 2){
-			buildings.add(new MainBase("mb",8,1,200,20000));
+			buildings.add(new MainBase("mb",8,1,100,20000));
 			resources += 20;
 		}
 	}
@@ -561,7 +561,7 @@ class Worker extends Unit {//the resource gatherer of the army
 	private String state;
 	
 	Worker (int x, int y){
-		super ("wk",20,0,x,y,1,10);
+		super ("wk",10,0,x,y,2,10);
 		addMyActions("move");
 		addMyActions("build");
 		addMyActions("collect");
@@ -573,7 +573,7 @@ class Worker extends Unit {//the resource gatherer of the army
 class Soldier extends Unit {//the main fighting unit of the army
 
   Soldier (int x, int y){
- 		super ("sd",80,0,x,y,20,20);
+ 		super ("sd",20,0,x,y,10,20);
     addMyActions("move");
     addMyActions("attack");
  	}
