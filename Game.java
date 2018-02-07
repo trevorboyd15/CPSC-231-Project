@@ -408,6 +408,17 @@ class MainBase extends Building{// The core structure of an army
 	
 }
 
+
+class Barracks extends Building{
+	
+	Barracks (String n, int x, int y, int h){
+		super(n, x, y, h);
+		addMyActions("construct");
+	}
+	
+}
+	
+		
 class Worker extends Unit {//the resource gatherer of the army
 
 	private String state;
