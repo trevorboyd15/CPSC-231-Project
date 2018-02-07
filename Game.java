@@ -21,6 +21,7 @@ class Character {//base object that all placeable things inheret from
 	private int posX;
 	private int posY;
 	private int health;
+	private int damage;
 	private String name;
 	private List<Queue> myQueues = new ArrayList<Queue>(0);
 	private List<String> myActions = new ArrayList<String>(0);
@@ -75,17 +76,30 @@ class Character {//base object that all placeable things inheret from
 	List<String> getMyActions(){
 		return myActions;
 	}
+	
+	void decrementHealth(int h){
+		health -= h;
+	}
+	
+	int getDamage(){
+		return damage;
+	}
+	
+	void setDamage(int d){
+		damage = d;
+	}
+	
 }
 
 class Unit extends Character {// generic unit
 
-	private int damage;
+	
 	private int armor;
 	
 	Unit(String n, int h, int a, int x, int y,int d){//creates a character with armor and damage
 		super(x,y,n,h);
 		armor = a;
-		damage = d;
+		setDamage(d);
 	}
 
 	void moveUnit(int x, int y){//Used to move a unit
@@ -94,12 +108,14 @@ class Unit extends Character {// generic unit
 	}
 
 	void attackUnit(Character enemy){//Used to attack a unit
- 		enemy.setHealth(enemy.getHealth()-damage);
+
+ 		enemy.setHealth(enemy.getHealth()-getDamage());
  	}
 
 	int collectResources(int r){
 		return(r+5);
 	}
+
 }
 
 class Building extends Character{// generic building
@@ -170,6 +186,16 @@ class GameState {// the game state that holds all information required to run th
 	
 	}
 	
+	boolean checkRange(Character attacker, Character target){
+		int x = attacker.getX();
+		int y = attacker.getY();
+		
+		int tx = target.getX();
+		int ty = target.getY();
+		System.out.println("bad");
+		
+		return (Math.abs(x-tx)<=1 && Math.abs(y-ty) <= 1);
+	}
 	
 	void addHumanPlayer(int num) {
 		players.add(new HumanPlayer(num));
@@ -197,6 +223,10 @@ class GameState {// the game state that holds all information required to run th
 		return map;
 	}
 	
+	List<Player> getPlayers(){
+		return players;
+	}
+	
 }
 
 class Player {// generic player
@@ -208,8 +238,10 @@ class Player {// generic player
 	private List <Character> selectables = new ArrayList<Character>(0);
 	private List <String> actions = new ArrayList<String>(0);
 	private List <String> construct = new ArrayList<String>(0);
+	private List <Character> attackSelectable = new ArrayList<Character>(0);
 	
 	private Character selection;
+	private Character attackSelection;
 	private String actionSelected;
 	private String item;
 	private int desX;
@@ -260,7 +292,7 @@ class Player {// generic player
 		if (selection == "worker" ){
 			units.add(new Worker(b.getX()+1,b.getY()+1));
 		}else if (selection == "soldier"){
-			units.add(new Soldier(b.getX()+1,b.getY()));
+			units.add(new Soldier(b.getX()+1,b.getY()+1));
  		}
 	}
 	 
@@ -296,6 +328,14 @@ class Player {// generic player
 		actionSelected = s;
 	}
 	
+
+	void setAttackSelection(Character c){
+		attackSelection = c;
+	}
+	
+	Character getAttackSelection(){
+		return attackSelection;
+
 	int getResources(){
 		return resources;
 	}
@@ -312,8 +352,26 @@ class Player {// generic player
 		}
 	}
 	
+	void findAttackSelection(Character c, GameState gs){
+		attackSelectable.clear();
+		for (int index = 0; index < gs.getPlayers().size();index++){
+			if (gs.getPlayers().get(index).getNum() != pNum){
+				for (int index1 = 0; index1 < gs.getPlayers().get(index).getBuildingList().size();index1++){
+					attackSelectable.add(gs.getPlayers().get(index).getBuildingList().get(index1));
+				}
+				for (int index1 = 0; index1 < gs.getPlayers().get(index).getUnitList().size();index1++){
+					attackSelectable.add(gs.getPlayers().get(index).getUnitList().get(index1));
+				}
+			}
+		}
+	}
+	
 	List<String> getConstruct(){
 		return construct;
+	}
+	
+	List<Character> getAttackSelectable(){
+		return attackSelectable;
 	}
 	
 	String getItem(){
@@ -344,7 +402,26 @@ class Player {// generic player
 		}
 	}
 	
+	void createQueue (String action, Character select, Character target){
+		select.getMyQueues().add(new AttackQueue(action,select,target));
+	}
+	
+	void checkHealth(){
+		for (int index = 0; index < buildings.size();index ++){
+			if(buildings.get(index).getHealth() <= 0){
+				buildings.remove(index);
+			}
+		}
+		for (int index = 0; index < units.size();index ++){
+			System.out.println("cool");
+			if(units.get(index).getHealth() <= 0){
+				units.remove(index);
+			}
+		}
+	}
+	
 	void doTurn(GameState s){
+		checkHealth();
 		updateQueues(s);
 	}
 	
@@ -387,6 +464,27 @@ class Player {// generic player
 						done = true;
 						units.get(index).moveUnit(x,y);
 					}
+
+				}else if(units.get(index).getMyQueues().get(0) instanceof AttackQueue){
+					Character c1= units.get(index).getMyQueues().get(0).getSelection();
+					Character c2 = units.get(index).getMyQueues().get(0).getSelectionTwo();
+					if (gameS.checkRange(c1,c2)){
+						c2.decrementHealth(c1.getDamage());
+						System.out.println("attack!");
+					}else{
+						int x = units.get(index).getMyQueues().get(0).getSelectionTwo().getX();
+						int y = units.get(index).getMyQueues().get(0).getSelectionTwo().getY();
+						if (gameS.getMap().getBoard()[y+1][x] == "---"){
+							units.get(index).moveUnit(x,y+1);
+						}
+				
+					}
+					
+					if (c2.getHealth() <= 0){
+						done = true;
+					}
+				
+
 				} else if (units.get(index).getMyQueues().get(0) instanceof CollectionQueue){
 					resources = units.get(index).collectResources(resources);
 				}
@@ -568,6 +666,22 @@ class HumanPlayer extends Player{
 					}
 				
 				}else if(getActionSelected() == "attack"){
+					findAttackSelection(getSelection(), gs);
+					System.out.println("what would you like to attack? (int)");
+					System.out.println(getAttackSelectable());
+					try{
+					input = sc.next();
+					setAttackSelection(getAttackSelectable().get(Integer.parseInt(input)));
+					}catch (NumberFormatException e1){
+						System.out.println("that is not a number");
+						continue;
+					}catch (IndexOutOfBoundsException e2){
+						System.out.println("that is not a valid choice");
+						continue;
+					}
+					
+					createQueue(getActionSelected(),getSelection(),getAttackSelection());
+					
 					valid = true;
 					break;
 				}else if (getActionSelected() == "build"){
@@ -629,6 +743,11 @@ class Queue{
 	Character getSelection(){//returns selection
 		return selection;
 	}
+	
+	Character getSelectionTwo(){//returns selection
+		return selectionTwo;
+	}
+	
 	
 	String getItem(){//returns item
 		return item;
