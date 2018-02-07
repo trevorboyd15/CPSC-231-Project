@@ -9,7 +9,11 @@ public class Game {//where the game runs
 		while(true){
 			
 			gs.doTurns();
-			
+			gs.checkBase();
+			if (gs.wonGame()){
+				System.out.println("Player " + gs.getPlayers().get(0).getNum() + " has won the game!");
+				break;
+			}
 		}
         
     }
@@ -186,13 +190,27 @@ class GameState {// the game state that holds all information required to run th
 	
 	}
 	
+	boolean wonGame(){
+		return (players.size() == 1);
+	}
+	
+	void checkBase(){
+		
+		for (int index = 0; index < players.size(); index++){
+			if (players.get(index).getBuildingList().size()== 0 ||
+			!(players.get(index).getBuildingList().get(0) instanceof MainBase)){
+				players.remove(index);
+			}
+		}
+	}
+	
 	boolean checkRange(Character attacker, Character target){
 		int x = attacker.getX();
 		int y = attacker.getY();
 		
 		int tx = target.getX();
 		int ty = target.getY();
-		System.out.println("bad");
+
 		
 		return (Math.abs(x-tx)<=1 && Math.abs(y-ty) <= 1);
 	}
@@ -414,7 +432,6 @@ class Player {// generic player
 			}
 		}
 		for (int index = 0; index < units.size();index ++){
-			System.out.println("cool");
 			if(units.get(index).getHealth() <= 0){
 				units.remove(index);
 			}
@@ -457,7 +474,6 @@ class Player {// generic player
 			done = false;
 			
 			if (units.get(index).getMyQueues().size() > 0){
-				System.out.println("cool");
 				if (units.get(index).getMyQueues().get(0) instanceof MoveQueue){
 					int x = units.get(index).getMyQueues().get(0).getX();
 					int y = units.get(index).getMyQueues().get(0).getY();
@@ -471,7 +487,6 @@ class Player {// generic player
 					Character c2 = units.get(index).getMyQueues().get(0).getSelectionTwo();
 					if (gameS.checkRange(c1,c2)){
 						c2.decrementHealth(c1.getDamage());
-						System.out.println("attack!");
 					}else{
 						int x = units.get(index).getMyQueues().get(0).getSelectionTwo().getX();
 						int y = units.get(index).getMyQueues().get(0).getSelectionTwo().getY();
