@@ -22,6 +22,7 @@ class Character {//base object that all placeable things inheret from
 	private int posY;
 	private int health;
 	private int damage;
+	private int cost;
 	private String name;
 	private List<Queue> myQueues = new ArrayList<Queue>(0);
 	private List<String> myActions = new ArrayList<String>(0);
@@ -30,11 +31,13 @@ class Character {//base object that all placeable things inheret from
 		return name + " at " + posX +","+posY;
 	}
 	
-	Character (int x, int y,String n,int h){//saves the values
+	Character (int x, int y,String n,int h,int c){//saves the values
 	posX = x;
 	posY = y;
 	name = n;
 	health = h;
+	cost = c;
+	addMyActions("pass");
 	}
 
 	int getX(){//returns posX
@@ -63,6 +66,14 @@ class Character {//base object that all placeable things inheret from
 	
 	void setY(int y){//change posY
 		posY = y;
+	}
+	
+	void setCost(int c){
+		cost = c;
+	}
+	
+	int getCost(){
+		return cost;
 	}
 	
 	List<Queue> getMyQueues(){
@@ -96,8 +107,8 @@ class Unit extends Character {// generic unit
 	
 	private int armor;
 	
-	Unit(String n, int h, int a, int x, int y,int d){//creates a character with armor and damage
-		super(x,y,n,h);
+	Unit(String n, int h, int a, int x, int y,int d,int c){//creates a character with armor and damage
+		super(x,y,n,h,c);
 		armor = a;
 		setDamage(d);
 	}
@@ -121,8 +132,8 @@ class Unit extends Character {// generic unit
 class Building extends Character{// generic building
 
 	
-	Building (String n, int x, int y,int h){//creates a building with character properties
-		super(x,y,n,h);
+	Building (String n, int x, int y,int h,int c){//creates a building with character properties
+		super(x,y,n,h,c);
 	}
 	
 	
@@ -251,10 +262,10 @@ class Player {// generic player
 	Player(int num){//saves the player number
 		pNum = num;
 		if (pNum == 1){
-			buildings.add(new MainBase("mb",1,8,200));
+			buildings.add(new MainBase("mb",1,8,200,20000));
 			resources += 20;
 		}else if (pNum == 2){
-			buildings.add(new MainBase("mb",8,1,200));
+			buildings.add(new MainBase("mb",8,1,200,20000));
 			resources += 20;
 		}
 	}
@@ -348,8 +359,12 @@ class Player {// generic player
 	void findConstruct(Character b){
 		construct.clear();
 		if (b.getName() == "mb"){
-			construct.add("worker");
-			construct.add("soldier");
+			if (getResources()>=10){
+				construct.add("worker");
+			}
+			if (getResources()>=20){
+				construct.add("soldier");
+			}
 		}
 	}
 	
@@ -386,8 +401,10 @@ class Player {// generic player
 	void createQueue(String action, Character charac, String item){
 		if (charac instanceof MainBase && item == "worker" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,2));
+			setResources(getResources()-10);
 		} else if (charac instanceof MainBase && item == "soldier" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,3));
+			setResources(getResources()-20);
 		}
 	}
 	
@@ -521,9 +538,9 @@ class Player {// generic player
 
 class MainBase extends Building{// The core structure of an army
 	
-	MainBase (String n, int x, int y,int h){
-	super(n,x,y,h);
-	addMyActions( "construct");
+	MainBase (String n, int x, int y,int h,int c){
+	super(n,x,y,h,c);
+	addMyActions("construct");
 	
 	}
 	
@@ -531,8 +548,8 @@ class MainBase extends Building{// The core structure of an army
 
 class Barracks extends Building{// The core structure of an army
 	
-	Barracks (String n, int x, int y,int h){
-		super(n,x,y,h);
+	Barracks (String n, int x, int y,int h,int c){
+		super(n,x,y,h,c);
 		addMyActions( "construct");
 	
 	}
@@ -544,7 +561,7 @@ class Worker extends Unit {//the resource gatherer of the army
 	private String state;
 	
 	Worker (int x, int y){
-		super ("wk",20,0,x,y,1);
+		super ("wk",20,0,x,y,1,10);
 		addMyActions("move");
 		addMyActions("build");
 		addMyActions("collect");
@@ -556,7 +573,7 @@ class Worker extends Unit {//the resource gatherer of the army
 class Soldier extends Unit {//the main fighting unit of the army
 
   Soldier (int x, int y){
- 		super ("sd",80,0,x,y,20);
+ 		super ("sd",80,0,x,y,20,20);
     addMyActions("move");
     addMyActions("attack");
  	}
@@ -604,18 +621,24 @@ class HumanPlayer extends Player{
 	
 	void inputAction(){//used to get the desired action from user
 		boolean valid = false;
+		boolean haveResources = true;
 		findActions(getSelection());
 		while (valid == false){
 			System.out.println("what would you like to do with that? (String) " +getActions());
 			input = sc.next();
 			for (int i = 0; i <getActions().size(); i++){
 				if (input.contains(getActions().get(i))){
+					if (getResources()<10&&getActions().get(i)=="construct"){
+						System.out.println("You do not have enough resources to construct anything.");
+						haveResources = false;
+					} else {
 					setActionSelected(getActions().get(i));
 					valid = true;
 					break;
+					}
 				}
 			}
-			if (valid == false){
+			if (valid == false&&haveResources==true){
 				System.out.println("that is not an action");
 			}
 		}
@@ -631,7 +654,10 @@ class HumanPlayer extends Player{
 			valid = false;
 			while (valid == false){
 				
-				if (getActionSelected() == "construct"){
+				if(getActionSelected() == "pass"){
+					valid = true;
+					break;
+				}else if(getActionSelected() == "construct"){
 					findConstruct(getSelection());
 					System.out.println("what would you like to construct with that? (String) "+ getConstruct());
 					input = sc.next();
