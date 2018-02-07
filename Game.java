@@ -459,7 +459,8 @@ class Player {//generic player, used for human and AI
 		Character c;
 		String i;
 		boolean done;
-		for (int index = 0; index < buildings.size(); index++){
+		
+		for (int index = 0; index < buildings.size(); index++){//goes through the building list and runs the first queue action
 			done = false;
 			if (buildings.get(index).getMyQueues().size() > 0){
 				if (buildings.get(index).getMyQueues().get(0).ready()){
@@ -472,20 +473,20 @@ class Player {//generic player, used for human and AI
 							done = true;
 						}	
 					}
-					if (done){
+					if (done){// if the queue action was completed remove the queue from existence
 						buildings.get(index).getMyQueues().remove(0);
 					}
 				}else{
-				buildings.get(index).getMyQueues().get(0).decrementTime();
+				buildings.get(index).getMyQueues().get(0).decrementTime();// becuase the buildings only have construct queue 
 				}
 			}
 		}
 		
-		for (int index = 0; index < units.size(); index++){
+		for (int index = 0; index < units.size(); index++){//goes through the units to update there queues
 			done = false;
 			
 			if (units.get(index).getMyQueues().size() > 0){
-				if (units.get(index).getMyQueues().get(0) instanceof MoveQueue){
+				if (units.get(index).getMyQueues().get(0) instanceof MoveQueue){//if the unit is moving
 					int x = units.get(index).getMyQueues().get(0).getX();
 					int y = units.get(index).getMyQueues().get(0).getY();
 					if (gameS.getMap().getBoard()[y][x] == "---"){
@@ -493,7 +494,7 @@ class Player {//generic player, used for human and AI
 						units.get(index).moveUnit(x,y);
 					}
 
-				}else if(units.get(index).getMyQueues().get(0) instanceof AttackQueue){
+				}else if(units.get(index).getMyQueues().get(0) instanceof AttackQueue){//if the unit is attacking
 					Character c1= units.get(index).getMyQueues().get(0).getSelection();
 					Character c2 = units.get(index).getMyQueues().get(0).getSelectionTwo();
 					if (gameS.checkRange(c1,c2)){
@@ -512,7 +513,7 @@ class Player {//generic player, used for human and AI
 					}
 				
 
-				} else if (units.get(index).getMyQueues().get(0) instanceof CollectionQueue){
+				} else if (units.get(index).getMyQueues().get(0) instanceof CollectionQueue){// if the unit is collecting
 					resources = units.get(index).collectResources(resources);
 				}
 				if (done){
