@@ -335,6 +335,7 @@ class Player {// generic player
 	
 	Character getAttackSelection(){
 		return attackSelection;
+	}
 
 	int getResources(){
 		return resources;
