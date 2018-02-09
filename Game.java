@@ -722,8 +722,26 @@ class HumanPlayer extends Player{//used for human players, including taking inpu
 					valid = true;
 					break;
 				}else if (getActionSelected() == "build"){
-					valid = true;
-					break;
+					System.out.println("Where do you want to build? (x y)");
+					try{
+					input = sc.next();  //gets an int input from user
+					setX(Integer.parseInt(input)); //returns an int from a string number
+					input = sc.next();
+					setY(Integer.parseInt(input));
+					} catch (NumberFormationException e1) {
+						System.out.println("That is not a number");
+						continue;
+					}
+					if (gs.getMap().getsize()-1 >= getX() && getX() >= 0 //checks if the inputted values are
+					&& gs.getMap().getSize()-1 >= getY() && getY() >= 0){//within the parameters of the board
+						valid = true;
+					
+						createQueue(getActionSelected(), getSelection(), getX(), getY());
+						break;
+					}else{
+						System.out.println("That space is not on the board");
+						
+					}
 				}else if (getActionSelected() == "collect"){
 					System.out.println("You have gained 5 resources.");
 					createQueue(getActionSelected(),getSelection());
@@ -852,7 +870,10 @@ class CollectionQueue extends Queue {//a worker uses this to collect resources
 	}
 }
 
-class BuildQueue{// a worker uses this to construct a new building
+class BuildQueue extends Queue {// a worker uses this to construct a new building
+
+	BuildQueue(String a, Character c, int x, int y){
+		super(a,c,x,y);
 
 
 }
