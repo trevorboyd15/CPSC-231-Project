@@ -180,7 +180,7 @@ class Map {// the map of the world
 
 
 
-}
+
 
 class GameState {// the game state that holds all information required to run the game
 	private List <Player> players = new ArrayList<Player>();
