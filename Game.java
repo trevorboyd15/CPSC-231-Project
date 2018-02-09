@@ -260,6 +260,7 @@ class Player {//generic player, used for human and AI
 	private List <String> actions = new ArrayList<String>(0);
 	private List <String> construct = new ArrayList<String>(0);
 	private List <Character> attackSelectable = new ArrayList<Character>(0);
+	private List <String> build = new ArrayList<String>(0);
 	
 	private Character selection;
 	private Character attackSelection;
@@ -286,7 +287,7 @@ class Player {//generic player, used for human and AI
 	void findSelectables(){//combines the list of units and buildings
 		selectables.clear();
 		for (int i = 0; i<buildings.size(); i++){
-			if (buildings.get(i).getName() == "mb"){
+			if (buildings.get(i).getName() == "mb" || buildings.get(i).getName() == "bk" ){
 				selectables.add(buildings.get(i));
 			}	
 		}
@@ -295,10 +296,8 @@ class Player {//generic player, used for human and AI
 				selectables.add(units.get(i));
 			}else if (units.get(i).getName() == "sd"){
 				selectables.add(units.get(i));
-      }
-    }
-	
-	
+			}
+		}
 	}
 
 	void findActions(Character c){//finds what the given character can do
@@ -315,6 +314,13 @@ class Player {//generic player, used for human and AI
 		}else if (selection == "soldier"){
 			units.add(new Soldier(b.getX()+1,b.getY()+1));
  		}
+	}
+	
+	void buildBuilding(String selection,int x, int y){
+	
+		if (selection == "barracks" ){
+			buildings.add(new Barracks("bk",x,y,100,50));
+		}
 	}
 	 
 	List<Unit> getUnitList(){//get function for unit list
@@ -372,9 +378,18 @@ class Player {//generic player, used for human and AI
 			if (getResources()>=10){
 				construct.add("worker");
 			}
+		}else if (b.getName() == "bk"){
 			if (getResources()>=20){
 				construct.add("soldier");
 			}
+		}
+	}
+	
+	void findBuild(){
+		build.clear();
+		build.add("pass");
+		if (getResources() >= 50){
+			build.add("barracks");
 		}
 	}
 	
@@ -396,6 +411,10 @@ class Player {//generic player, used for human and AI
 		return construct;
 	}
 	
+	List<String> getBuild(){
+		return build;
+	}
+	
 	List<Character> getAttackSelectable(){//returns attackable units list
 		return attackSelectable;
 	}
@@ -412,7 +431,7 @@ class Player {//generic player, used for human and AI
 		if (charac instanceof MainBase && item == "worker" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,2));
 			setResources(getResources()-10);
-		} else if (charac instanceof MainBase && item == "soldier" && action == "construct"){
+		} else if (charac instanceof Barracks && item == "soldier" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,3));
 			setResources(getResources()-20);
 		}
@@ -421,6 +440,13 @@ class Player {//generic player, used for human and AI
 	void createQueue(String action, Character charac, int x, int y){//Creates queue for movement
 		if (charac instanceof Unit && action == "move"){
 			charac.getMyQueues().add(new MoveQueue(action,charac,x,y));
+		}
+	}
+	
+	void createQueue(String action, Character charac, int x, int y,String item){//Creates queue for building buildings
+		if (charac instanceof Worker && action == "build"){
+			charac.getMyQueues().add(new BuildQueue(action,charac,x,y));
+			setResources(getResources()-50);
 		}
 	}
 		
@@ -467,7 +493,12 @@ class Player {//generic player, used for human and AI
 					a = buildings.get(index).getMyQueues().get(0).getAction();
 					c = buildings.get(index).getMyQueues().get(0).getSelection();
 					i = buildings.get(index).getMyQueues().get(0).getItem();
-					if (c instanceof MainBase && (i == "worker" || i == "soldier") ){
+					if (c instanceof MainBase && (i == "worker") ){
+						if (gameS.getMap().getBoard()[c.getY()+1][c.getX()+1] == "---"){
+							buildUnit(i,c);
+							done = true;
+						}	
+					} else if (c instanceof Barracks && (i == "soldier") ){
 						if (gameS.getMap().getBoard()[c.getY()+1][c.getX()+1] == "---"){
 							buildUnit(i,c);
 							done = true;
@@ -515,6 +546,20 @@ class Player {//generic player, used for human and AI
 
 				} else if (units.get(index).getMyQueues().get(0) instanceof CollectionQueue){// if the unit is collecting
 					resources = units.get(index).collectResources(resources);
+					
+				} else if (units.get(index).getMyQueues().get(0) instanceof BuildQueue){
+					int unitX = units.get(index).getX();
+					int unitY = units.get(index).getY();
+					int goalX = units.get(index).getMyQueues().get(0).getX();
+					int goalY = units.get(index).getMyQueues().get(0).getY();
+					if (goalY >= unitY -1 && goalY <= unitY +1 && goalX >= unitX - 1 && goalX <= unitX +1){
+						buildBuilding("barracks" , goalX, goalY);
+						done = true;
+					}else if (gameS.getMap().getBoard()[goalY+1][goalX] == "---"){
+						units.get(index).moveUnit(goalX,goalY+1);
+					}
+				
+				
 				}
 				if (done){
 					units.get(index).getMyQueues().remove(0);
@@ -722,25 +767,47 @@ class HumanPlayer extends Player{//used for human players, including taking inpu
 					valid = true;
 					break;
 				}else if (getActionSelected() == "build"){
-					System.out.println("Where do you want to build? (x y)");
-					try{
-					input = sc.next();  //gets an int input from user
-					setX(Integer.parseInt(input)); //returns an int from a string number
+					findBuild();
+					System.out.println("what do you want to build?" + getBuild());
 					input = sc.next();
-					setY(Integer.parseInt(input));
-					} catch (NumberFormationException e1) {
-						System.out.println("That is not a number");
+					for (int i = 0; i<getBuild().size(); i++){
+						if (input.contains(getBuild().get(i))){
+							setItem(getBuild().get(i));
+							valid = true;
+							continue;
+						}
+					}
+					if ( valid == false){
 						continue;
 					}
-					if (gs.getMap().getsize()-1 >= getX() && getX() >= 0 //checks if the inputted values are
-					&& gs.getMap().getSize()-1 >= getY() && getY() >= 0){//within the parameters of the board
+					if (getItem() == "pass"){
 						valid = true;
-					
-						createQueue(getActionSelected(), getSelection(), getX(), getY());
 						break;
-					}else{
-						System.out.println("That space is not on the board");
+					}
+					
+					valid = false;
+					while (valid == false){
+					
+						System.out.println("Where do you want to build it? (x y)");
+						try{
+							input = sc.next();  //gets an int input from user
+							setX(Integer.parseInt(input)); //returns an int from a string number
+							input = sc.next();
+							setY(Integer.parseInt(input));
+						} catch (NumberFormatException e1) {
+							System.out.println("That is not a number");
+							continue;
+						}
+						if (gs.getMap().getSize()-1 >= getX() && getX() >= 0 //checks if the inputted values are
+						&& gs.getMap().getSize()-1 >= getY() && getY() >= 0 &&
+						gs.getMap().getBoard()[getY()][getX()] == "---"){//within the parameters of the board
+							valid = true;
+							createQueue(getActionSelected(), getSelection(), getX(), getY(), getItem());
+							break;
+						}else{
+							System.out.println("That space is not on the board and/or it has something there.");
 						
+						}
 					}
 				}else if (getActionSelected() == "collect"){
 					System.out.println("You have gained 5 resources.");
@@ -874,6 +941,7 @@ class BuildQueue extends Queue {// a worker uses this to construct a new buildin
 
 	BuildQueue(String a, Character c, int x, int y){
 		super(a,c,x,y);
+	}
 
 
 }
