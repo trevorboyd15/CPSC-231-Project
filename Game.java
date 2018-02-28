@@ -822,10 +822,6 @@ class HumanPlayer extends Player{//used for human players, including taking inpu
 
 }
 
-/*class GraphicsPlayer extends Player{
-	
-}*/
-
 class Queue{//used to store actions needed for characters
 
 	private String action;
