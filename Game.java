@@ -1,9 +1,3 @@
-import javafx.scene.*;
-import javafx.application.Application;
-import javafx.scene.paint.*;
-import javafx.stage.Stage;
-import javafx.scene.canvas.*;
-import javafx.scene.image.*;
 import java.util.*;
 
 public class Game {//where the game runs
