@@ -1,8 +1,13 @@
-
+import javafx.scene.*;
+import javafx.application.Application;
+import javafx.scene.paint.*;
+import javafx.stage.Stage;
+import javafx.scene.canvas.*;
+import javafx.scene.image.*;
 import java.util.*;
 
 public class Game {//where the game runs
-    public static void main (String[] args){//main function; creates and runs the game
+    /*public static void main (String[] args){//main function; creates and runs the game
 		GameState gs = new GameState();
 		gs.addHumanPlayer(1);
 		gs.addHumanPlayer(2);
@@ -16,9 +21,10 @@ public class Game {//where the game runs
 			}
 			
 		}
+		Graphics g = new Graphics();
+		g.starter();
         
-    }
-  
+    }*/
   
 }
 
@@ -106,6 +112,8 @@ class Character {//base object that all placeable things inherit from
 	}
 	
 }
+
+
 
 class Unit extends Character {// generic unit
 
@@ -819,6 +827,10 @@ class HumanPlayer extends Player{//used for human players, including taking inpu
 	
 
 }
+
+/*class GraphicsPlayer extends Player{
+	
+}*/
 
 class Queue{//used to store actions needed for characters
 
