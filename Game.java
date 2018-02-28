@@ -1,8 +1,7 @@
-
 import java.util.*;
 
 public class Game {//where the game runs
-    public static void main (String[] args){//main function; creates and runs the game
+    /*public static void main (String[] args){//main function; creates and runs the game
 		GameState gs = new GameState();
 		gs.addHumanPlayer(1);
 		gs.addHumanPlayer(2);
@@ -16,9 +15,10 @@ public class Game {//where the game runs
 			}
 			
 		}
+		Graphics g = new Graphics();
+		g.starter();
         
-    }
-  
+    }*/
   
 }
 
@@ -107,6 +107,8 @@ class Character {//base object that all placeable things inherit from
 	
 }
 
+
+
 class Unit extends Character {// generic unit
 
 	
@@ -191,12 +193,11 @@ class GameState {// the game state that holds all information required to run th
 	
 	}
 	
-	boolean wonGame(){
+	boolean wonGame(){//Checks if a player has won the game, by checking the number of players
 		return (players.size() == 1);
 	}
 	
-	void checkBase(){
-		
+	void checkBase(){//Removes a player from the player list if their main base is destroyed
 		for (int index = 0; index < players.size(); index++){
 			if (players.get(index).getBuildingList().size()== 0 ||
 			!(players.get(index).getBuildingList().get(0) instanceof MainBase)){
@@ -312,7 +313,7 @@ class Player {//generic player, used for human and AI
  		}
 	}
 	
-	void buildBuilding(String selection,int x, int y){
+	void buildBuilding(String selection,int x, int y){//adds a new barracks building to the board
 	
 		if (selection == "barracks" ){
 			buildings.add(new Barracks("bk",x,y,100,50));
@@ -381,7 +382,7 @@ class Player {//generic player, used for human and AI
 		}
 	}
 	
-	void findBuild(){
+	void findBuild(){//checks resource number, and adds a barracks to the list of things to be built
 		build.clear();
 		build.add("pass");
 		if (getResources() >= 50){
@@ -407,7 +408,7 @@ class Player {//generic player, used for human and AI
 		return construct;
 	}
 	
-	List<String> getBuild(){
+	List<String> getBuild(){//returns list of buildings to be built
 		return build;
 	}
 	
@@ -935,7 +936,7 @@ class CollectionQueue extends Queue {//a worker uses this to collect resources
 
 class BuildQueue extends Queue {// a worker uses this to construct a new building
 
-	BuildQueue(String a, Character c, int x, int y){
+	BuildQueue(String a, Character c, int x, int y){//Creates queue, using values from Queue
 		super(a,c,x,y);
 	}
 
