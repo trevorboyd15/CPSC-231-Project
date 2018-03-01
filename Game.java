@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class Game {//where the game runs
-    public static void main (String[] args){//main function; creates and runs the game
+    /*public static void main (String[] args){//main function; creates and runs the game
 		GameState gs = new GameState();
 		gs.addHumanPlayer(1);
 		gs.addHumanPlayer(2);
@@ -18,8 +18,8 @@ public class Game {//where the game runs
 		/*Graphics g = new Graphics();
 		g.starter();
         
-    */}
-  
+    }
+*/
 }
 
 class Character {//base object that all placeable things inherit from
