@@ -58,7 +58,7 @@ public class GraphicsGame extends Application{
 		EventHandler<MouseEvent> mhand = new EventHandler<MouseEvent>(){
 			@Override
 			public void handle(MouseEvent e){
-				System.out.println("cool");
+				//System.out.println("cool");
 				int x = (int)(e.getX()/100);
 				int y = (int)(e.getY()/ 100.0);
 				
@@ -237,7 +237,7 @@ public class GraphicsGame extends Application{
 		
 		for (int i = 0; i < gs.getPlayers().size(); i++ ){
 			for (int j = 0; j < gs.getPlayers().get(i).getBuildingList().size(); j ++){
-				System.out.println(j);
+				//System.out.println(j);
 				if (gs.getPlayers().get(i).getBuildingList().get(j).getHealth() <= 0){
 					gs.getPlayers().get(i).getBuildingList().remove(j);
 					root.getChildren().remove(imstorage.get(i).get(j));
