@@ -18,8 +18,8 @@ public class Game {//where the game runs
 		Graphics g = new Graphics();
 		g.starter();
         
-    }
-*/
+    }*/
+
 }
 
 class Character {//base object that all placeable things inherit from
