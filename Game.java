@@ -19,7 +19,7 @@ public class Game {//where the game runs
 		g.starter();
         
     }*/
-  
+
 }
 
 class Character {//base object that all placeable things inherit from
@@ -106,8 +106,6 @@ class Character {//base object that all placeable things inherit from
 	}
 	
 }
-
-
 
 class Unit extends Character {// generic unit
 
@@ -305,11 +303,11 @@ class Player {//generic player, used for human and AI
 		return actions;
 	}
 	
-	void buildUnit(String selection,Character b){//uses the building pos to create a unit next to it
+	void buildUnit(String selection,Character b, int x, int y){//uses the building pos to create a unit next to it
 		if (selection == "worker" ){
-			units.add(new Worker(b.getX()+1,b.getY()+1));
+			units.add(new Worker(x,y));
 		}else if (selection == "soldier"){
-			units.add(new Soldier(b.getX()+1,b.getY()+1));
+			units.add(new Soldier(x,y));
  		}
 	}
 	
@@ -482,6 +480,13 @@ class Player {//generic player, used for human and AI
 		Character c;
 		String i;
 		boolean done;
+		int p = 0;
+		
+		if (pNum == 1){
+			p = 1;
+		} else if (pNum == 2){
+			p = -1;
+		}
 		
 		for (int index = 0; index < buildings.size(); index++){//goes through the building list and runs the first queue action
 			done = false;
@@ -490,16 +495,17 @@ class Player {//generic player, used for human and AI
 					a = buildings.get(index).getMyQueues().get(0).getAction();
 					c = buildings.get(index).getMyQueues().get(0).getSelection();
 					i = buildings.get(index).getMyQueues().get(0).getItem();
-					if (c instanceof MainBase && (i == "worker") ){
-						if (gameS.getMap().getBoard()[c.getY()+1][c.getX()+1] == "---"){
-							buildUnit(i,c);
+					if ((c instanceof MainBase && (i == "worker") )||(c instanceof Barracks && (i == "soldier"))){
+						if (gameS.getMap().getBoard()[c.getY()+(p*-1)][c.getX()+p] == "---"){
+							buildUnit(i,c,c.getX()+p,c.getY()+(p*-1));
 							done = true;
-						}	
-					} else if (c instanceof Barracks && (i == "soldier") ){
-						if (gameS.getMap().getBoard()[c.getY()+1][c.getX()+1] == "---"){
-							buildUnit(i,c);
+						} else if (gameS.getMap().getBoard()[c.getY()][c.getX()+p] == "---"){
+							buildUnit(i,c,c.getX()+p,c.getY());
 							done = true;
-						}	
+						} else if (gameS.getMap().getBoard()[c.getY()+(p*-1)][c.getX()] == "---"){
+							buildUnit(i,c,c.getX(),c.getY()+(p*-1));
+							done = true;
+						}
 					}
 					if (done){// if the queue action was completed remove the queue from existence
 						buildings.get(index).getMyQueues().remove(0);
@@ -564,10 +570,6 @@ class Player {//generic player, used for human and AI
 			
 			}
 		}
-					
-		
-		
-		
 	}
 	
 	void setX(int x){//Changes selected x-value
