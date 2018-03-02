@@ -601,6 +601,9 @@ class Player {//generic player, used for human and AI
 	int getY(){//Returns selected y-value
 		return desY;
 	}
+	
+	void getChoice(GameState gs){
+	}
 		
 }
 
