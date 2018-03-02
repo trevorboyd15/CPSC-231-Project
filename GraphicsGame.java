@@ -156,7 +156,7 @@ public class GraphicsGame extends Application{
 		int b = 0;
 		
 		for (int i = 1;i < gs.getPlayers().size();i++){
-			gs.getPlayers().get(i).turn(gs);
+			gs.getPlayers().get(i).getChoice(gs);
 		}
 		//ImageView iV2 = new ImageView();
 		
