@@ -566,7 +566,8 @@ class Player {//generic player, used for human and AI
 					int unitY = units.get(index).getY();
 					int goalX = units.get(index).getMyQueues().get(0).getX();
 					int goalY = units.get(index).getMyQueues().get(0).getY();
-					if (goalY >= unitY -1 && goalY <= unitY +1 && goalX >= unitX - 1 && goalX <= unitX +1){
+					if (goalY >= unitY -1 && goalY <= unitY +1 && goalX >= unitX - 1 && goalX <= unitX +1
+					&& gameS.getMap().getBoard()[goalY][goalX] == "---"){
 						buildBuilding("barracks" , goalX, goalY);
 						done = true;
 					}else if (gameS.getMap().getBoard()[goalY+1][goalX] == "---"){
@@ -843,7 +844,7 @@ class AIPlayer extends Player{
 	
 	void turn(GameState gs){
 		getChoice(gs);
-		doTurn(gs);
+		//doTurn(gs);
 	}
 	
 	void getChoice(GameState gs){
@@ -869,11 +870,13 @@ class AIPlayer extends Player{
 			}
 		} else if (sdCount>0){
 			for (Unit s : getUnitList()){
-				if (s.getName()=="sd"){
+				if (s.getName()=="sd" && s.getMyQueues().isEmpty()){
+					//System.out.println(s.getMyQueues());
 					findAttackSelection(s,gs);
 					Random r = new Random();
 					int r2 = r.nextInt(getAttackSelectable().size());
 					createQueue("attack",s,getAttackSelectable().get(r2));
+					break;
 				}
 			}
 		} else if (wkCount>=3){
