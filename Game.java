@@ -371,6 +371,10 @@ class Player {//generic player, used for human and AI
 	void setResources(int r){//changes resource count
 		resources = r;
 	}
+	
+	void decRes(int r){
+		resources -= r;
+	}
 
 	void findConstruct(Character b){//sets list of constructable units
 		construct.clear();
@@ -520,6 +524,7 @@ class Player {//generic player, used for human and AI
 				buildings.get(index).getMyQueues().get(0).decrementTime();// becuase the buildings only have construct queue 
 				}
 			}
+			gameS.updateBoard();
 		}
 		
 		for (int index = 0; index < units.size(); index++){//goes through the units to update there queues
@@ -575,6 +580,8 @@ class Player {//generic player, used for human and AI
 				}
 			
 			}
+			gameS.updateBoard();
+
 		}
 	}
 	
