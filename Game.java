@@ -1,10 +1,11 @@
 import java.util.*;
 
 public class Game {//where the game runs
-    /*public static void main (String[] args){//main function; creates and runs the game
+    public static void main (String[] args){//main function; creates and runs the game
 		GameState gs = new GameState();
 		gs.addHumanPlayer(1);
-		gs.addHumanPlayer(2);
+		//gs.addHumanPlayer(2);
+		gs.addAIPlayer(2);
 		while(true){
 			
 			gs.doTurns();
@@ -15,11 +16,11 @@ public class Game {//where the game runs
 			}
 			
 		}
-		Graphics g = new Graphics();
+		/*Graphics g = new Graphics();
 		g.starter();
         
-    }*/
-
+    */}
+  
 }
 
 class Character {//base object that all placeable things inherit from
@@ -216,6 +217,10 @@ class GameState {// the game state that holds all information required to run th
 	
 	void addHumanPlayer(int num) {//Forms a new human player
 		players.add(new HumanPlayer(num));
+	}
+	
+	void addAIPlayer(int num) {
+		players.add(new AIPlayer(num));
 	}
 	
 	void updateBoard(){//iterates through each player placing the units and buildings on the board
@@ -426,6 +431,7 @@ class Player {//generic player, used for human and AI
 		if (charac instanceof MainBase && item == "worker" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,2));
 			setResources(getResources()-10);
+			
 		} else if (charac instanceof Barracks && item == "soldier" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,3));
 			setResources(getResources()-20);
@@ -820,8 +826,107 @@ class HumanPlayer extends Player{//used for human players, including taking inpu
 		}
 	}
 	
-	
+}
 
+class AIPlayer extends Player{
+	
+	AIPlayer(int num){
+		super(num);
+	}
+	
+	void turn(GameState gs){
+		getChoice(gs);
+		doTurn(gs);
+	}
+	
+	void getChoice(GameState gs){
+		
+		int wkCount = checkWorkers();
+		for (int index = 0; index<getBuildingList().get(0).getMyQueues().size();index++){
+			if (getBuildingList().get(0).getMyQueues().get(index) instanceof ConstructQueue){
+				wkCount += 1;
+			}
+		}
+		int bkCount = checkBarracks();
+		int sdCount = checkSoldiers();
+		
+		if (getUnitList().size()<3){
+			if (getResources()>=10&&wkCount<3){
+				createQueue("construct",getBuildingList().get(0),"worker");
+			} else {
+				for (Unit w : getUnitList()){
+					if (w.getName()=="wk"){
+						createQueue("collect",w);
+					}
+				}
+			}
+		} else if (sdCount>0){
+			for (Unit s : getUnitList()){
+				if (s.getName()=="sd"){
+					findAttackSelection(s,gs);
+					Random r = new Random();
+					int r2 = r.nextInt(getAttackSelectable().size());
+					createQueue("attack",s,getAttackSelectable().get(r2));
+				}
+			}
+		} else if (wkCount>=3){
+			if (bkCount>=1){
+				if (getResources()>=20){
+					createQueue("construct",getBuildingList().get(1),"soldier");
+				}
+			} else {
+				if (getResources()>=50){
+					for (Unit w : getUnitList()){
+						if (w.getName()=="wk"){
+							if (w == getUnitList().get(2)){
+								createQueue("build",w,6,3,"barracks");
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	int checkWorkers(){
+		int count = 0;
+		for (int index = 0;index<getUnitList().size();index++){
+			if (getUnitList().get(index).getName()=="wk"){
+				count += 1;
+			}
+		}
+		return count;
+	}
+	
+	int checkBarracks(){
+		int count = 0;
+		for (int index = 0;index<getBuildingList().size();index++){
+			if (getBuildingList().get(index).getName()=="bk"){
+				count += 1;
+			}
+		}
+		return count;
+	}
+	
+	int checkSoldiers(){
+		int count = 0;
+		for (int index = 0;index<getUnitList().size();index++){
+			if (getUnitList().get(index).getName()=="sd"){
+				count += 1;
+			}
+		}
+		return count;
+	}
+	
+	boolean checkResources(Character c){
+		boolean b;
+		if (getResources() >= c.getCost()){
+			b = true;
+		} else {
+			b = false;
+		}
+		return b;
+	}
 }
 
 class Queue{//used to store actions needed for characters
