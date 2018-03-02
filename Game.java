@@ -844,7 +844,7 @@ class AIPlayer extends Player{
 	
 	void turn(GameState gs){
 		getChoice(gs);
-		//doTurn(gs);
+		doTurn(gs);
 	}
 	
 	void getChoice(GameState gs){
