@@ -10,11 +10,16 @@ import javafx.scene.canvas.*;
 import javafx.scene.image.*;
 import javafx.event.*;
 import javafx.util.Duration;
+import javafx.scene.text.Text;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import java.util.*;
 
 public class GraphicsGame extends Application{
 	private GameState gs = new GameState();
 	private Character c;
+	
+	private Text res = new Text();
 	
 	private int MouseState = 0;
 	private int selector = 0;
@@ -41,11 +46,19 @@ public class GraphicsGame extends Application{
 		
 		addTwoPlayers();
 		Group root = new Group();
-		Scene scene = new Scene(root, 1000, 1000,Color.BLACK);
+		Scene scene = new Scene(root, 1100, 1000,Color.BLACK);
 		stage.setTitle("StarCraft III");
 		final Canvas canvas = new Canvas(1000,1000);
 		root.getChildren().add(canvas);
 		
+		
+		res.setText("Minerals: " +gs.getPlayers().get(0).getResources());
+		res.setX(1005);
+		res.setY(50);
+		res.setFill(Color.WHITE);
+		res.setFont(Font.font ("Verdana", 20));
+		res.setWrappingWidth(100.0);
+		res.setTextAlignment(TextAlignment.CENTER);
 		
 		imstorage.add( p1build);	
 		imstorage.add( p2build);
@@ -58,7 +71,7 @@ public class GraphicsGame extends Application{
 		EventHandler<MouseEvent> mhand = new EventHandler<MouseEvent>(){
 			@Override
 			public void handle(MouseEvent e){
-				System.out.println("cool");
+				//System.out.println("cool");
 				int x = (int)(e.getX()/100);
 				int y = (int)(e.getY()/ 100.0);
 				
@@ -124,7 +137,7 @@ public class GraphicsGame extends Application{
 		
 		
 		
-		
+		root.getChildren().add(res);
 		
 		timeline.setCycleCount(Timeline.INDEFINITE);
 		timeline.play();
@@ -181,7 +194,7 @@ public class GraphicsGame extends Application{
 			}
 			timeline.stop();
 		}
-	
+		res.setText("Minerals: " +gs.getPlayers().get(0).getResources());
 	}
 	
 	public void unitimAdd(int i,Group root){
@@ -237,7 +250,7 @@ public class GraphicsGame extends Application{
 		
 		for (int i = 0; i < gs.getPlayers().size(); i++ ){
 			for (int j = 0; j < gs.getPlayers().get(i).getBuildingList().size(); j ++){
-				System.out.println(j);
+				//System.out.println(j);
 				if (gs.getPlayers().get(i).getBuildingList().get(j).getHealth() <= 0){
 					gs.getPlayers().get(i).getBuildingList().remove(j);
 					root.getChildren().remove(imstorage.get(i).get(j));
