@@ -23,6 +23,7 @@ public class GraphicsGame extends Application{
 	
 	private int MouseState = 0;
 	private int selector = 0;
+	private double speed = 0.5;
 	
 	private List<ImageView> p1unit = new ArrayList<ImageView>();
 	private List<ImageView> p2unit = new ArrayList<ImageView>();
@@ -33,7 +34,7 @@ public class GraphicsGame extends Application{
 	
 	public void addTwoPlayers(){
 		gs.addHumanPlayer(1);
-		gs.addHumanPlayer(2);
+		gs.addAIPlayer(2);
 	}
 	
 	public static void main(String[] args){
@@ -133,7 +134,7 @@ public class GraphicsGame extends Application{
 		};     
 		
 		Timeline timeline = new Timeline();
-		timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(0.1),ae -> up(root,timeline)));
+		timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(speed),ae -> up(root,timeline)));
 		
 		
 		
@@ -154,37 +155,41 @@ public class GraphicsGame extends Application{
 		int a = 0;
 		int b = 0;
 		
+		for (int i = 1;i < gs.getPlayers().size();i++){
+			gs.getPlayers().get(i).getChoice(gs);
+		}
 		//ImageView iV2 = new ImageView();
 		
 		for (int index = 0; index < gs.getPlayers().size();index++){
+			
 			gs.getPlayers().get(index).updateQueues(gs);
-		}
-		
-		checkHealth(root);
-		
-		if (gs.getPlayers().get(0).getUnitList().size() > imstorage.get(2).size()){
-			a = gs.getPlayers().get(0).getUnitList().size();
-			b = imstorage.get(2).size();
+			checkHealth(root,index);
+			
+			if (gs.getPlayers().get(index).getUnitList().size() > imstorage.get(index+2).size()){
+			a = gs.getPlayers().get(index).getUnitList().size();
+			b = imstorage.get(index+2).size();
 			for(int i = a-1; i >= b; i--){
-				unitimAdd(i,root);
+				unitimAdd(i,root,index);
 				//System.out.println(b);
 			}
-		}
-		
-		if (gs.getPlayers().get(0).getBuildingList().size() > imstorage.get(0).size()){
-			a = gs.getPlayers().get(0).getBuildingList().size();
-			b = imstorage.get(0).size();
+			}
+			if (gs.getPlayers().get(index).getBuildingList().size() > imstorage.get(index).size()){
+			a = gs.getPlayers().get(index).getBuildingList().size();
+			b = imstorage.get(index).size();
 			for(int i = a-1; i >= b; i--){
-				buildingImAdd(i,root);
+				buildingImAdd(i,root,index);
 				//System.out.println(b);
 			}
-		} 
+			
+		}
+		}
 		
 		
 		//System.out.println(c.getMyQueues());
-		updateUnitLocations(gs);
+		
 		//System.out.println("you have " + gs.getPlayers().get(0).getResources());
 		//gs.displayBoard();
+		updateUnitLocations(gs);
 		gs.checkBase();
 		if (gs.wonGame()){
 			if (gs.getPlayers().get(0).getNum() == 1){
@@ -195,60 +200,65 @@ public class GraphicsGame extends Application{
 			timeline.stop();
 		}
 		res.setText("Minerals: " +gs.getPlayers().get(0).getResources());
+		
 	}
 	
-	public void unitimAdd(int i,Group root){
+	public void unitimAdd(int i,Group root,int j){
+		String[] uRef = {"MoonWorker1.png","MoonWorker2.png","MoonSoldier1.png","MoonSoldier2.png"};
 		ImageView iV2 = new ImageView();
 		Image i2;
+		//System.out.println(i);
+		//System.out.println(j);
 		boolean valid = false;
-		
-		if (gs.getPlayers().get(0).getUnitList().get(i) instanceof Worker){
-			i2 = new Image("MoonWorker1.png",true);
+		if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Worker){
+			i2 = new Image(uRef[j],true);
 			iV2.setImage(i2);
 			valid = true;
 			
-		} else if (gs.getPlayers().get(0).getUnitList().get(i) instanceof Soldier){
-			i2 = new Image("MoonSoldier1.png",true);
+		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Soldier){
+			i2 = new Image(uRef[j+2],true);
 			iV2.setImage(i2);
 			valid = true;
 		}	
 		if (valid){
-			int j = gs.getPlayers().get(0).getUnitList().get(i).getX();
-			int l = gs.getPlayers().get(0).getUnitList().get(i).getY();
-			iV2.setX(j*100+1);
+			int k = gs.getPlayers().get(j).getUnitList().get(i).getX();
+			int l = gs.getPlayers().get(j).getUnitList().get(i).getY();
+			iV2.setX(k*100+1);
 			iV2.setY(l*100+1);
 			iV2.setFitHeight(98);
 			iV2.setFitWidth(98);
 			root.getChildren().add(iV2);
-			imstorage.get(2).add(iV2);
+			//System.out.println(j+2);
+			imstorage.get(j+2).add(iV2);
 		}
 	}
 	
-	public void buildingImAdd(int i,Group root){
+	public void buildingImAdd(int i,Group root,int j){
+		String[] uRef = {"MoonBarracks1.jpg","MoonBarracks2.jpg"};
 		Image i2;
 		ImageView iV2 = new ImageView();
 		boolean valid = false;
 		
-		if (gs.getPlayers().get(0).getBuildingList().get(i) instanceof Barracks){
-			i2 = new Image("MoonBarracks1.jpg",true);
+		if (gs.getPlayers().get(j).getBuildingList().get(i) instanceof Barracks){
+			i2 = new Image(uRef[j],true);
 			iV2.setImage(i2);
 			valid = true;
 		} 
 		if (valid){
-			int j = gs.getPlayers().get(0).getBuildingList().get(i).getX();
-			int l = gs.getPlayers().get(0).getBuildingList().get(i).getY();
-			iV2.setX(j*100+1);
+			int k = gs.getPlayers().get(j).getBuildingList().get(i).getX();
+			int l = gs.getPlayers().get(j).getBuildingList().get(i).getY();
+			iV2.setX(k*100+1);
 			iV2.setY(l*100+1);
 			iV2.setFitHeight(98);
 			iV2.setFitWidth(98);
 			root.getChildren().add(iV2);
-			imstorage.get(0).add(iV2);
+			imstorage.get(j).add(iV2);
 		}
 	}
 	
-	public void checkHealth(Group root){
+	public void checkHealth(Group root,int i){
 		
-		for (int i = 0; i < gs.getPlayers().size(); i++ ){
+		
 			for (int j = 0; j < gs.getPlayers().get(i).getBuildingList().size(); j ++){
 				//System.out.println(j);
 				if (gs.getPlayers().get(i).getBuildingList().get(j).getHealth() <= 0){
@@ -258,17 +268,34 @@ public class GraphicsGame extends Application{
 					
 				}
 			}
-		}
+			for (int j = 0; j < gs.getPlayers().get(i).getUnitList().size(); j ++){
+				//System.out.println(j + "ch" + i);
+				if (gs.getPlayers().get(i).getUnitList().get(j).getHealth() <= 0){
+					//System.out.println(j + "ch" + i);
+					gs.getPlayers().get(i).getUnitList().remove(j);
+					root.getChildren().remove(imstorage.get(i+2).get(j));
+					imstorage.get(i+2).remove(j);
+					
+				}
+			}
+		
 	}		
 	
 	
 	public void updateUnitLocations(GameState gs){
 		int pn = gs.getPlayers().size();
+		if (pn > 1){
 		for (int i = 0; i < pn; i++){
 			for(int j = 0; j < gs.getPlayers().get(i).getUnitList().size();j ++){
-				imstorage.get(i+2).get(j).setX(100*gs.getPlayers().get(i).getUnitList().get(j).getX());
-				imstorage.get(i+2).get(j).setY(100*gs.getPlayers().get(i).getUnitList().get(j).getY());
+				//System.out.println(i);
+				//System.out.println(j);
+				//System.out.println(imstorage.get(i+2).get(j));
+				if (imstorage.get(i+2).size() > j){
+					imstorage.get(i+2).get(j).setX(100*gs.getPlayers().get(i).getUnitList().get(j).getX());
+					imstorage.get(i+2).get(j).setY(100*gs.getPlayers().get(i).getUnitList().get(j).getY());
+				}
 			}
+		}
 		}
 	}
 		
