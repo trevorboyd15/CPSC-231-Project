@@ -182,6 +182,12 @@ class Map {// the map of the world
 class GameState {// the game state that holds all information required to run the game
 	private List <Player> players = new ArrayList<Player>();
 	private Map map = new Map();
+	private BFS bfs = new BFS(map.getSize());
+	
+	BFS getBFS(){
+		return bfs;
+	}
+	
 	
 	void doTurns(){//updates and displays the board between turns
 		for (int i = 0; i<players.size(); i++){
@@ -532,11 +538,18 @@ class Player {//generic player, used for human and AI
 			
 			if (units.get(index).getMyQueues().size() > 0){
 				if (units.get(index).getMyQueues().get(0) instanceof MoveQueue){//if the unit is moving
-					int x = units.get(index).getMyQueues().get(0).getX();
-					int y = units.get(index).getMyQueues().get(0).getY();
+					int sx = units.get(index).getX();
+					int sy = units.get(index).getY();
+					int gx = units.get(index).getMyQueues().get(0).getX();
+					int gy = units.get(index).getMyQueues().get(0).getY();
+					int node = gameS.getBFS().findFirstMove(gameS.getMap().getBoard(),sx,sy,gx,gy);
+					int x = node%gameS.getMap().getSize();
+					int y = node/gameS.getMap().getSize();
 					if (gameS.getMap().getBoard()[y][x] == "---"){
-						done = true;
 						units.get(index).moveUnit(x,y);
+						if (x== gx && y == gy){
+							done = true;
+						}
 					}
 
 				}else if(units.get(index).getMyQueues().get(0) instanceof AttackQueue){//if the unit is attacking
@@ -545,11 +558,14 @@ class Player {//generic player, used for human and AI
 					if (gameS.checkRange(c1,c2)){
 						c2.decrementHealth(c1.getDamage());
 					}else{
-						int x = units.get(index).getMyQueues().get(0).getSelectionTwo().getX();
-						int y = units.get(index).getMyQueues().get(0).getSelectionTwo().getY();
-						if (gameS.getMap().getBoard()[y+1][x] == "---"){
-							units.get(index).moveUnit(x,y+1);
-						}
+						int sx = units.get(index).getX();
+						int sy = units.get(index).getY();
+						int gx = units.get(index).getMyQueues().get(0).getSelectionTwo().getX();
+						int gy = units.get(index).getMyQueues().get(0).getSelectionTwo().getY();
+						int node = gameS.getBFS().findFirstMove(gameS.getMap().getBoard(),sx,sy,gx,gy);
+						int x = node%gameS.getMap().getSize();
+						int y = node/gameS.getMap().getSize();
+						units.get(index).moveUnit(x,y);
 				
 					}
 					
@@ -566,12 +582,18 @@ class Player {//generic player, used for human and AI
 					int unitY = units.get(index).getY();
 					int goalX = units.get(index).getMyQueues().get(0).getX();
 					int goalY = units.get(index).getMyQueues().get(0).getY();
-					if (goalY >= unitY -1 && goalY <= unitY +1 && goalX >= unitX - 1 && goalX <= unitX +1
-					&& gameS.getMap().getBoard()[goalY][goalX] == "---"){
-						buildBuilding("barracks" , goalX, goalY);
-						done = true;
-					}else if (gameS.getMap().getBoard()[goalY+1][goalX] == "---"){
-						units.get(index).moveUnit(goalX,goalY+1);
+					if (goalY >= unitY -1 && goalY <= unitY +1 && goalX >= unitX - 1 && goalX <= unitX +1){
+						if(gameS.getMap().getBoard()[goalY][goalX] == "---"){
+							buildBuilding("barracks" , goalX, goalY);
+							done = true;
+						}
+					}else{
+						int node = gameS.getBFS().findFirstMove(gameS.getMap().getBoard(),unitX,unitY,goalX,goalY);
+						int x = node%gameS.getMap().getSize();
+						int y = node/gameS.getMap().getSize();
+						if (gameS.getMap().getBoard()[y][x] == "---"){
+							units.get(index).moveUnit(x,y);
+						}
 					}
 				
 				
@@ -600,6 +622,9 @@ class Player {//generic player, used for human and AI
 	
 	int getY(){//Returns selected y-value
 		return desY;
+	}
+	
+	void getChoice(GameState gs){
 	}
 		
 }
@@ -844,7 +869,7 @@ class AIPlayer extends Player{
 	
 	void turn(GameState gs){
 		getChoice(gs);
-		//doTurn(gs);
+		doTurn(gs);
 	}
 	
 	void getChoice(GameState gs){
