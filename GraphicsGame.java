@@ -23,7 +23,7 @@ public class GraphicsGame extends Application{
 	
 	private int MouseState = 0;
 	private int selector = 0;
-	private double speed = 0.5;
+	private double speed = 1.0;
 	
 	private List<ImageView> p1unit = new ArrayList<ImageView>();
 	private List<ImageView> p2unit = new ArrayList<ImageView>();
@@ -39,8 +39,8 @@ public class GraphicsGame extends Application{
 	
 	public static void main(String[] args){
 		launch();
-		
 	}
+	
 	public void start(Stage stage){
 	
 		
@@ -150,7 +150,6 @@ public class GraphicsGame extends Application{
 		stage.show();
 	}
 
-	
 	public void up(Group root,Timeline timeline){
 		int a = 0;
 		int b = 0;
@@ -281,7 +280,6 @@ public class GraphicsGame extends Application{
 		
 	}		
 	
-	
 	public void updateUnitLocations(GameState gs){
 		int pn = gs.getPlayers().size();
 		if (pn > 1){
@@ -298,7 +296,7 @@ public class GraphicsGame extends Application{
 		}
 		}
 	}
-		
+	
 	public boolean enoughRes(String s,int n){
 		boolean res = false;
 		if (s.equals("worker") && gs.getPlayers().get(n).getResources() >= 10){
