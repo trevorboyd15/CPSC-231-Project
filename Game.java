@@ -3,9 +3,9 @@ import java.util.*;
 public class Game {//where the game runs
     public static void main (String[] args){//main function; creates and runs the game
 		GameState gs = new GameState();
-		gs.addHumanPlayer(1);
+		gs.addHumanPlayer(1,gs);
 		//gs.addHumanPlayer(2);
-		gs.addAIPlayer(2);
+		gs.addAIPlayer(2,gs);
 		while(true){
 			
 			gs.doTurns();
@@ -146,7 +146,7 @@ class Building extends Character{// generic building
 }
 
 class Map {// the map of the world
-	private int size = 10;
+	private int size = 20;
 	private String[][] map = new String[size][size];
 	
 	void resetMap (){// sets the board to an empty state
@@ -206,7 +206,10 @@ class GameState {// the game state that holds all information required to run th
 		for (int index = 0; index < players.size(); index++){
 			if (players.get(index).getBuildingList().size()== 0 ||
 			!(players.get(index).getBuildingList().get(0) instanceof MainBase)){
-				players.remove(index);
+				players.get(index).findSelectables();
+				for (int i = 0; i < players.get(index).getSelectables().size(); i++){
+					players.get(index).getSelectables().get(i).setHealth(0);
+				}
 			}
 		}
 	}
@@ -221,12 +224,12 @@ class GameState {// the game state that holds all information required to run th
 		return (Math.abs(x-tx)<=1 && Math.abs(y-ty) <= 1);
 	}
 	
-	void addHumanPlayer(int num) {//Forms a new human player
-		players.add(new HumanPlayer(num));
+	void addHumanPlayer(int num,GameState gs) {//Forms a new human player
+		players.add(new HumanPlayer(num,gs));
 	}
 	
-	void addAIPlayer(int num) {
-		players.add(new AIPlayer(num));
+	void addAIPlayer(int num,GameState gs) {
+		players.add(new AIPlayer(num,gs));
 	}
 	
 	void updateBoard(){//iterates through each player placing the units and buildings on the board
@@ -276,13 +279,19 @@ class Player {//generic player, used for human and AI
 	private int desY;
 	
 	
-	Player(int num){//saves the player numbers, and creates initial board conditions
+	Player(int num,GameState gs){//saves the player numbers, and creates initial board conditions
 		pNum = num;
 		if (pNum == 1){
-			buildings.add(new MainBase("mb",1,8,100,20000));
+			buildings.add(new MainBase("mb",1,gs.getMap().getSize()-2,100,20000));
 			resources += 20;
 		}else if (pNum == 2){
-			buildings.add(new MainBase("mb",8,1,100,20000));
+			buildings.add(new MainBase("mb",gs.getMap().getSize()-2,1,100,20000));
+			resources += 20;
+		}else if (pNum == 4){
+			buildings.add(new MainBase("mb",gs.getMap().getSize()-2,gs.getMap().getSize()-2,100,20000));
+			resources += 20;
+		}else if (pNum == 3){
+			buildings.add(new MainBase("mb",1,1,100,20000));
 			resources += 20;
 		}
 	}
@@ -496,7 +505,7 @@ class Player {//generic player, used for human and AI
 		Character c;
 		String i;
 		boolean done;
-		int p = 0;
+		int p = 1;
 		
 		if (pNum == 1){
 			p = 1;
@@ -679,8 +688,8 @@ class HumanPlayer extends Player{//used for human players, including taking inpu
 	private boolean valid;
 	private int nInput;
 	
-	HumanPlayer(int num){//Creates Human player, with player number
-		super(num);
+	HumanPlayer(int num,GameState gs){//Creates Human player, with player number
+		super(num,gs);
 	}
 	
 	void turn(GameState s){//Runs a turn, including revealing number of resources
@@ -863,8 +872,8 @@ class HumanPlayer extends Player{//used for human players, including taking inpu
 
 class AIPlayer extends Player{
 	
-	AIPlayer(int num){
-		super(num);
+	AIPlayer(int num,GameState gs){
+		super(num,gs);
 	}
 	
 	void turn(GameState gs){
@@ -883,7 +892,7 @@ class AIPlayer extends Player{
 		int bkCount = checkBarracks();
 		int sdCount = checkSoldiers();
 		
-		if (getUnitList().size()<3){
+		if (wkCount<3){
 			if (getResources()>=10&&wkCount<3){
 				createQueue("construct",getBuildingList().get(0),"worker");
 			} else {
@@ -894,10 +903,12 @@ class AIPlayer extends Player{
 				}
 			}
 		} else if (sdCount>0){
+			
 			for (Unit s : getUnitList()){
-				if (s.getName()=="sd" && s.getMyQueues().isEmpty()){
+				findAttackSelection(s,gs);
+				if (s.getName()=="sd" && s.getMyQueues().isEmpty() && getAttackSelectable().size() > 0){
 					//System.out.println(s.getMyQueues());
-					findAttackSelection(s,gs);
+					
 					Random r = new Random();
 					int r2 = r.nextInt(getAttackSelectable().size());
 					createQueue("attack",s,getAttackSelectable().get(r2));
@@ -914,7 +925,19 @@ class AIPlayer extends Player{
 					for (Unit w : getUnitList()){
 						if (w.getName()=="wk"){
 							if (w == getUnitList().get(2)){
-								createQueue("build",w,6,3,"barracks");
+								int x = getBuildingList().get(0).getX();
+								int y = getBuildingList().get(0).getY();
+								if (getNum() == 2){
+									x -= 2;
+									y += 2;
+								} else if (getNum() == 4){
+									x -= 2;
+									y -= 2;
+								} else if (getNum() == 3){
+									x += 2;
+									y += 2;
+								}
+								createQueue("build",w,x,y,"barracks");
 							}
 						}
 					}
