@@ -893,8 +893,12 @@ class AIPlayer extends Player{
 					}
 				}
 			}
-		} else if (sdCount>0){
-			for (Unit s : getUnitList()){
+		} else if (wkCount>=3){
+			if (bkCount>=1){
+				if (getResources()>=20&&getBuildingList().get(1).getMyQueues().isEmpty()){
+					createQueue("construct",getBuildingList().get(1),"soldier");
+				} else {
+					for (Unit s : getUnitList()){
 				if (s.getName()=="sd" && s.getMyQueues().isEmpty()){
 					//System.out.println(s.getMyQueues());
 					findAttackSelection(s,gs);
@@ -904,10 +908,6 @@ class AIPlayer extends Player{
 					break;
 				}
 			}
-		} else if (wkCount>=3){
-			if (bkCount>=1){
-				if (getResources()>=20){
-					createQueue("construct",getBuildingList().get(1),"soldier");
 				}
 			} else {
 				if (getResources()>=50){
