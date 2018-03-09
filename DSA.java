@@ -60,7 +60,7 @@ public class DSA {
 					}else if (node[edges[nNode][i].getNode()] == 1 &&
 					distance[edges[nNode][i].getNode()] > 
 					(cDis + edges[nNode][i].getDistance())){
-						path[edges[queue.get(0)][i].getNode()] = queue.get(0);
+						path[edges[nNode][i].getNode()] = nNode;
 						distance[edges[nNode][i].getNode()] = cDis + edges[nNode][i].getDistance();
 					}
 				}

@@ -3,16 +3,19 @@ import javafx.application.Application;
 import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
 import javafx.scene.paint.*;
+import javafx.scene.layout.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import javafx.scene.canvas.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.scene.image.*;
 import javafx.event.*;
 import javafx.util.Duration;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.geometry.Pos;
 import java.util.*;
 
 public class GraphicsGame extends Application{
@@ -20,21 +23,38 @@ public class GraphicsGame extends Application{
 	private Character c;
 	
 	private Text res = new Text();
+	private int numAI = 1;
+	private int theme = 0;
 	
 	private int MouseState = 0;
 	private int selector = 0;
 	private double speed = 1.0;
+	private int imSize = 100;
 	
 	private List<ImageView> p1unit = new ArrayList<ImageView>();
 	private List<ImageView> p2unit = new ArrayList<ImageView>();
+	private List<ImageView> p3unit = new ArrayList<ImageView>();
+	private List<ImageView> p4unit = new ArrayList<ImageView>();
 	private List<ImageView> p1build = new ArrayList<ImageView>();
 	private List<ImageView> p2build = new ArrayList<ImageView>();
-	private List<List<ImageView>> imstorage = new ArrayList<List<ImageView>>(4);
+	private List<ImageView> p3build = new ArrayList<ImageView>();
+	private List<ImageView> p4build = new ArrayList<ImageView>();
+	private List<List<ImageView>> imstorage = new ArrayList<List<ImageView>>();
+	
+	private ImageView cursor = new ImageView();
+	private String[] cursTheme = {"MoonOutline.png","PlainsOutline.png"};
 	
 	
-	public void addTwoPlayers(){
-		gs.addHumanPlayer(1);
-		gs.addAIPlayer(2);
+	public void addPlayers(int a){
+		gs.addHumanPlayer(1,gs);
+		for (int i = 2; i < a +2; i ++){
+			gs.addAIPlayer(i,gs);
+		}
+	}
+	public void addAiPlayers(int a){
+		for (int i = 0; i < a; i ++){
+			gs.addAIPlayer(i+3,gs);
+		}
 	}
 	
 	public static void main(String[] args){
@@ -42,15 +62,119 @@ public class GraphicsGame extends Application{
 	}
 	
 	public void start(Stage stage){
-	
+		imSize = 1000/gs.getMap().getSize();
 		
+		Timeline timeline = new Timeline();
 		
-		addTwoPlayers();
+		addPlayers(1);
 		Group root = new Group();
+		VBox men = new VBox(5);
+		HBox buttons = new HBox(10);
+		HBox themeSel = new HBox(10);
 		Scene scene = new Scene(root, 1100, 1000,Color.BLACK);
+		Scene menue = new Scene(men,400,400);
 		stage.setTitle("StarCraft III");
-		final Canvas canvas = new Canvas(1000,1000);
-		root.getChildren().add(canvas);
+		
+		Label buttonExp = new Label("How Many Opponents Would You Like To Face?");
+		Label themeExp = new Label("Please Select A Theme");
+		Text numOfAi = new Text();
+		Text curTheme = new Text();
+		curTheme.setText("Theme: Moon");
+		numOfAi.setText("You Have 1 Opponent");
+		
+		Button moon = new Button();
+		Button plain = new Button();
+		
+		moon.setText("Moon");
+		plain.setText("Plain");
+		
+		moon.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+				theme = 0;
+				curTheme.setText("Theme: Moon");
+			}
+		});
+		plain.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+				theme = 1;
+				curTheme.setText("Theme: Plain");
+			}
+		});
+		
+		
+		themeSel.getChildren().add(moon);
+		themeSel.getChildren().add(plain);
+		themeSel.setAlignment(Pos.CENTER);
+		
+		Button one = new Button();
+		Button two = new Button();
+		Button three = new Button();
+		
+		one.setText("One");
+		two.setText("Two");
+		three.setText("Three");
+		
+		buttons.setAlignment(Pos.CENTER);
+		buttons.getChildren().add(one);
+		buttons.getChildren().add(two);
+		buttons.getChildren().add(three);
+		
+		Button start = new Button();
+		start.setText("START");
+		
+		start.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+				stage.setScene(scene);
+				addAiPlayers(numAI-1);
+				display(root);
+				timeline.play();
+			}
+		});
+		
+		
+		one.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+				numOfAi.setText("You Have 1 Opponent");
+				numAI = 1;
+			}
+		});
+		two.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+				numOfAi.setText("You Have 2 Opponents");
+				numAI = 2;
+			}
+		});
+		three.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+				numOfAi.setText("You Have 3 Opponents");
+				numAI = 3;
+			}
+		});
+		
+		men.setAlignment(Pos.TOP_CENTER);
+		
+		Label title = new Label("RTS is Best");
+		
+		men.getChildren().add(title);
+		men.getChildren().add(buttonExp);
+		men.getChildren().add(buttons);
+		men.getChildren().add(numOfAi);
+		men.getChildren().add(themeExp);
+		men.getChildren().add(themeSel);
+		men.getChildren().add(curTheme);
+		men.getChildren().add(start);
 		
 		
 		res.setText("Minerals: " +gs.getPlayers().get(0).getResources());
@@ -63,25 +187,44 @@ public class GraphicsGame extends Application{
 		
 		imstorage.add( p1build);	
 		imstorage.add( p2build);
+		imstorage.add( p3build);
+		imstorage.add( p4build);
 		imstorage.add( p1unit);	
 		imstorage.add( p2unit);	
+		imstorage.add( p3unit);	
+		imstorage.add( p4unit);	
+			
 		
-		display(root);
+		
 		
 		
 		EventHandler<MouseEvent> mhand = new EventHandler<MouseEvent>(){
 			@Override
 			public void handle(MouseEvent e){
 				//System.out.println("cool");
-				int x = (int)(e.getX()/100);
-				int y = (int)(e.getY()/ 100.0);
+				int x = (int)(e.getX()/imSize);
+				int y = (int)(e.getY()/ imSize);
+				if (x >= gs.getMap().getSize()){
+					x = gs.getMap().getSize() -1;
+				}
+				if ( y >= gs.getMap().getSize()){
+					y = gs.getMap().getSize();
+				}
 				
 				if (gs.getMap().getBoard()[y][x].charAt(0) == '1'){
+					if (MouseState == 0){
+						cursor.setImage(new Image(cursTheme[theme]));
+						cursor.setFitHeight(imSize-2);
+						cursor.setFitWidth(imSize-2);
+						root.getChildren().add(cursor);
+					}
 					Player p = gs.getPlayers().get(0);
 					p.findSelectables();
 					for (int index = 0;index<p.getSelectables().size();index++){
 						if (p.getSelectables().get(index).getX() == x &&p.getSelectables().get(index).getY() == y){
 							c = p.getSelectables().get(index);
+							cursor.setX(c.getX()*imSize+1);
+							cursor.setY(c.getY()*imSize+1);
 							MouseState = 1;
 							break;
 						}
@@ -133,7 +276,7 @@ public class GraphicsGame extends Application{
 				
 		};     
 		
-		Timeline timeline = new Timeline();
+		
 		timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(speed),ae -> up(root,timeline)));
 		
 		
@@ -141,21 +284,25 @@ public class GraphicsGame extends Application{
 		root.getChildren().add(res);
 		
 		timeline.setCycleCount(Timeline.INDEFINITE);
-		timeline.play();
+		
 		root.addEventFilter(MouseEvent.MOUSE_CLICKED, mhand);
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, kb);
 		
 		
-		stage.setScene(scene);
+		stage.setScene(menue);
+		//stage.setScene(scene);
 		stage.show();
 	}
 
 	public void up(Group root,Timeline timeline){
 		int a = 0;
 		int b = 0;
+		int dead = 0;
 		
 		for (int i = 1;i < gs.getPlayers().size();i++){
-			gs.getPlayers().get(i).getChoice(gs);
+			if (gs.getPlayers().get(i).getBuildingList().size() >= 1){
+				gs.getPlayers().get(i).getChoice(gs);
+			}
 		}
 		//ImageView iV2 = new ImageView();
 		
@@ -164,9 +311,9 @@ public class GraphicsGame extends Application{
 			gs.getPlayers().get(index).updateQueues(gs);
 			checkHealth(root,index);
 			
-			if (gs.getPlayers().get(index).getUnitList().size() > imstorage.get(index+2).size()){
+			if (gs.getPlayers().get(index).getUnitList().size() > imstorage.get(index+4).size()){
 			a = gs.getPlayers().get(index).getUnitList().size();
-			b = imstorage.get(index+2).size();
+			b = imstorage.get(index+4).size();
 			for(int i = a-1; i >= b; i--){
 				unitimAdd(i,root,index);
 				//System.out.println(b);
@@ -190,8 +337,13 @@ public class GraphicsGame extends Application{
 		//gs.displayBoard();
 		updateUnitLocations(gs);
 		gs.checkBase();
-		if (gs.wonGame()){
-			if (gs.getPlayers().get(0).getNum() == 1){
+		for (int i = 0; i < gs.getPlayers().size(); i ++){
+			if (gs.getPlayers().get(i).getBuildingList().size() == 0){
+				dead ++;
+			}
+		}
+		if (dead == numAI){
+			if (gs.getPlayers().get(0).getBuildingList().size() >= 1){
 				System.out.println("you won!");
 			} else {
 				System.out.println("you lost :(");
@@ -203,53 +355,65 @@ public class GraphicsGame extends Application{
 	}
 	
 	public void unitimAdd(int i,Group root,int j){
-		String[] uRef = {"MoonWorker1.png","MoonWorker2.png","MoonSoldier1.png","MoonSoldier2.png"};
+		String[][] uRef = { {"MoonWorker1.png","MoonWorker2.png","MoonWorker3.png",
+		"MoonWorker4.png","MoonSoldier1.png","MoonSoldier2.png","MoonSoldier3.png",
+		"MoonSoldier4.png"}, {"PlainsWorker1.png","PlainsWorker2.png","PlainsWorker3.png",
+		"PlainsWorker4.png","PlainsSoldier1.png","PlainsSoldier2.png","PlainsSoldier3.png",
+		"PlainsSoldier4.png"}};
 		ImageView iV2 = new ImageView();
 		Image i2;
 		//System.out.println(i);
 		//System.out.println(j);
 		boolean valid = false;
 		if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Worker){
-			i2 = new Image(uRef[j],true);
+			i2 = new Image(uRef[theme][j],true);
 			iV2.setImage(i2);
 			valid = true;
 			
 		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Soldier){
-			i2 = new Image(uRef[j+2],true);
+			i2 = new Image(uRef[theme][j+4],true);
 			iV2.setImage(i2);
 			valid = true;
 		}	
 		if (valid){
 			int k = gs.getPlayers().get(j).getUnitList().get(i).getX();
 			int l = gs.getPlayers().get(j).getUnitList().get(i).getY();
-			iV2.setX(k*100+1);
-			iV2.setY(l*100+1);
-			iV2.setFitHeight(98);
-			iV2.setFitWidth(98);
+			iV2.setX(k*imSize+1);
+			iV2.setY(l*imSize+1);
+			iV2.setFitHeight(imSize -2);
+			iV2.setFitWidth(imSize -2);
 			root.getChildren().add(iV2);
 			//System.out.println(j+2);
-			imstorage.get(j+2).add(iV2);
+			imstorage.get(j+4).add(iV2);
 		}
 	}
 	
 	public void buildingImAdd(int i,Group root,int j){
-		String[] uRef = {"MoonBarracks1.jpg","MoonBarracks2.jpg"};
+		String[][] uRef = {{"MoonBarracks1.jpg","MoonBarracks2.jpg","MoonBarracks3.jpg",
+		"MoonBarracks4.jpg","MoonBase1.jpg","MoonBase2.jpg","MoonBase3.jpg",
+		"MoonBase4.jpg"},{"PlainsBarracks1.jpg","PlainsBarracks2.jpg","PlainsBarracks3.jpg",
+		"PlainsBarracks4.jpg","PlainsBase1.jpg","PlainsBase2.jpg","PlainsBase3.jpg",
+		"PlainsBase4.jpg"}};
 		Image i2;
 		ImageView iV2 = new ImageView();
 		boolean valid = false;
 		
 		if (gs.getPlayers().get(j).getBuildingList().get(i) instanceof Barracks){
-			i2 = new Image(uRef[j],true);
+			i2 = new Image(uRef[theme][j],true);
 			iV2.setImage(i2);
 			valid = true;
-		} 
+		} else if (gs.getPlayers().get(j).getBuildingList().get(i) instanceof MainBase){
+			i2 = new Image(uRef[theme][j+4],true);
+			iV2.setImage(i2);
+			valid = true;
+		}
 		if (valid){
 			int k = gs.getPlayers().get(j).getBuildingList().get(i).getX();
 			int l = gs.getPlayers().get(j).getBuildingList().get(i).getY();
-			iV2.setX(k*100+1);
-			iV2.setY(l*100+1);
-			iV2.setFitHeight(98);
-			iV2.setFitWidth(98);
+			iV2.setX(k*imSize+1);
+			iV2.setY(l*imSize+1);
+			iV2.setFitHeight(imSize-2);
+			iV2.setFitWidth(imSize-2);
 			root.getChildren().add(iV2);
 			imstorage.get(j).add(iV2);
 		}
@@ -272,8 +436,8 @@ public class GraphicsGame extends Application{
 				if (gs.getPlayers().get(i).getUnitList().get(j).getHealth() <= 0){
 					//System.out.println(j + "ch" + i);
 					gs.getPlayers().get(i).getUnitList().remove(j);
-					root.getChildren().remove(imstorage.get(i+2).get(j));
-					imstorage.get(i+2).remove(j);
+					root.getChildren().remove(imstorage.get(i+4).get(j));
+					imstorage.get(i+4).remove(j);
 					
 				}
 			}
@@ -281,16 +445,22 @@ public class GraphicsGame extends Application{
 	}		
 	
 	public void updateUnitLocations(GameState gs){
+		if (MouseState != 0){
+			cursor.setX(c.getX()*imSize+1);
+			cursor.setY(c.getY()*imSize+1);
+		}
 		int pn = gs.getPlayers().size();
+		
 		if (pn > 1){
 		for (int i = 0; i < pn; i++){
+			int n = gs.getPlayers().get(i).getNum();
 			for(int j = 0; j < gs.getPlayers().get(i).getUnitList().size();j ++){
 				//System.out.println(i);
 				//System.out.println(j);
 				//System.out.println(imstorage.get(i+2).get(j));
-				if (imstorage.get(i+2).size() > j){
-					imstorage.get(i+2).get(j).setX(100*gs.getPlayers().get(i).getUnitList().get(j).getX());
-					imstorage.get(i+2).get(j).setY(100*gs.getPlayers().get(i).getUnitList().get(j).getY());
+				if (imstorage.get(n+3).size() > j){
+					imstorage.get(n+3).get(j).setX(imSize*gs.getPlayers().get(i).getUnitList().get(j).getX());
+					imstorage.get(n+3).get(j).setY(imSize*gs.getPlayers().get(i).getUnitList().get(j).getY());
 				}
 			}
 		}
@@ -311,21 +481,24 @@ public class GraphicsGame extends Application{
 	
 	public void display(Group root){
 	
-	gs.updateBoard();
+		String[][] base = {{"MoonBase1.jpg","MoonBase2.jpg","MoonBase3.jpg","MoonBase4.jpg"}
+		,{"PlainsBase1.jpg","PlainsBase2.jpg","PlainsBase3.jpg","PlainsBase4.jpg"}};
+		String[] space = {"MoonSpace.jpg","PlainsSpace.jpg"};
+		gs.updateBoard();
 		
 		String[][] map = gs.getMap().getBoard();
 		int s = gs.getMap().getSize();
 		
 		
-		for (int i = 0;i<10;i++){
-			for (int j = 0;j<10;j++){
+		for (int i = 0;i<s;i++){
+			for (int j = 0;j<s;j++){
 				ImageView iV = new ImageView();
-				Image i1 = new Image("MoonSpace.jpg",true);
+				Image i1 = new Image(space[theme],true);
 				iV.setImage(i1);
-				iV.setX(j*100+1);
-				iV.setY(i*100+1);
-				iV.setFitHeight(98);
-				iV.setFitWidth(98);
+				iV.setX(j*imSize+1);
+				iV.setY(i*imSize+1);
+				iV.setFitHeight(imSize-2);
+				iV.setFitWidth(imSize-2);
 				root.getChildren().add(iV);
 				
 
@@ -333,36 +506,24 @@ public class GraphicsGame extends Application{
 					ImageView iV2 = new ImageView();
 					String im = "MoonBarricade.jpg";
 					if (map[i][j].equals("1mb")){
-						im = "MoonBase1.jpg";
+						im = base[theme][0];
 						selector = 0;
 					} else if (map[i][j].equals("2mb")){
-						im = "MoonBase2.jpg";
+						im = base[theme][1];
 						selector = 1;
-					} else if (map[i][j].equals("1bk")){
-						im = "MoonBarracks1.jpg";
-						selector = 0;
-					} else if (map[i][j].equals("2bk")){
-						im = "MoonBarracks2.jpg";
-						selector = 1;
-					} else if (map[i][j].equals("1sd")){
-						im = "MoonSoldier1.png";
+					} else if (map[i][j].equals("3mb")){
+						im = base[theme][2];
 						selector = 2;
-					} else if (map[i][j].equals("2sd")){
-						im = "MoonSoldier2.png";
-						selector = 3;
-					} else if (map[i][j].equals("1wk")){
-						im = "MoonWorker1.png";
-						selector = 2;
-					} else if (map[i][j].equals("2wk")){
-						im = "MoonWorker2.png";
+					}else if (map[i][j].equals("4mb")){
+						im = base[theme][3];
 						selector = 3;
 					}
 					Image i2 = new Image(im,true);
 					iV2.setImage(i2);
-					iV2.setX(j*100+1);
-					iV2.setY(i*100+1);
-					iV2.setFitHeight(98);
-					iV2.setFitWidth(98);
+					iV2.setX(j*imSize+1);
+					iV2.setY(i*imSize+1);
+					iV2.setFitHeight(imSize-2);
+					iV2.setFitWidth(imSize-2);
 					root.getChildren().add(iV2);
 					imstorage.get(selector).add(iV2);
 				}
@@ -373,3 +534,11 @@ public class GraphicsGame extends Application{
 	
 	}
 }
+
+
+
+
+
+
+
+
