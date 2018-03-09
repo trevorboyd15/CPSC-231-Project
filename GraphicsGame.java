@@ -24,6 +24,7 @@ public class GraphicsGame extends Application{
 	
 	private Text res = new Text();
 	private int numAI = 1;
+	private int theme = 0;
 	
 	private int MouseState = 0;
 	private int selector = 0;
@@ -39,6 +40,9 @@ public class GraphicsGame extends Application{
 	private List<ImageView> p3build = new ArrayList<ImageView>();
 	private List<ImageView> p4build = new ArrayList<ImageView>();
 	private List<List<ImageView>> imstorage = new ArrayList<List<ImageView>>();
+	
+	private ImageView cursor = new ImageView();
+	private String[] cursTheme = {"MoonOutline.png","PlainsOutline.png"};
 	
 	
 	public void addPlayers(int a){
@@ -65,22 +69,54 @@ public class GraphicsGame extends Application{
 		addPlayers(1);
 		Group root = new Group();
 		VBox men = new VBox(5);
-		HBox buttons = new HBox();
+		HBox buttons = new HBox(10);
+		HBox themeSel = new HBox(10);
 		Scene scene = new Scene(root, 1100, 1000,Color.BLACK);
-		Scene menue = new Scene(men,800,200);
+		Scene menue = new Scene(men,400,400);
 		stage.setTitle("StarCraft III");
 		
 		Label buttonExp = new Label("How Many Opponents Would You Like To Face?");
+		Label themeExp = new Label("Please Select A Theme");
 		Text numOfAi = new Text();
+		Text curTheme = new Text();
+		curTheme.setText("Theme: Moon");
 		numOfAi.setText("You Have 1 Opponent");
+		
+		Button moon = new Button();
+		Button plain = new Button();
+		
+		moon.setText("Moon");
+		plain.setText("Plain");
+		
+		moon.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+				theme = 0;
+				curTheme.setText("Theme: Moon");
+			}
+		});
+		plain.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+				theme = 1;
+				curTheme.setText("Theme: Plain");
+			}
+		});
+		
+		
+		themeSel.getChildren().add(moon);
+		themeSel.getChildren().add(plain);
+		themeSel.setAlignment(Pos.CENTER);
 		
 		Button one = new Button();
 		Button two = new Button();
 		Button three = new Button();
 		
 		one.setText("One");
-		two.setText("two");
-		three.setText("three");
+		two.setText("Two");
+		three.setText("Three");
 		
 		buttons.setAlignment(Pos.CENTER);
 		buttons.getChildren().add(one);
@@ -96,6 +132,7 @@ public class GraphicsGame extends Application{
             public void handle(ActionEvent event) {
 				stage.setScene(scene);
 				addAiPlayers(numAI-1);
+				display(root);
 				timeline.play();
 			}
 		});
@@ -134,6 +171,9 @@ public class GraphicsGame extends Application{
 		men.getChildren().add(buttonExp);
 		men.getChildren().add(buttons);
 		men.getChildren().add(numOfAi);
+		men.getChildren().add(themeExp);
+		men.getChildren().add(themeSel);
+		men.getChildren().add(curTheme);
 		men.getChildren().add(start);
 		
 		
@@ -155,7 +195,7 @@ public class GraphicsGame extends Application{
 		imstorage.add( p4unit);	
 			
 		
-		display(root);
+		
 		
 		
 		EventHandler<MouseEvent> mhand = new EventHandler<MouseEvent>(){
@@ -164,13 +204,27 @@ public class GraphicsGame extends Application{
 				//System.out.println("cool");
 				int x = (int)(e.getX()/imSize);
 				int y = (int)(e.getY()/ imSize);
+				if (x >= gs.getMap().getSize()){
+					x = gs.getMap().getSize() -1;
+				}
+				if ( y >= gs.getMap().getSize()){
+					y = gs.getMap().getSize();
+				}
 				
 				if (gs.getMap().getBoard()[y][x].charAt(0) == '1'){
+					if (MouseState == 0){
+						cursor.setImage(new Image(cursTheme[theme]));
+						cursor.setFitHeight(imSize-2);
+						cursor.setFitWidth(imSize-2);
+						root.getChildren().add(cursor);
+					}
 					Player p = gs.getPlayers().get(0);
 					p.findSelectables();
 					for (int index = 0;index<p.getSelectables().size();index++){
 						if (p.getSelectables().get(index).getX() == x &&p.getSelectables().get(index).getY() == y){
 							c = p.getSelectables().get(index);
+							cursor.setX(c.getX()*imSize+1);
+							cursor.setY(c.getY()*imSize+1);
 							MouseState = 1;
 							break;
 						}
@@ -301,19 +355,23 @@ public class GraphicsGame extends Application{
 	}
 	
 	public void unitimAdd(int i,Group root,int j){
-		String[] uRef = {"MoonWorker1.png","MoonWorker2.png","MoonWorker3.png","MoonWorker4.png","MoonSoldier1.png","MoonSoldier2.png","MoonSoldier3.png","MoonSoldier4.png"};
+		String[][] uRef = { {"MoonWorker1.png","MoonWorker2.png","MoonWorker3.png",
+		"MoonWorker4.png","MoonSoldier1.png","MoonSoldier2.png","MoonSoldier3.png",
+		"MoonSoldier4.png"}, {"PlainsWorker1.png","PlainsWorker2.png","PlainsWorker3.png",
+		"PlainsWorker4.png","PlainsSoldier1.png","PlainsSoldier2.png","PlainsSoldier3.png",
+		"PlainsSoldier4.png"}};
 		ImageView iV2 = new ImageView();
 		Image i2;
 		//System.out.println(i);
 		//System.out.println(j);
 		boolean valid = false;
 		if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Worker){
-			i2 = new Image(uRef[j],true);
+			i2 = new Image(uRef[theme][j],true);
 			iV2.setImage(i2);
 			valid = true;
 			
 		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Soldier){
-			i2 = new Image(uRef[j+4],true);
+			i2 = new Image(uRef[theme][j+4],true);
 			iV2.setImage(i2);
 			valid = true;
 		}	
@@ -331,17 +389,21 @@ public class GraphicsGame extends Application{
 	}
 	
 	public void buildingImAdd(int i,Group root,int j){
-		String[] uRef = {"MoonBarracks1.jpg","MoonBarracks2.jpg","MoonBarracks3.jpg","MoonBarracks4.jpg","MoonBase1.jpg","MoonBase2.jpg","MoonBase3.jpg","MoonBase4.jpg"};
+		String[][] uRef = {{"MoonBarracks1.jpg","MoonBarracks2.jpg","MoonBarracks3.jpg",
+		"MoonBarracks4.jpg","MoonBase1.jpg","MoonBase2.jpg","MoonBase3.jpg",
+		"MoonBase4.jpg"},{"PlainsBarracks1.jpg","PlainsBarracks2.jpg","PlainsBarracks3.jpg",
+		"PlainsBarracks4.jpg","PlainsBase1.jpg","PlainsBase2.jpg","PlainsBase3.jpg",
+		"PlainsBase4.jpg"}};
 		Image i2;
 		ImageView iV2 = new ImageView();
 		boolean valid = false;
 		
 		if (gs.getPlayers().get(j).getBuildingList().get(i) instanceof Barracks){
-			i2 = new Image(uRef[j],true);
+			i2 = new Image(uRef[theme][j],true);
 			iV2.setImage(i2);
 			valid = true;
 		} else if (gs.getPlayers().get(j).getBuildingList().get(i) instanceof MainBase){
-			i2 = new Image(uRef[j+4],true);
+			i2 = new Image(uRef[theme][j+4],true);
 			iV2.setImage(i2);
 			valid = true;
 		}
@@ -383,6 +445,10 @@ public class GraphicsGame extends Application{
 	}		
 	
 	public void updateUnitLocations(GameState gs){
+		if (MouseState != 0){
+			cursor.setX(c.getX()*imSize+1);
+			cursor.setY(c.getY()*imSize+1);
+		}
 		int pn = gs.getPlayers().size();
 		
 		if (pn > 1){
@@ -415,7 +481,10 @@ public class GraphicsGame extends Application{
 	
 	public void display(Group root){
 	
-	gs.updateBoard();
+		String[][] base = {{"MoonBase1.jpg","MoonBase2.jpg","MoonBase3.jpg","MoonBase4.jpg"}
+		,{"PlainsBase1.jpg","PlainsBase2.jpg","PlainsBase3.jpg","PlainsBase4.jpg"}};
+		String[] space = {"MoonSpace.jpg","PlainsSpace.jpg"};
+		gs.updateBoard();
 		
 		String[][] map = gs.getMap().getBoard();
 		int s = gs.getMap().getSize();
@@ -424,7 +493,7 @@ public class GraphicsGame extends Application{
 		for (int i = 0;i<s;i++){
 			for (int j = 0;j<s;j++){
 				ImageView iV = new ImageView();
-				Image i1 = new Image("MoonSpace.jpg",true);
+				Image i1 = new Image(space[theme],true);
 				iV.setImage(i1);
 				iV.setX(j*imSize+1);
 				iV.setY(i*imSize+1);
@@ -437,28 +506,16 @@ public class GraphicsGame extends Application{
 					ImageView iV2 = new ImageView();
 					String im = "MoonBarricade.jpg";
 					if (map[i][j].equals("1mb")){
-						im = "MoonBase1.jpg";
+						im = base[theme][0];
 						selector = 0;
 					} else if (map[i][j].equals("2mb")){
-						im = "MoonBase2.jpg";
+						im = base[theme][1];
 						selector = 1;
-					} else if (map[i][j].equals("1bk")){
-						im = "MoonBarracks1.jpg";
-						selector = 0;
-					} else if (map[i][j].equals("2bk")){
-						im = "MoonBarracks2.jpg";
-						selector = 1;
-					} else if (map[i][j].equals("1sd")){
-						im = "MoonSoldier1.png";
+					} else if (map[i][j].equals("3mb")){
+						im = base[theme][2];
 						selector = 2;
-					} else if (map[i][j].equals("2sd")){
-						im = "MoonSoldier2.png";
-						selector = 3;
-					} else if (map[i][j].equals("1wk")){
-						im = "MoonWorker1.png";
-						selector = 2;
-					} else if (map[i][j].equals("2wk")){
-						im = "MoonWorker2.png";
+					}else if (map[i][j].equals("4mb")){
+						im = base[theme][3];
 						selector = 3;
 					}
 					Image i2 = new Image(im,true);
