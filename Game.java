@@ -336,13 +336,13 @@ class Player {//generic player, used for human and AI
 	
 	void buildUnit(String selection,Character b, int x, int y){//uses the building pos to create a unit next to it
 		if (selection == "worker" ){
-			units.add(new Worker(b.getX()+1,b.getY()+1));
+			units.add(new Worker(x,y);
 		}else if (selection == "soldier"){
-			units.add(new Soldier(b.getX()+1,b.getY()+1));
+			units.add(new Soldier(x,y);
  		}else if (selection == "tank"){
- 			units.add(new Tank(b.getX()+1, b.getY()+1));
+ 			units.add(new Tank(x,y);
  		}else if (selection == "ranged fighter"){
- 			units.add(new RangedFighter(b.getX()+1, b.getY()+1));
+ 			units.add(new RangedFighter(x,y);
  		}
 	}
 	
@@ -546,27 +546,18 @@ class Player {//generic player, used for human and AI
 					a = buildings.get(index).getMyQueues().get(0).getAction();
 					c = buildings.get(index).getMyQueues().get(0).getSelection();
 					i = buildings.get(index).getMyQueues().get(0).getItem();
-					if (c instanceof MainBase && (i == "worker") ){
-						if (gameS.getMap().getBoard()[c.getY()+1][c.getX()+1] == "---"){
-							buildUnit(i,c);
+					List<String> LS = new ArrayList<String>();
+					if (c instanceof MainBase && (i == "worker") || c instanceof Barracks && (LS.contains(i)){
+						if (gameS.getMap().getBoard()[c.getY()+(p*-1)][c.getX()+p] == "---"){
+							buildUnit(i,c,c.getX()+p,c.getY()+(p*-1));
 							done = true;
-						}	
-					}else if (c instanceof Barracks && (i == "soldier") ){
-						if (gameS.getMap().getBoard()[c.getY()+1][c.getX()+1] == "---"){
-							buildUnit(i,c);
+						} else if (gameS.getMap().getBoard()[c.getY()][c.getX()+p] == "---"){
+							buildUnit(i,c,c.getX()+p,c.getY());
 							done = true;
-						}
-					}else if (c instanceof Barracks && (i == "ranged fighter")){
-						if (gameS.getMap().getBoard()[c.getY()+2][c.getX()+2] == "---"){
-							buildUnit(i, c);
-							done = true;
-						}		
-					}else if (c instanceof Barracks && (i == "tank")){
-						if (gameS.getMap().getBoard()[c.getY()+3][c.getX()+3] == "---"){
-							buildUnit(i, c);
+						} else if (gameS.getMap().getBoard()[c.getY()+(p*-1)][c.getX()] == "---"){
+							buildUnit(i,c,c.getX(),c.getY()+(p*-1));
 							done = true;
 						}
-					}
 					if (done){// if the queue action was completed remove the queue from existence
 						buildings.get(index).getMyQueues().remove(0);
 					}
