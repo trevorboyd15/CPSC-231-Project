@@ -905,20 +905,20 @@ class AIPlayer extends Player{
 
 		} else if (wkCount>=3){
 			if (bkCount>=1){
-				if (getResources()>=20&&getBuildingList().get(1).getMyQueues().isEmpty()){
+				if (getResources()>=20 && getBuildingList().size() >= 2 && getBuildingList().get(1).getMyQueues().isEmpty()){
 					createQueue("construct",getBuildingList().get(1),"soldier");
 				} else {
 					for (Unit s : getUnitList()){
-            findAttackSelection(s,gs);
-				if (s.getName()=="sd" && s.getMyQueues().isEmpty()&& getAttackSelectable().size() > 0){
+						findAttackSelection(s,gs);
+						if (s.getName()=="sd" && s.getMyQueues().isEmpty()&& getAttackSelectable().size() > 0){
 					//System.out.println(s.getMyQueues());
 					
-					Random r = new Random();
-					int r2 = r.nextInt(getAttackSelectable().size());
-					createQueue("attack",s,getAttackSelectable().get(r2));
-					break;
-				}
-			}
+							Random r = new Random();
+							int r2 = r.nextInt(getAttackSelectable().size());
+							createQueue("attack",s,getAttackSelectable().get(r2));
+							break;
+						}
+					}
 				}
 			} else {
 				if (getResources()>=50){
