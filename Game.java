@@ -336,13 +336,13 @@ class Player {//generic player, used for human and AI
 	
 	void buildUnit(String selection,Character b, int x, int y){//uses the building pos to create a unit next to it
 		if (selection == "worker" ){
-			units.add(new Worker(x,y);
+			units.add(new Worker(x,y));
 		}else if (selection == "soldier"){
-			units.add(new Soldier(x,y);
+			units.add(new Soldier(x,y));
  		}else if (selection == "tank"){
- 			units.add(new Tank(x,y);
+ 			units.add(new Tank(x,y));
  		}else if (selection == "ranged fighter"){
- 			units.add(new RangedFighter(x,y);
+ 			units.add(new RangedFighter(x,y));
  		}
 	}
 	
