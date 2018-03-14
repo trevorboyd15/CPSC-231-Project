@@ -221,7 +221,13 @@ class GameState {// the game state that holds all information required to run th
 		int tx = target.getX();
 		int ty = target.getY();
 		
-		return (Math.abs(x-tx)<=1 && Math.abs(y-ty) <= 1);
+		if ((attacker == "worker") || (attacker == "soldier")){
+			return (Math.abs(x-tx)<=1 && Math.abs(y-ty) <= 1);
+		}else if (attacker == "ranged fighter"){
+			return (Math.abs(x-tx)<=2 && Math.abs(y-ty)<=2);
+		}else if (attacker == "tank"){
+			return (Math.abs(x-tx)<=3 && Math.abs(y-ty)<=3);
+		}
 	}
 	
 	void addHumanPlayer(int num,GameState gs) {//Forms a new human player
@@ -311,8 +317,13 @@ class Player {//generic player, used for human and AI
 				selectables.add(units.get(i));
 			}else if (units.get(i).getName() == "sd"){
 				selectables.add(units.get(i));
+			}else if (units.get(i).getName() == "tk"){
+				selectables.add(units.get(i));
+			}else if (units.get(i).getName() == "rf"){
+				selectables.add(units.get(i));
 			}
 		}
+		
 	}
 
 	void findActions(Character c){//finds what the given character can do
@@ -328,6 +339,10 @@ class Player {//generic player, used for human and AI
 			units.add(new Worker(x,y));
 		}else if (selection == "soldier"){
 			units.add(new Soldier(x,y));
+ 		}else if (selection == "tank"){
+ 			units.add(new Tank(x,y));
+ 		}else if (selection == "ranged fighter"){
+ 			units.add(new RangedFighter(x,y));
  		}
 	}
 	
@@ -400,6 +415,12 @@ class Player {//generic player, used for human and AI
 		}else if (b.getName() == "bk"){
 			if (getResources()>=20){
 				construct.add("soldier");
+				if (getResources()>=30){
+					construct.add("ranged fighter");
+					if (getResources()>=50){
+						construct.add("tank");
+					}
+				}
 			}
 		}
 	}
@@ -450,10 +471,15 @@ class Player {//generic player, used for human and AI
 		if (charac instanceof MainBase && item == "worker" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,2));
 			setResources(getResources()-10);
-			
-		} else if (charac instanceof Barracks && item == "soldier" && action == "construct"){
+		}else if (charac instanceof Barracks && item == "soldier" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,3));
 			setResources(getResources()-20);
+		}else if (charac instanceof Barracks && item == "ranged fighter" && action == "construct"){
+			charac.getMyQueues().add(new ConstuctQueue(action, charac, item, 3));
+			setResources(getResources()-30);
+		}else if (charac instanceof Barracks && item == "tank" && action == "construct"){
+			charac.getMyQueues().add(new ConstructQueue(action, charac, item, 3));
+			setResources(getResources()-50);
 		}
 	}
 	
@@ -520,7 +546,8 @@ class Player {//generic player, used for human and AI
 					a = buildings.get(index).getMyQueues().get(0).getAction();
 					c = buildings.get(index).getMyQueues().get(0).getSelection();
 					i = buildings.get(index).getMyQueues().get(0).getItem();
-					if ((c instanceof MainBase && (i == "worker") )||(c instanceof Barracks && (i == "soldier"))){
+					List<String> LS = new ArrayList<String>();
+					if (c instanceof MainBase && (i == "worker") || c instanceof Barracks && (LS.contains(i)){
 						if (gameS.getMap().getBoard()[c.getY()+(p*-1)][c.getX()+p] == "---"){
 							buildUnit(i,c,c.getX()+p,c.getY()+(p*-1));
 							done = true;
@@ -531,7 +558,6 @@ class Player {//generic player, used for human and AI
 							buildUnit(i,c,c.getX(),c.getY()+(p*-1));
 							done = true;
 						}
-					}
 					if (done){// if the queue action was completed remove the queue from existence
 						buildings.get(index).getMyQueues().remove(0);
 					}
@@ -681,6 +707,24 @@ class Soldier extends Unit {//the main fighting unit of the army
  	}
  }
  
+ class Tank extends Unit { //another fighting unit similar attributes to soldier. Has range
+ 	Tank (int x, int y) {
+ 		super ("tk", 40, 10, x, y, 40, 50);
+ 		addMyActions("move");
+ 		addMyActions("attack");
+ 		//if within 3 units attack?
+ 	}
+ }
+
+ class rangedFighter extends Unit { //another fighting unit which can attack from a certain range
+ 	rangedFighter (int x, int y) {
+ 		super ("rf", 30, 0, x, y, 10, 30);
+ 		addMyActions("move");
+ 		addMyActions("attack");
+ 		//if within 2 units attack?
+ 	}
+ }
+
 class HumanPlayer extends Player{//used for human players, including taking input
 
 	private Scanner sc = new Scanner(System.in);
@@ -970,6 +1014,26 @@ class AIPlayer extends Player{
 		int count = 0;
 		for (int index = 0;index<getUnitList().size();index++){
 			if (getUnitList().get(index).getName()=="sd"){
+				count += 1;
+			}
+		}
+		return count;
+	}
+	
+	int checkTanks(){
+		int count = 0;
+		for (int index = 0;index<getUnitList().size();index++){
+			if (getUnitList().get(index).getName() == "tk"){
+				count += 1;
+			}
+		}
+		return count;
+	}
+	
+	int checkRangedFighters(){
+		int count = 0;
+		for (int index = 0;index<getUnitList().size();index++){
+			if (getUnitList().get(index).getName() == "rf"){
 				count += 1;
 			}
 		}
