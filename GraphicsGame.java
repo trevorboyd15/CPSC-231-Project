@@ -23,6 +23,11 @@ public class GraphicsGame extends Application{
 	private Character c;
 	
 	private Text res = new Text();
+	
+	private Text keyOne = new Text();
+	private Text keyTwo = new Text();
+	private Text keyThree = new Text();
+	
 	private int numAI = 1;
 	private int theme = 0;
 	
@@ -171,9 +176,12 @@ public class GraphicsGame extends Application{
 				}
 				root.getChildren().clear();
 				root.getChildren().add(res);
-				stage.setScene(scene);
+				root.getChildren().add(keyOne);
+				root.getChildren().add(keyTwo);
+				root.getChildren().add(keyThree);
 				addPlayers(numAI);
 				display(root);
+				stage.setScene(scene);
 				timeline.play();
 				aiTurn.play();
 			}
@@ -227,6 +235,27 @@ public class GraphicsGame extends Application{
 		res.setWrappingWidth(100.0);
 		res.setTextAlignment(TextAlignment.CENTER);
 		
+		keyOne.setX(1005);
+		keyOne.setY(200);
+		keyOne.setFill(Color.WHITE);
+		keyOne.setFont(Font.font ("Verdana", 15));
+		keyOne.setWrappingWidth(90.0);
+		keyOne.setTextAlignment(TextAlignment.CENTER);
+		
+		keyTwo.setX(1005);
+		keyTwo.setY(400);
+		keyTwo.setFill(Color.WHITE);
+		keyTwo.setFont(Font.font ("Verdana", 15));
+		keyTwo.setWrappingWidth(90.0);
+		keyTwo.setTextAlignment(TextAlignment.CENTER);
+		
+		keyThree.setX(1005);
+		keyThree.setY(400);
+		keyThree.setFill(Color.WHITE);
+		keyThree.setFont(Font.font ("Verdana", 15));
+		keyThree.setWrappingWidth(90.0);
+		keyThree.setTextAlignment(TextAlignment.CENTER);
+		
 		imstorage.add( p1build);	
 		imstorage.add( p2build);
 		imstorage.add( p3build);
@@ -267,6 +296,23 @@ public class GraphicsGame extends Application{
 							c = p.getSelectables().get(index);
 							cursor.setX(c.getX()*imSize+1);
 							cursor.setY(c.getY()*imSize+1);
+							if (c instanceof Worker){
+								keyOne.setText("C: Construct Barracks");
+								keyTwo.setText("G: Gather Resources");
+								keyThree.setText("");
+							} else if (c instanceof MainBase){
+								keyOne.setText("B: Build Worker");
+								keyTwo.setText("");
+								keyThree.setText("");
+							}else if (c instanceof Barracks){
+								keyOne.setText("B: Build Soldier");
+								keyTwo.setText("");
+								keyThree.setText("");
+							}else if (c instanceof Soldier){
+								keyOne.setText("Click To Attack");
+								keyTwo.setText("");
+								keyThree.setText("");
+							}
 							MouseState = 1;
 							break;
 						}
@@ -391,7 +437,7 @@ public class GraphicsGame extends Application{
 				dead ++;
 			}
 		}
-		if (dead == numAI){
+		if (dead >= numAI){
 			if (gs.getPlayers().get(0).getBuildingList().size() >= 1){
 				System.out.println("you won!");
 				didWin.setText("you won!");
