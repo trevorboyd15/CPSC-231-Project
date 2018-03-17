@@ -22,11 +22,19 @@ public class DSA {
 		distance = new double[size*size];
 	}
 	
-	String[][] map;
 
 	public int findFirstMove(String[][] m, int sx,int sy, int gx, int gy){
-		m[gy][gx] = "---";
-		convertMap(m);
+		if (m.length != size){
+			return sx + sy*size;
+		}else{
+			for (int i = 0;i<size;i++){
+				if (m[i].length != size){
+					return sx + sy*size;
+				}
+			}
+		}
+		
+		
 		queue.clear();
 		for (int i = 0;i< size*size; i++){
 			node[i] = 0;
@@ -34,6 +42,12 @@ public class DSA {
 			distance[i] = -1;
 		}
 		int sNode = sx + sy*size;
+		if (sx < 0 || sx >= size || sy < 0 || sy >= size || gx < 0 || gx >= size || gy < 0 || gy >= size){
+			return sNode;
+		}
+		
+		m[gy][gx] = "---";
+		convertMap(m);
 		int fNode = gx + gy*size;
 		int nNode = sNode;
 		double cDis = 0;
@@ -76,6 +90,7 @@ public class DSA {
 				}
 			}
 		}
+		
 		int cNode = fNode;
 		int oNode = fNode;
 		if (path[fNode] == -1){
