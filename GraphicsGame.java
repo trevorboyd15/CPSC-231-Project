@@ -23,6 +23,11 @@ public class GraphicsGame extends Application{
 	private Character c;
 	
 	private Text res = new Text();
+	
+	private Text keyOne = new Text();
+	private Text keyTwo = new Text();
+	private Text keyThree = new Text();
+	
 	private int numAI = 1;
 	private int theme = 0;
 	
@@ -65,15 +70,50 @@ public class GraphicsGame extends Application{
 		imSize = 1000/gs.getMap().getSize();
 		
 		Timeline timeline = new Timeline();
+		Timeline aiTurn = new Timeline();
 		
 		addPlayers(1);
 		Group root = new Group();
 		VBox men = new VBox(5);
+		VBox rest = new VBox(10);
 		HBox buttons = new HBox(10);
 		HBox themeSel = new HBox(10);
 		Scene scene = new Scene(root, 1100, 1000,Color.BLACK);
+		Scene restart = new Scene(rest,200,200);
 		Scene menue = new Scene(men,400,400);
 		stage.setTitle("StarCraft III");
+		
+		Text didWin = new Text();
+		
+		rest.setAlignment(Pos.TOP_CENTER);
+		
+		Button backToMen = new Button();
+		Button quit = new Button();
+		
+		backToMen.setText("Return to Menue");
+		quit.setText("Quit");
+		
+		rest.getChildren().add(didWin);
+		rest.getChildren().add(backToMen);
+		rest.getChildren().add(quit);
+		
+		backToMen.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+				stage.setScene(menue);
+			}
+		});
+		quit.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+				stage.close();
+			}
+		});
+		
+		
+		
 		
 		Label buttonExp = new Label("How Many Opponents Would You Like To Face?");
 		Label themeExp = new Label("Please Select A Theme");
@@ -130,10 +170,20 @@ public class GraphicsGame extends Application{
  
             @Override
             public void handle(ActionEvent event) {
-				stage.setScene(scene);
-				addAiPlayers(numAI-1);
+				gs = new GameState();
+				for (int i = 0; i < imstorage.size(); i++){
+					imstorage.get(i).clear();
+				}
+				root.getChildren().clear();
+				root.getChildren().add(res);
+				root.getChildren().add(keyOne);
+				root.getChildren().add(keyTwo);
+				root.getChildren().add(keyThree);
+				addPlayers(numAI);
 				display(root);
+				stage.setScene(scene);
 				timeline.play();
+				aiTurn.play();
 			}
 		});
 		
@@ -185,6 +235,27 @@ public class GraphicsGame extends Application{
 		res.setWrappingWidth(100.0);
 		res.setTextAlignment(TextAlignment.CENTER);
 		
+		keyOne.setX(1005);
+		keyOne.setY(200);
+		keyOne.setFill(Color.WHITE);
+		keyOne.setFont(Font.font ("Verdana", 15));
+		keyOne.setWrappingWidth(90.0);
+		keyOne.setTextAlignment(TextAlignment.CENTER);
+		
+		keyTwo.setX(1005);
+		keyTwo.setY(400);
+		keyTwo.setFill(Color.WHITE);
+		keyTwo.setFont(Font.font ("Verdana", 15));
+		keyTwo.setWrappingWidth(90.0);
+		keyTwo.setTextAlignment(TextAlignment.CENTER);
+		
+		keyThree.setX(1005);
+		keyThree.setY(400);
+		keyThree.setFill(Color.WHITE);
+		keyThree.setFont(Font.font ("Verdana", 15));
+		keyThree.setWrappingWidth(90.0);
+		keyThree.setTextAlignment(TextAlignment.CENTER);
+		
 		imstorage.add( p1build);	
 		imstorage.add( p2build);
 		imstorage.add( p3build);
@@ -225,6 +296,23 @@ public class GraphicsGame extends Application{
 							c = p.getSelectables().get(index);
 							cursor.setX(c.getX()*imSize+1);
 							cursor.setY(c.getY()*imSize+1);
+							if (c instanceof Worker){
+								keyOne.setText("C: Construct Barracks");
+								keyTwo.setText("G: Gather Resources");
+								keyThree.setText("");
+							} else if (c instanceof MainBase){
+								keyOne.setText("B: Build Worker");
+								keyTwo.setText("");
+								keyThree.setText("");
+							}else if (c instanceof Barracks){
+								keyOne.setText("B: Build Soldier");
+								keyTwo.setText("");
+								keyThree.setText("");
+							}else if (c instanceof Soldier){
+								keyOne.setText("Click To Attack");
+								keyTwo.setText("");
+								keyThree.setText("");
+							}
 							MouseState = 1;
 							break;
 						}
@@ -277,13 +365,15 @@ public class GraphicsGame extends Application{
 		};     
 		
 		
-		timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(speed),ae -> up(root,timeline)));
-		
+		timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(0.5),ae -> up(root,timeline,
+		stage,restart,aiTurn,didWin)));
+		aiTurn.getKeyFrames().add(new KeyFrame(Duration.seconds(speed),ae -> aiT()));
 		
 		
 		root.getChildren().add(res);
 		
 		timeline.setCycleCount(Timeline.INDEFINITE);
+		aiTurn.setCycleCount(Timeline.INDEFINITE);
 		
 		root.addEventFilter(MouseEvent.MOUSE_CLICKED, mhand);
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, kb);
@@ -293,17 +383,22 @@ public class GraphicsGame extends Application{
 		//stage.setScene(scene);
 		stage.show();
 	}
-
-	public void up(Group root,Timeline timeline){
-		int a = 0;
-		int b = 0;
-		int dead = 0;
-		
+	
+	public void aiT (){
 		for (int i = 1;i < gs.getPlayers().size();i++){
 			if (gs.getPlayers().get(i).getBuildingList().size() >= 1){
 				gs.getPlayers().get(i).getChoice(gs);
 			}
 		}
+	}
+		
+	
+	public void up(Group root,Timeline timeline,Stage stage,Scene restart,Timeline aiTurn,Text didWin){
+		int a = 0;
+		int b = 0;
+		int dead = 0;
+		
+		
 		//ImageView iV2 = new ImageView();
 		
 		for (int index = 0; index < gs.getPlayers().size();index++){
@@ -342,13 +437,17 @@ public class GraphicsGame extends Application{
 				dead ++;
 			}
 		}
-		if (dead == numAI){
+		if (dead >= numAI){
 			if (gs.getPlayers().get(0).getBuildingList().size() >= 1){
 				System.out.println("you won!");
+				didWin.setText("you won!");
 			} else {
 				System.out.println("you lost :(");
+				didWin.setText("you lost :(");
 			}
 			timeline.stop();
+			aiTurn.stop();
+			stage.setScene(restart);
 		}
 		res.setText("Minerals: " +gs.getPlayers().get(0).getResources());
 		
