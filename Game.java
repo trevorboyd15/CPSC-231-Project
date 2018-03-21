@@ -536,7 +536,7 @@ class Player {//generic player, used for human and AI
 						buildings.get(index).getMyQueues().remove(0);
 					}
 				}else{
-				buildings.get(index).getMyQueues().get(0).decrementTime();// becuase the buildings only have construct queue 
+					buildings.get(index).getMyQueues().get(0).decrementTime();// becuase the buildings only have construct queue 
 				}
 			}
 			gameS.updateBoard();
