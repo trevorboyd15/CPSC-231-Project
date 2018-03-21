@@ -17,6 +17,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.geometry.Pos;
 import java.util.*;
+import javafx.animation.KeyValue;
+
 
 public class GraphicsGame extends Application{
 	private GameState gs = new GameState();
@@ -33,7 +35,7 @@ public class GraphicsGame extends Application{
 	
 	private int MouseState = 0;
 	private int selector = 0;
-	private double speed = 1.0;
+	private double speed = 0.5;
 	private int imSize = 100;
 	
 	private List<ImageView> p1unit = new ArrayList<ImageView>();
@@ -72,6 +74,26 @@ public class GraphicsGame extends Application{
 		Timeline timeline = new Timeline();
 		Timeline aiTurn = new Timeline();
 		
+		Timeline timeline2 = new Timeline();
+		timeline2.setOnFinished(new EventHandler<ActionEvent>(){
+			@Override
+			public void handle(ActionEvent event){
+				int pn = gs.getPlayers().size();
+				//timeline2.stop();
+				timeline2.getKeyFrames().clear();
+				for (int i = 0; i < pn; i++){
+					int n = gs.getPlayers().get(i).getNum();
+					for(int j = 0; j < gs.getPlayers().get(i).getUnitList().size();j ++){
+						if (imstorage.get(n+3).size() > j){
+							imstorage.get(n+3).get(j).setX(imSize*gs.getPlayers().get(i).getUnitList().get(j).getX());
+							imstorage.get(n+3).get(j).setY(imSize*gs.getPlayers().get(i).getUnitList().get(j).getY());
+						}
+					}
+				}
+				//timeline2.play();
+			}
+		});
+		
 		addPlayers(1);
 		Group root = new Group();
 		VBox men = new VBox(5);
@@ -80,7 +102,7 @@ public class GraphicsGame extends Application{
 		HBox themeSel = new HBox(10);
 		Scene scene = new Scene(root, 1100, 1000,Color.BLACK);
 		Scene restart = new Scene(rest,200,200);
-		Scene menue = new Scene(men,400,400);
+		Scene menu = new Scene(men,400,400);
 		stage.setTitle("StarCraft III");
 		
 		Text didWin = new Text();
@@ -90,7 +112,7 @@ public class GraphicsGame extends Application{
 		Button backToMen = new Button();
 		Button quit = new Button();
 		
-		backToMen.setText("Return to Menue");
+		backToMen.setText("Return to Menu");
 		quit.setText("Quit");
 		
 		rest.getChildren().add(didWin);
@@ -101,7 +123,7 @@ public class GraphicsGame extends Application{
  
             @Override
             public void handle(ActionEvent event) {
-				stage.setScene(menue);
+				stage.setScene(menu);
 			}
 		});
 		quit.setOnAction(new EventHandler<ActionEvent>() {
@@ -126,7 +148,7 @@ public class GraphicsGame extends Application{
 		Button plain = new Button();
 		
 		moon.setText("Moon");
-		plain.setText("Plain");
+		plain.setText("Plains");
 		
 		moon.setOnAction(new EventHandler<ActionEvent>() {
  
@@ -141,7 +163,7 @@ public class GraphicsGame extends Application{
             @Override
             public void handle(ActionEvent event) {
 				theme = 1;
-				curTheme.setText("Theme: Plain");
+				curTheme.setText("Theme: Plains");
 			}
 		});
 		
@@ -343,6 +365,7 @@ public class GraphicsGame extends Application{
 			}
 		};
 		
+		
 		EventHandler<KeyEvent> kb = new EventHandler<KeyEvent>() { 
 			@Override 
 			public void handle(KeyEvent k) { 
@@ -366,9 +389,9 @@ public class GraphicsGame extends Application{
 		
 		
 		timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(0.5),ae -> up(root,timeline,
-		stage,restart,aiTurn,didWin)));
+		stage,restart,aiTurn,didWin,timeline2)));
 		aiTurn.getKeyFrames().add(new KeyFrame(Duration.seconds(speed),ae -> aiT()));
-		
+		timeline2.play();
 		
 		root.getChildren().add(res);
 		
@@ -379,7 +402,7 @@ public class GraphicsGame extends Application{
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, kb);
 		
 		
-		stage.setScene(menue);
+		stage.setScene(menu);
 		//stage.setScene(scene);
 		stage.show();
 	}
@@ -393,7 +416,7 @@ public class GraphicsGame extends Application{
 	}
 		
 	
-	public void up(Group root,Timeline timeline,Stage stage,Scene restart,Timeline aiTurn,Text didWin){
+	public void up(Group root,Timeline timeline,Stage stage,Scene restart,Timeline aiTurn,Text didWin,Timeline timeline2){
 		int a = 0;
 		int b = 0;
 		int dead = 0;
@@ -430,7 +453,7 @@ public class GraphicsGame extends Application{
 		
 		//System.out.println("you have " + gs.getPlayers().get(0).getResources());
 		//gs.displayBoard();
-		updateUnitLocations(gs);
+		updateUnitLocations(gs,timeline2);
 		gs.checkBase();
 		for (int i = 0; i < gs.getPlayers().size(); i ++){
 			if (gs.getPlayers().get(i).getBuildingList().size() == 0){
@@ -446,6 +469,7 @@ public class GraphicsGame extends Application{
 				didWin.setText("you lost :(");
 			}
 			timeline.stop();
+			timeline2.stop();
 			aiTurn.stop();
 			stage.setScene(restart);
 		}
@@ -543,7 +567,7 @@ public class GraphicsGame extends Application{
 		
 	}		
 	
-	public void updateUnitLocations(GameState gs){
+	public void updateUnitLocations(GameState gs,Timeline timeline){
 		if (MouseState != 0){
 			cursor.setX(c.getX()*imSize+1);
 			cursor.setY(c.getY()*imSize+1);
@@ -551,15 +575,20 @@ public class GraphicsGame extends Application{
 		int pn = gs.getPlayers().size();
 		
 		if (pn > 1){
+			timeline.stop();
+			timeline.getKeyFrames().clear();
 			for (int i = 0; i < pn; i++){
-				int n = gs.getPlayers().get(i).getNum();
+				int n = gs.getPlayers().get(i).getNum();				
 				for(int j = 0; j < gs.getPlayers().get(i).getUnitList().size();j ++){
 					if (imstorage.get(n+3).size() > j){
-						imstorage.get(n+3).get(j).setX(imSize*gs.getPlayers().get(i).getUnitList().get(j).getX());
-						imstorage.get(n+3).get(j).setY(imSize*gs.getPlayers().get(i).getUnitList().get(j).getY());
+						final KeyValue keyValue1 = new KeyValue(imstorage.get(n+3).get(j).xProperty(),imSize*gs.getPlayers().get(i).getUnitList().get(j).getX());
+						final KeyValue keyValue2 = new KeyValue(imstorage.get(n+3).get(j).yProperty(),imSize*gs.getPlayers().get(i).getUnitList().get(j).getY());
+						KeyFrame keyFrame = new KeyFrame(Duration.seconds(speed), keyValue1, keyValue2);
+						timeline.getKeyFrames().add(keyFrame);
 					}
 				}
 			}
+			timeline.play();
 		}
 	}
 	
