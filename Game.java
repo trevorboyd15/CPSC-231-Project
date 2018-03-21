@@ -221,12 +221,14 @@ class GameState {// the game state that holds all information required to run th
 		int tx = target.getX();
 		int ty = target.getY();
 		
-		if ((attacker == "worker") || (attacker == "soldier")){
+		if ((attacker instanceof Worker) || (attacker instanceof Soldier)){
 			return (Math.abs(x-tx)<=1 && Math.abs(y-ty) <= 1);
-		}else if (attacker == "ranged fighter"){
+		}else if (attacker instanceof RangedFighter){
 			return (Math.abs(x-tx)<=2 && Math.abs(y-ty)<=2);
-		}else if (attacker == "tank"){
+		}else if (attacker instanceof Tank){
 			return (Math.abs(x-tx)<=3 && Math.abs(y-ty)<=3);
+		}else{
+			return false;
 		}
 	}
 	
@@ -475,7 +477,7 @@ class Player {//generic player, used for human and AI
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,3));
 			setResources(getResources()-20);
 		}else if (charac instanceof Barracks && item == "ranged fighter" && action == "construct"){
-			charac.getMyQueues().add(new ConstuctQueue(action, charac, item, 3));
+			charac.getMyQueues().add(new ConstructQueue(action, charac, item, 3));
 			setResources(getResources()-30);
 		}else if (charac instanceof Barracks && item == "tank" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action, charac, item, 3));
@@ -546,8 +548,7 @@ class Player {//generic player, used for human and AI
 					a = buildings.get(index).getMyQueues().get(0).getAction();
 					c = buildings.get(index).getMyQueues().get(0).getSelection();
 					i = buildings.get(index).getMyQueues().get(0).getItem();
-					List<String> LS = new ArrayList<String>();
-					if (c instanceof MainBase && (i == "worker") || c instanceof Barracks && (LS.contains(i)){
+					if (c instanceof MainBase && (i == "worker") || c instanceof Barracks ){
 						if (gameS.getMap().getBoard()[c.getY()+(p*-1)][c.getX()+p] == "---"){
 							buildUnit(i,c,c.getX()+p,c.getY()+(p*-1));
 							done = true;
@@ -558,16 +559,17 @@ class Player {//generic player, used for human and AI
 							buildUnit(i,c,c.getX(),c.getY()+(p*-1));
 							done = true;
 						}
-					if (done){// if the queue action was completed remove the queue from existence
-						buildings.get(index).getMyQueues().remove(0);
+						if (done){// if the queue action was completed remove the queue from existence
+							buildings.get(index).getMyQueues().remove(0);
+						}
 					}
 				}else{
 					buildings.get(index).getMyQueues().get(0).decrementTime();// becuase the buildings only have construct queue 
 				}
+				
+				gameS.updateBoard();
 			}
-			gameS.updateBoard();
 		}
-		
 		for (int index = 0; index < units.size(); index++){//goes through the units to update there queues
 			done = false;
 			
@@ -639,6 +641,7 @@ class Player {//generic player, used for human and AI
 			
 			}
 			gameS.updateBoard();
+			
 
 		}
 	}
@@ -716,8 +719,8 @@ class Soldier extends Unit {//the main fighting unit of the army
  	}
  }
 
- class rangedFighter extends Unit { //another fighting unit which can attack from a certain range
- 	rangedFighter (int x, int y) {
+ class RangedFighter extends Unit { //another fighting unit which can attack from a certain range
+ 	RangedFighter (int x, int y) {
  		super ("rf", 30, 0, x, y, 10, 30);
  		addMyActions("move");
  		addMyActions("attack");
