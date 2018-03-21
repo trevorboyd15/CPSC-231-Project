@@ -551,18 +551,15 @@ public class GraphicsGame extends Application{
 		int pn = gs.getPlayers().size();
 		
 		if (pn > 1){
-		for (int i = 0; i < pn; i++){
-			int n = gs.getPlayers().get(i).getNum();
-			for(int j = 0; j < gs.getPlayers().get(i).getUnitList().size();j ++){
-				//System.out.println(i);
-				//System.out.println(j);
-				//System.out.println(imstorage.get(i+2).get(j));
-				if (imstorage.get(n+3).size() > j){
-					imstorage.get(n+3).get(j).setX(imSize*gs.getPlayers().get(i).getUnitList().get(j).getX());
-					imstorage.get(n+3).get(j).setY(imSize*gs.getPlayers().get(i).getUnitList().get(j).getY());
+			for (int i = 0; i < pn; i++){
+				int n = gs.getPlayers().get(i).getNum();
+				for(int j = 0; j < gs.getPlayers().get(i).getUnitList().size();j ++){
+					if (imstorage.get(n+3).size() > j){
+						imstorage.get(n+3).get(j).setX(imSize*gs.getPlayers().get(i).getUnitList().get(j).getX());
+						imstorage.get(n+3).get(j).setY(imSize*gs.getPlayers().get(i).getUnitList().get(j).getY());
+					}
 				}
 			}
-		}
 		}
 	}
 	
