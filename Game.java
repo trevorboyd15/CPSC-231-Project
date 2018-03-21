@@ -969,9 +969,11 @@ class AIPlayer extends Player{
 				}
 			} else {
 				if (getResources()>=50){
+					int wC = 0;
 					for (Unit w : getUnitList()){
 						if (w.getName()=="wk"){
-							if (w == getUnitList().get(2)){
+							wC ++;
+							if (wC == 3){
 								int x = getBuildingList().get(0).getX();
 								int y = getBuildingList().get(0).getY();
 								if (getNum() == 2){
@@ -985,6 +987,7 @@ class AIPlayer extends Player{
 									y += 2;
 								}
 								createQueue("build",w,x,y,"barracks");
+								break;
 							}
 						}
 					}
