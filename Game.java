@@ -533,12 +533,21 @@ class Player {//generic player, used for human and AI
 		Character c;
 		String i;
 		boolean done;
-		int p = 1;
+		int p1 = 0;
+		int p2 = 0;
 		
 		if (pNum == 1){
-			p = 1;
+			p1 = -1;
+			p2 = 1;
 		} else if (pNum == 2){
-			p = -1;
+			p1 = 1;
+			p2 = -1;
+		} else if (pNum == 3){
+			p1 = 1;
+			p2 = 1;
+		} else if (pNum == 4){
+			p1 = -1;
+			p2 = -1;
 		}
 		
 		for (int index = 0; index < buildings.size(); index++){//goes through the building list and runs the first queue action
@@ -549,14 +558,14 @@ class Player {//generic player, used for human and AI
 					c = buildings.get(index).getMyQueues().get(0).getSelection();
 					i = buildings.get(index).getMyQueues().get(0).getItem();
 					if (c instanceof MainBase && (i == "worker") || c instanceof Barracks ){
-						if (gameS.getMap().getBoard()[c.getY()+(p*-1)][c.getX()+p] == "---"){
-							buildUnit(i,c,c.getX()+p,c.getY()+(p*-1));
+						if (gameS.getMap().getBoard()[c.getY()+p1][c.getX()+p2] == "---"){
+							buildUnit(i,c,c.getX()+p2,c.getY()+p1);
 							done = true;
-						} else if (gameS.getMap().getBoard()[c.getY()][c.getX()+p] == "---"){
-							buildUnit(i,c,c.getX()+p,c.getY());
+						} else if (gameS.getMap().getBoard()[c.getY()][c.getX()+p2] == "---"){
+							buildUnit(i,c,c.getX()+p2,c.getY());
 							done = true;
-						} else if (gameS.getMap().getBoard()[c.getY()+(p*-1)][c.getX()] == "---"){
-							buildUnit(i,c,c.getX(),c.getY()+(p*-1));
+						} else if (gameS.getMap().getBoard()[c.getY()+p1][c.getX()] == "---"){
+							buildUnit(i,c,c.getX(),c.getY()+p1);
 							done = true;
 						}
 						if (done){// if the queue action was completed remove the queue from existence
@@ -989,6 +998,12 @@ class AIPlayer extends Player{
 								createQueue("build",w,x,y,"barracks");
 								break;
 							}
+						}
+					}
+				} else {
+					for (Unit w : getUnitList()){
+						if (w.getName()=="wk"){
+							createQueue("collect",w);
 						}
 					}
 				}
