@@ -30,6 +30,11 @@ public class GraphicsGame extends Application{
 	private Text keyTwo = new Text();
 	private Text keyThree = new Text();
 	
+	private Timeline timeline = new Timeline();
+	private Timeline aiTurn = new Timeline();
+	
+	private Stage r = new Stage();
+	
 	private int numAI = 1;
 	private int theme = 0;
 	
@@ -71,8 +76,7 @@ public class GraphicsGame extends Application{
 	public void start(Stage stage){
 		imSize = 1000/gs.getMap().getSize();
 		
-		Timeline timeline = new Timeline();
-		Timeline aiTurn = new Timeline();
+		
 		
 		Timeline timeline2 = new Timeline();
 		timeline2.setOnFinished(new EventHandler<ActionEvent>(){
@@ -124,6 +128,8 @@ public class GraphicsGame extends Application{
             @Override
             public void handle(ActionEvent event) {
 				stage.setScene(menu);
+				stage.show();
+				r.close();
 			}
 		});
 		quit.setOnAction(new EventHandler<ActionEvent>() {
@@ -131,6 +137,7 @@ public class GraphicsGame extends Application{
             @Override
             public void handle(ActionEvent event) {
 				stage.close();
+				r.close();
 			}
 		});
 		
@@ -471,7 +478,9 @@ public class GraphicsGame extends Application{
 			timeline.stop();
 			timeline2.stop();
 			aiTurn.stop();
-			stage.setScene(restart);
+			r.setScene(restart);
+			r.show();
+			
 		}
 		res.setText("Minerals: " +gs.getPlayers().get(0).getResources());
 		

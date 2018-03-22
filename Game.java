@@ -343,7 +343,7 @@ class Player {//generic player, used for human and AI
 			units.add(new Soldier(x,y));
  		}else if (selection == "tank"){
  			units.add(new Tank(x,y));
- 		}else if (selection == "ranged fighter"){
+ 		}else if (selection == "ranged"){
  			units.add(new RangedFighter(x,y));
  		}
 	}
@@ -418,7 +418,7 @@ class Player {//generic player, used for human and AI
 			if (getResources()>=20){
 				construct.add("soldier");
 				if (getResources()>=30){
-					construct.add("ranged fighter");
+					construct.add("ranged");
 					if (getResources()>=50){
 						construct.add("tank");
 					}
@@ -476,11 +476,11 @@ class Player {//generic player, used for human and AI
 		}else if (charac instanceof Barracks && item == "soldier" && action == "construct"){
 			charac.getMyQueues().add(new ConstructQueue(action,charac,item,3));
 			setResources(getResources()-20);
-		}else if (charac instanceof Barracks && item == "ranged fighter" && action == "construct"){
-			charac.getMyQueues().add(new ConstructQueue(action, charac, item, 3));
+		}else if (charac instanceof Barracks && item == "ranged" && action == "construct"){
+			charac.getMyQueues().add(new ConstructQueue(action, charac, item, 4));
 			setResources(getResources()-30);
 		}else if (charac instanceof Barracks && item == "tank" && action == "construct"){
-			charac.getMyQueues().add(new ConstructQueue(action, charac, item, 3));
+			charac.getMyQueues().add(new ConstructQueue(action, charac, item, 5));
 			setResources(getResources()-50);
 		}
 	}
@@ -557,7 +557,8 @@ class Player {//generic player, used for human and AI
 					a = buildings.get(index).getMyQueues().get(0).getAction();
 					c = buildings.get(index).getMyQueues().get(0).getSelection();
 					i = buildings.get(index).getMyQueues().get(0).getItem();
-					if (c instanceof MainBase && (i == "worker") || c instanceof Barracks ){
+
+					if (c instanceof MainBase && (i == "worker") || c instanceof Barracks && (i == "soldier" || i == "tank" || i == "ranged")){
 						if (gameS.getMap().getBoard()[c.getY()+p1][c.getX()+p2] == "---"){
 							buildUnit(i,c,c.getX()+p2,c.getY()+p1);
 							done = true;
