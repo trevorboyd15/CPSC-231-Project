@@ -7,6 +7,7 @@ import javafx.scene.layout.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.image.*;
@@ -34,6 +35,7 @@ public class GraphicsGame extends Application{
 	private Timeline aiTurn = new Timeline();
 	
 	private Stage r = new Stage();
+	private Stage i = new Stage();
 	
 	private int numAI = 1;
 	private int theme = 0;
@@ -55,6 +57,14 @@ public class GraphicsGame extends Application{
 	
 	private ImageView cursor = new ImageView();
 	private String[] cursTheme = {"MoonOutline.png","PlainsOutline.png"};
+	private Label pauseT = new Label("The Game is Paused");
+	private Label introT = new Label("Your Main Base is in the Bottom Left Corner. From This base you can build workers" +
+	" using the b key for 10 Resources. A worker can gather resources by selecting it and pressing the g key. A Worker can also build"+
+	" a barracks for 50 resources. The Barracks can construct Units for your army! the most basic is the soldier which costs 10"+
+	" resources and can attack anything around it. The next is the Basic Ranged unit which costs 30 Resources and has a" +
+	" larger range can be built by pressing r. Finally there is the tank that costs 50 Resources and has a large range and"+
+	" armor to protect it which can be built with t." +
+	" Your goal is to build an army and destroy the enemy, Good Luck!");
 	
 	
 	public void addPlayers(int a){
@@ -76,6 +86,14 @@ public class GraphicsGame extends Application{
 	public void start(Stage stage){
 		imSize = 1000/gs.getMap().getSize();
 		
+		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			public void handle(WindowEvent we) {
+				timeline.stop();
+				aiTurn.stop();
+				i.close();
+				r.close();
+			}
+		});    
 		
 		
 		Timeline timeline2 = new Timeline();
@@ -102,16 +120,62 @@ public class GraphicsGame extends Application{
 		Group root = new Group();
 		VBox men = new VBox(5);
 		VBox rest = new VBox(10);
+		VBox paus = new VBox(10);
+		VBox introL = new VBox(10);
 		HBox buttons = new HBox(10);
 		HBox themeSel = new HBox(10);
 		Scene scene = new Scene(root, 1100, 1000,Color.BLACK);
 		Scene restart = new Scene(rest,200,200);
+		Scene pause = new Scene(paus,200,200);
+		Scene intro = new Scene(introL,400,300);
 		Scene menu = new Scene(men,400,400);
 		stage.setTitle("StarCraft III");
 		
 		Text didWin = new Text();
 		
+		paus.getChildren().add(pauseT);
+		paus.setAlignment(Pos.TOP_CENTER);
+
+		
+		Button resume = new Button();
+		resume.setText("Resume");
+		resume.setOnAction(new EventHandler<ActionEvent>(){
+			@Override
+			public void handle(ActionEvent event){
+				timeline.play();
+				aiTurn.play();
+				i.close();
+			}
+		});
+		
+		paus.getChildren().add(resume);
+		
 		rest.setAlignment(Pos.TOP_CENTER);
+		
+		Button play = new Button();
+		play.setText("Lets Play!");
+		play.setOnAction(new EventHandler<ActionEvent>(){
+			@Override
+			public void handle(ActionEvent event){
+				timeline.play();
+				aiTurn.play();
+				i.close();
+			}
+		});
+		
+		i.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			public void handle(WindowEvent we) {
+				timeline.play();
+				aiTurn.play();
+			}
+		});        
+				
+		
+		introL.setAlignment(Pos.TOP_CENTER);
+		
+		introT.setWrapText(true);
+		introL.getChildren().add(introT);
+		introL.getChildren().add(play);
 		
 		Button backToMen = new Button();
 		Button quit = new Button();
@@ -132,6 +196,8 @@ public class GraphicsGame extends Application{
 				r.close();
 			}
 		});
+		
+		
 		quit.setOnAction(new EventHandler<ActionEvent>() {
  
             @Override
@@ -211,8 +277,8 @@ public class GraphicsGame extends Application{
 				addPlayers(numAI);
 				display(root);
 				stage.setScene(scene);
-				timeline.play();
-				aiTurn.play();
+				i.setScene(intro);
+				i.show();
 			}
 		});
 		
@@ -390,14 +456,20 @@ public class GraphicsGame extends Application{
 						gs.getPlayers().get(0).decRes(20);
 					}
 				}
+				if (k.getText().equals("p")){
+					timeline.stop();
+					aiTurn.stop();
+					i.setScene(pause);
+					i.show();
+				}
 			}
 				
 		};     
 		
 		
-		timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(0.5),ae -> up(root,timeline,
+		timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(speed),ae -> up(root,timeline,
 		stage,restart,aiTurn,didWin,timeline2)));
-		aiTurn.getKeyFrames().add(new KeyFrame(Duration.seconds(speed),ae -> aiT()));
+		aiTurn.getKeyFrames().add(new KeyFrame(Duration.seconds(1),ae -> aiT()));
 		timeline2.play();
 		
 		root.getChildren().add(res);
