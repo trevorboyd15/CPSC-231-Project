@@ -984,6 +984,7 @@ class AIPlayer extends Player{
 						if (w.getName()=="wk"){
 							wC ++;
 							if (wC == 3){
+								w.getMyQueues().clear();
 								int x = getBuildingList().get(0).getX();
 								int y = getBuildingList().get(0).getY();
 								if (getNum() == 2){
