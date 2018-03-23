@@ -30,11 +30,6 @@ public class GraphicsGame extends Application{
 	private Text keyTwo = new Text();
 	private Text keyThree = new Text();
 	
-	private Timeline timeline = new Timeline();
-	private Timeline aiTurn = new Timeline();
-	
-	private Stage r = new Stage();
-	
 	private int numAI = 1;
 	private int theme = 0;
 	
@@ -54,7 +49,7 @@ public class GraphicsGame extends Application{
 	private List<List<ImageView>> imstorage = new ArrayList<List<ImageView>>();
 	
 	private ImageView cursor = new ImageView();
-	private String[] cursTheme = {"MoonOutline.png","PlainsOutline.png"};
+	private String[] cursTheme = {"Images/MoonOutline.png","Images/PlainsOutline.png"};
 	
 	
 	public void addPlayers(int a){
@@ -76,7 +71,8 @@ public class GraphicsGame extends Application{
 	public void start(Stage stage){
 		imSize = 1000/gs.getMap().getSize();
 		
-		
+		Timeline timeline = new Timeline();
+		Timeline aiTurn = new Timeline();
 		
 		Timeline timeline2 = new Timeline();
 		timeline2.setOnFinished(new EventHandler<ActionEvent>(){
@@ -128,8 +124,6 @@ public class GraphicsGame extends Application{
             @Override
             public void handle(ActionEvent event) {
 				stage.setScene(menu);
-				stage.show();
-				r.close();
 			}
 		});
 		quit.setOnAction(new EventHandler<ActionEvent>() {
@@ -137,7 +131,6 @@ public class GraphicsGame extends Application{
             @Override
             public void handle(ActionEvent event) {
 				stage.close();
-				r.close();
 			}
 		});
 		
@@ -478,20 +471,18 @@ public class GraphicsGame extends Application{
 			timeline.stop();
 			timeline2.stop();
 			aiTurn.stop();
-			r.setScene(restart);
-			r.show();
-			
+			stage.setScene(restart);
 		}
 		res.setText("Minerals: " +gs.getPlayers().get(0).getResources());
 		
 	}
 	
 	public void unitimAdd(int i,Group root,int j){
-		String[][] uRef = { {"MoonWorker1.png","MoonWorker2.png","MoonWorker3.png",
-		"MoonWorker4.png","MoonSoldier1.png","MoonSoldier2.png","MoonSoldier3.png",
-		"MoonSoldier4.png"}, {"PlainsWorker1.png","PlainsWorker2.png","PlainsWorker3.png",
-		"PlainsWorker4.png","PlainsSoldier1.png","PlainsSoldier2.png","PlainsSoldier3.png",
-		"PlainsSoldier4.png"}};
+		String[][] uRef = { {"Images/MoonWorker1.png","Images/MoonWorker2.png","Images/MoonWorker3.png",
+		"Images/MoonWorker4.png","Images/MoonSoldier1.png","Images/MoonSoldier2.png","Images/MoonSoldier3.png",
+		"Images/MoonSoldier4.png"}, {"Images/PlainsWorker1.png","Images/PlainsWorker2.png","Images/PlainsWorker3.png",
+		"Images/PlainsWorker4.png","Images/PlainsSoldier1.png","Images/PlainsSoldier2.png","Images/PlainsSoldier3.png",
+		"Images/PlainsSoldier4.png"}};
 		ImageView iV2 = new ImageView();
 		Image i2;
 		//System.out.println(i);
@@ -521,11 +512,11 @@ public class GraphicsGame extends Application{
 	}
 	
 	public void buildingImAdd(int i,Group root,int j){
-		String[][] uRef = {{"MoonBarracks1.jpg","MoonBarracks2.jpg","MoonBarracks3.jpg",
-		"MoonBarracks4.jpg","MoonBase1.jpg","MoonBase2.jpg","MoonBase3.jpg",
-		"MoonBase4.jpg"},{"PlainsBarracks1.jpg","PlainsBarracks2.jpg","PlainsBarracks3.jpg",
-		"PlainsBarracks4.jpg","PlainsBase1.jpg","PlainsBase2.jpg","PlainsBase3.jpg",
-		"PlainsBase4.jpg"}};
+		String[][] uRef = {{"Images/MoonBarracks1.jpg","Images/MoonBarracks2.jpg","Images/MoonBarracks3.jpg",
+		"Images/MoonBarracks4.jpg","Images/MoonBase1.jpg","Images/MoonBase2.jpg","Images/MoonBase3.jpg",
+		"Images/MoonBase4.jpg"},{"Images/PlainsBarracks1.jpg","Images/PlainsBarracks2.jpg","Images/PlainsBarracks3.jpg",
+		"Images/PlainsBarracks4.jpg","Images/PlainsBase1.jpg","Images/PlainsBase2.jpg","Images/PlainsBase3.jpg",
+		"Images/PlainsBase4.jpg"}};
 		Image i2;
 		ImageView iV2 = new ImageView();
 		boolean valid = false;
@@ -615,9 +606,9 @@ public class GraphicsGame extends Application{
 	
 	public void display(Group root){
 	
-		String[][] base = {{"MoonBase1.jpg","MoonBase2.jpg","MoonBase3.jpg","MoonBase4.jpg"}
-		,{"PlainsBase1.jpg","PlainsBase2.jpg","PlainsBase3.jpg","PlainsBase4.jpg"}};
-		String[] space = {"MoonSpace.jpg","PlainsSpace.jpg"};
+		String[][] base = {{"Images/MoonBase1.jpg","Images/MoonBase2.jpg","Images/MoonBase3.jpg","Images/MoonBase4.jpg"}
+		,{"Images/PlainsBase1.jpg","Images/PlainsBase2.jpg","Images/PlainsBase3.jpg","Images/PlainsBase4.jpg"}};
+		String[] space = {"Images/MoonSpace.jpg","Images/PlainsSpace.jpg"};
 		gs.updateBoard();
 		
 		String[][] map = gs.getMap().getBoard();
@@ -663,9 +654,6 @@ public class GraphicsGame extends Application{
 				}
 			}
 		}
-		
-	
-	
 	}
 }
 
