@@ -335,13 +335,24 @@ public class GraphicsGame extends Application{
 								keyThree.setText("");
 							}else if (c instanceof Barracks){
 								keyOne.setText("B: Build Soldier");
-								keyTwo.setText("");
-								keyThree.setText("");
+								keyTwo.setText("B: Build Tank");
+								keyThree.setText("B: Build Ranged Fighter");
 							}else if (c instanceof Soldier){
 								keyOne.setText("Click To Attack");
 								keyTwo.setText("");
 								keyThree.setText("");
+							
+							}else if (c instanceof Tank){
+								keyOne.setText("Click To Attack");
+								keyTwo.setText("");
+								keyThree.setText("");
+							
+							}else if (c instanceof RangedFighter){
+								keyOne.setText("Click To Attack");
+								keyTwo.setText("");
+								keyThree.setText("");
 							}
+								
 							MouseState = 1;
 							break;
 						}
@@ -388,6 +399,12 @@ public class GraphicsGame extends Application{
 					}else if (c instanceof Barracks && k.getText().equals("b") && enoughRes("soldier",0)){
 						c.getMyQueues().add(new ConstructQueue("construct",c,"soldier",3));
 						gs.getPlayers().get(0).decRes(20);
+					}else if (c instanceof Barracks && k.getText().equals("b") && enoughRes("tank",0)){
+						c.getMyQueues().add(new ConstructQueue("construct",c,"tank",3));
+						gs.getPlayers().get(0).decRes(50);
+					}else if (c instanceof Barracks && k.getText().equals("b") && enoughRes("rangedFighter",0)){
+						c.getMyQueues().add(new ConstructQueue("construct",c,"rangedFighter",3));
+						gs.getPlayers().get(0).decRes(30);
 					}
 				}
 			}
@@ -506,7 +523,12 @@ public class GraphicsGame extends Application{
 			i2 = new Image(uRef[theme][j+4],true);
 			iV2.setImage(i2);
 			valid = true;
-		}	
+		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Tank){
+		
+		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof RangedFighter){
+		} 
+		// will finish this 
+		
 		if (valid){
 			int k = gs.getPlayers().get(j).getUnitList().get(i).getX();
 			int l = gs.getPlayers().get(j).getUnitList().get(i).getY();
@@ -608,6 +630,10 @@ public class GraphicsGame extends Application{
 		}else if (s.equals("barracks") && gs.getPlayers().get(n).getResources() >= 50){
 			res = true;
 		}else if (s.equals("soldier") && gs.getPlayers().get(n).getResources() >= 20){
+			res = true;
+		}else if (s.equals("tank") && gs.getPlayers().get(n).getResources() >= 50) {
+			res = true;
+		}else if (s.equals("rangedFighter") && gs.getPlayers().get(n).getResources() >= 30) {
 			res = true;
 		}
 		return res;
