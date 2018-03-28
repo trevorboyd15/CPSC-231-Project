@@ -64,46 +64,29 @@ public class DSATestJUnit {
 	@Test
 	public void test_out_of_bounds_negative_value_for_destination() {
 		DSA dsa = new DSA(size);
-		int node;
-		boolean value = true;
-		try {
-			node = dsa.findFirstMove(getOpenMap(), 0, 0, -1, -1);
-		} catch (IndexOutOfBoundsException e1) {
-			value = false;
-		}
-		assertEquals("Destination has negative value", value, true);
+		assertEquals("Destination has negative value", dsa.findFirstMove(getOpenMap(), 0, 0, -1, -1), true);
+		//Need to update expected value
 	}
 
 	@Test
 	public void test_out_of_bounds_negative_value_for_beginning() {
 		DSA dsa = new DSA(size);
-		int node;
-		boolean value = true;
-		node = dsa.findFirstMove(getOpenMap(), -1, -1, 0, 0);
-		assertEquals("Starting Point has negative value", value, false);
+		assertEquals("Starting Point has negative value", dsa.findFirstMove(getOpenMap(), -1, -1, 0, 0), false);
+		//Need to update expected value
 	}
 
 	@Test
 	public void test_out_of_bounds_max_value_for_beginning() {
 		DSA dsa = new DSA(size);
-		int node;
-		boolean value = true;
-		node = dsa.findFirstMove(getOpenMap(), size, size, 0, 0);
-		value = false;
-		assertEquals("Out of bounds value for beginning", value, true);
+		assertEquals("Out of bounds value for beginning", dsa.findFirstMove(getOpenMap(), size, size, 0, 0), true);
+		//Need to update expected value
 	}
 
 	@Test
 	public void test_out_of_bounds_max_value_for_destination() {
 		DSA dsa = new DSA(size);
-		boolean value = true;
-		int node;
-		try {
-			node = dsa.findFirstMove(getOpenMap(), 0, 0, size, size);
-		} catch (IndexOutOfBoundsException e1) {
-			value = false;
-		}
-		assertEquals("Out of bounds value for destination", value, false);
+		assertEquals("Out of bounds value for destination", dsa.findFirstMove(getOpenMap(), 0, 0, size, size), false);
+		//Need to update expected value
 	}
 
 	@Test
@@ -173,18 +156,21 @@ public class DSATestJUnit {
 	public void test_small_map() {
 		DSA dsa = new DSA(size);
 		assertEquals("",dsa.findFirstMove(getSmallMap(),0,0,1,1),0);
+		//Need to update comment
 	}
 
 	@Test
 	public void test_large_map() {
 		DSA dsa = new DSA(size);
 		assertEquals("",dsa.findFirstMove(getLargeMap(),0,0,size,size), 0);
+		//Need to update comment
 	}
 
 	@Test
 	public void test_rectangular_map() {
 		DSA dsa = new DSA(size);
 		assertEquals("",dsa.findFirstMove(getRectMap(),0,0,1,1), 0);
+		//Need to update comment
 
 	}
 
