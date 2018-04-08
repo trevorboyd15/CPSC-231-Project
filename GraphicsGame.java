@@ -578,9 +578,12 @@ public class GraphicsGame extends Application{
 	public void unitimAdd(int i,Group root,int j){
 		String[][] uRef = { {"Images/MoonWorker1.png","Images/MoonWorker2.png","Images/MoonWorker3.png",
 		"Images/MoonWorker4.png","Images/MoonSoldier1.png","Images/MoonSoldier2.png","Images/MoonSoldier3.png",
-		"Images/MoonSoldier4.png"}, {"Images/PlainsWorker1.png","Images/PlainsWorker2.png","Images/PlainsWorker3.png",
+		"Images/MoonSoldier4.png", "Images/MoonTank1.png", "Images/MoonTank2.png", "Images/MoonTank3.png", "Images/MoonTank4.png", 
+		"Images/MoonRanged1.png", "Images/MoonRanged2.png", "MoonRanged3.png", "MoonRanged4.png" },
+		{"Images/PlainsWorker1.png","Images/PlainsWorker2.png","Images/PlainsWorker3.png",
 		"Images/PlainsWorker4.png","Images/PlainsSoldier1.png","Images/PlainsSoldier2.png","Images/PlainsSoldier3.png",
-		"Images/PlainsSoldier4.png"}};
+		"Images/PlainsSoldier4.png", "Images/PlainsTank1.png", "Images/PlainsTank2.png", "Images/PlainsTank3.png", "PlainsTank4.png",
+		"Images/PlainsRanged1.png", "Images/PlainsRanged2.png", "Images/PlainsRanged3.png", "Images/PlainsRanged4.png" }};
 		ImageView iV2 = new ImageView();
 		Image i2;
 		//System.out.println(i);
@@ -595,11 +598,17 @@ public class GraphicsGame extends Application{
 			i2 = new Image(uRef[theme][j+4],true);
 			iV2.setImage(i2);
 			valid = true;
+			
 		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Tank){
-		
+			i2 = new Image(uRef[theme][j+8],true);
+			iV2.setImage(i2);
+			valid = true;
+			
 		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof RangedFighter){
-		} 
-		// will finish this 
+			i2 = new Image(uRef[theme][j+12],true);
+			iV2.setImage(i2);
+			valid = true;
+		}
 		
 		if (valid){
 			int k = gs.getPlayers().get(j).getUnitList().get(i).getX();
