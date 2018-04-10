@@ -129,8 +129,8 @@ class Unit extends Character {// generic unit
  		enemy.setHealth(enemy.getHealth()-getDamage());
  	}
 
-	int collectResources(int r){//Used to collect new resources (for workers)
-		return(r+5);
+	int collectResources(int resource){//Used to collect new resources (for workers)
+		return(resource+5);
 	}
 
 }
@@ -150,24 +150,24 @@ class Map {// the map of the world
 	private String[][] map = new String[size][size];
 	
 	void resetMap (){// sets the board to an empty state
-		for (int i = 0;i<this.size;i++){
+		for (int index = 0;index<this.size;index++){
 			for (int j = 0; j<this.size; j++){
-				this.map[i][j] = "---";
+				this.map[index][j] = "---";
 			}
 		}
 	}
 	
 	void display(){// displays what is on the board
-		for (int i = 0;i<this.size;i++){
+		for (int index = 0;index<this.size;index++){
 			for (int j = 0; j<this.size; j++){
-				System.out.print(this.map[i][j] + " ");
+				System.out.print(this.map[index][j] + " ");
 			}
 			System.out.println("");
 		}
 	}
 
-	void placeObject(int p,Character c){// uses the given player and character to change the map
-		map[c.getY()][c.getX()] = p + c.getName();
+	void placeObject(int num,Character character){// uses the given player and character to change the map
+		map[charcter.getY()][character.getX()] = num + character.getName();
 	}
 	
 	int getSize(){//returns board size
@@ -242,13 +242,13 @@ class GameState {// the game state that holds all information required to run th
 	
 	void updateBoard(){//iterates through each player placing the units and buildings on the board
 		map.resetMap();
-		for (int i = 0; i < players.size(); i++){
-			for (int j = 0;j < players.get(i).getUnitList().size();j++){
-				map.placeObject(players.get(i).getNum(), players.get(i).getUnitList().get(j));
+		for (int index = 0; index < players.size(); index++){
+			for (int j = 0;j < players.get(index).getUnitList().size();j++){
+				map.placeObject(players.get(index).getNum(), players.get(index).getUnitList().get(j));
 			}
 			
-			for (int j = 0;j < players.get(i).getBuildingList().size();j++){
-				map.placeObject(players.get(i).getNum(), players.get(i).getBuildingList().get(j));
+			for (int j = 0;j < players.get(index).getBuildingList().size();j++){
+				map.placeObject(players.get(index).getNum(), players.get(index).getBuildingList().get(j));
 			}
 		}
 	}
@@ -309,34 +309,34 @@ class Player {//generic player, used for human and AI
 	
 	void findSelectables(){//combines the list of units and buildings
 		selectables.clear();
-		for (int i = 0; i<buildings.size(); i++){
-			if (buildings.get(i).getName() == "mb" || buildings.get(i).getName() == "bk" ){
-				selectables.add(buildings.get(i));
+		for (int index = 0; index<buildings.size(); index++){
+			if (buildings.get(index).getName() == "mb" || buildings.get(index).getName() == "bk" ){
+				selectables.add(buildings.get(index));
 			}	
 		}
-		for (int i = 0; i<units.size(); i++){
-			if (units.get(i).getName() == "wk"){
-				selectables.add(units.get(i));
-			}else if (units.get(i).getName() == "sd"){
-				selectables.add(units.get(i));
-			}else if (units.get(i).getName() == "tk"){
-				selectables.add(units.get(i));
-			}else if (units.get(i).getName() == "rf"){
-				selectables.add(units.get(i));
+		for (int index = 0; index<units.size(); index++){
+			if (units.get(index).getName() == "wk"){
+				selectables.add(units.get(index));
+			}else if (units.get(index).getName() == "sd"){
+				selectables.add(units.get(index));
+			}else if (units.get(index).getName() == "tk"){
+				selectables.add(units.get(index));
+			}else if (units.get(index).getName() == "rf"){
+				selectables.add(units.get(index));
 			}
 		}
 		
 	}
 
-	void findActions(Character c){//finds what the given character can do
-		actions = c.getMyActions();
+	void findActions(Character charac){//finds what the given character can do
+		actions = charac.getMyActions();
 	}
 	
 	List<String> getActions(){//returns actions
 		return actions;
 	}
 	
-	void buildUnit(String selection,Character b, int x, int y){//uses the building pos to create a unit next to it
+	void buildUnit(String selection,Character charac, int x, int y){//uses the building pos to create a unit next to it
 		if (selection == "worker" ){
 			units.add(new Worker(x,y));
 		}else if (selection == "soldier"){
@@ -375,21 +375,21 @@ class Player {//generic player, used for human and AI
 		return selection;
 	}
 	
-	void setSelection(Character c){//changes character chosen
-		selection = c;
+	void setSelection(Character charac){//changes character chosen
+		selection = charac;
 	}
 	
 	String getActionSelected(){//returns selected action
 		return actionSelected;
 	}
 	
-	void setActionSelected(String s){//changes selected action
-		actionSelected = s;
+	void setActionSelected(String action){//changes selected action
+		actionSelected = action;
 	}
 	
 
-	void setAttackSelection(Character c){//changes attacked unit
-		attackSelection = c;
+	void setAttackSelection(Character charac){//changes attacked unit
+		attackSelection = charac;
 	}
 	
 	Character getAttackSelection(){//returns attacked unit
@@ -400,21 +400,21 @@ class Player {//generic player, used for human and AI
 		return resources;
 	}
 	
-	void setResources(int r){//changes resource count
-		resources = r;
+	void setResources(int resNum){//changes resource count
+		resources = resNum;
 	}
 	
-	void decRes(int r){
-		resources -= r;
+	void decRes(int resNum){
+		resources -= resNum;
 	}
 
-	void findConstruct(Character b){//sets list of constructable units
+	void findConstruct(Character charac){//sets list of constructable units
 		construct.clear();
-		if (b.getName() == "mb"){
+		if (charac.getName() == "mb"){
 			if (getResources()>=10){
 				construct.add("worker");
 			}
-		}else if (b.getName() == "bk"){
+		}else if (charac.getName() == "bk"){
 			if (getResources()>=20){
 				construct.add("soldier");
 				if (getResources()>=30){
@@ -435,7 +435,7 @@ class Player {//generic player, used for human and AI
 		}
 	}
 	
-	void findAttackSelection(Character c, GameState gs){//finds list of attackable units
+	void findAttackSelection(Character charac, GameState gs){//finds list of attackable units
 		attackSelectable.clear();
 		for (int index = 0; index < gs.getPlayers().size();index++){
 			if (gs.getPlayers().get(index).getNum() != pNum){
@@ -529,9 +529,9 @@ class Player {//generic player, used for human and AI
 	}
 	
 	void updateQueues(GameState gameS){//Cycles through all characters' queues, and runs the first item in each
-		String a;
-		Character c;
-		String i;
+		String s1;
+		Character charac;
+		String s2;
 		boolean done;
 		int p1 = 0;
 		int p2 = 0;
@@ -554,19 +554,19 @@ class Player {//generic player, used for human and AI
 			done = false;
 			if (buildings.get(index).getMyQueues().size() > 0){
 				if (buildings.get(index).getMyQueues().get(0).ready()){
-					a = buildings.get(index).getMyQueues().get(0).getAction();
-					c = buildings.get(index).getMyQueues().get(0).getSelection();
-					i = buildings.get(index).getMyQueues().get(0).getItem();
+					s1 = buildings.get(index).getMyQueues().get(0).getAction();
+					charac = buildings.get(index).getMyQueues().get(0).getSelection();
+					s2 = buildings.get(index).getMyQueues().get(0).getItem();
 
-					if (c instanceof MainBase && (i == "worker") || c instanceof Barracks && (i == "soldier" || i == "tank" || i == "ranged")){
-						if (gameS.getMap().getBoard()[c.getY()+p1][c.getX()+p2] == "---"){
-							buildUnit(i,c,c.getX()+p2,c.getY()+p1);
+					if (charac instanceof MainBase && (s2 == "worker") || charac instanceof Barracks && (s2 == "soldier" || s2 == "tank" || s2 == "ranged")){
+						if (gameS.getMap().getBoard()[charac.getY()+p1][charac.getX()+p2] == "---"){
+							buildUnit(s2,charac,charac.getX()+p2,charac.getY()+p1);
 							done = true;
-						} else if (gameS.getMap().getBoard()[c.getY()][c.getX()+p2] == "---"){
-							buildUnit(i,c,c.getX()+p2,c.getY());
+						} else if (gameS.getMap().getBoard()[charac.getY()][charac.getX()+p2] == "---"){
+							buildUnit(s2,charac,charac.getX()+p2,charac.getY());
 							done = true;
-						} else if (gameS.getMap().getBoard()[c.getY()+p1][c.getX()] == "---"){
-							buildUnit(i,c,c.getX(),c.getY()+p1);
+						} else if (gameS.getMap().getBoard()[charac.getY()+p1][charac.getX()] == "---"){
+							buildUnit(s2,charac,charac.getX(),charac.getY()+p1);
 							done = true;
 						}
 						if (done){// if the queue action was completed remove the queue from existence
@@ -600,10 +600,10 @@ class Player {//generic player, used for human and AI
 					}
 
 				}else if(units.get(index).getMyQueues().get(0) instanceof AttackQueue){//if the unit is attacking
-					Character c1= units.get(index).getMyQueues().get(0).getSelection();
-					Character c2 = units.get(index).getMyQueues().get(0).getSelectionTwo();
-					if (gameS.checkRange(c1,c2)){
-						c2.decrementHealth(c1.getDamage());
+					Character charac1= units.get(index).getMyQueues().get(0).getSelection();
+					Character charac2 = units.get(index).getMyQueues().get(0).getSelectionTwo();
+					if (gameS.checkRange(charac1,charac2)){
+						charac2.decrementHealth(charac1.getDamage());
 					}else{
 						int sx = units.get(index).getX();
 						int sy = units.get(index).getY();
@@ -616,7 +616,7 @@ class Player {//generic player, used for human and AI
 				
 					}
 					
-					if (c2.getHealth() <= 0){
+					if (charac2.getHealth() <= 0){
 						done = true;
 					}
 				
@@ -749,10 +749,10 @@ class HumanPlayer extends Player{//used for human players, including taking inpu
 		super(num,gs);
 	}
 	
-	void turn(GameState s){//Runs a turn, including revealing number of resources
+	void turn(GameState gs2){//Runs a turn, including revealing number of resources
 		System.out.println("Player: "+getNum()+" it is your turn. You have "+getResources()+" resources.");
-		getInput(s);
-		doTurn(s);
+		getInput(gs2);
+		doTurn(gs2);
 	}
 	
 	boolean inputSelection(){//used to get a selected character from user, and checks if input is valid
@@ -785,13 +785,13 @@ class HumanPlayer extends Player{//used for human players, including taking inpu
 		while (valid == false){
 			System.out.println("what would you like to do with that? (String) " +getActions());
 			input = sc.next();
-			for (int i = 0; i <getActions().size(); i++){
-				if (input.contains(getActions().get(i))){
-					if (getResources()<10&&getActions().get(i)=="construct"){
+			for (int index = 0; index <getActions().size(); index++){
+				if (input.contains(getActions().get(index))){
+					if (getResources()<10&&getActions().get(index)=="construct"){
 						System.out.println("You do not have enough resources to construct anything.");
 						haveResources = false;
 					} else {
-					setActionSelected(getActions().get(i));
+					setActionSelected(getActions().get(index));
 					valid = true;
 					break;
 					}
@@ -820,9 +820,9 @@ class HumanPlayer extends Player{//used for human players, including taking inpu
 					findConstruct(getSelection());
 					System.out.println("what would you like to construct with that? (String) "+ getConstruct());
 					input = sc.next();
-					for (int i = 0; i<getConstruct().size(); i++){
-						if (input.contains(getConstruct().get(i))){
-							setItem(getConstruct().get(i));
+					for (int index = 0; index<getConstruct().size(); index++){
+						if (input.contains(getConstruct().get(index))){
+							setItem(getConstruct().get(index));
 							createQueue(getActionSelected(),getSelection(),getItem());
 							valid = true;
 							break;
@@ -874,9 +874,9 @@ class HumanPlayer extends Player{//used for human players, including taking inpu
 					findBuild();
 					System.out.println("what do you want to build?" + getBuild());
 					input = sc.next();
-					for (int i = 0; i<getBuild().size(); i++){
-						if (input.contains(getBuild().get(i))){
-							setItem(getBuild().get(i));
+					for (int index = 0; index<getBuild().size(); index++){
+						if (input.contains(getBuild().get(index))){
+							setItem(getBuild().get(index));
 							valid = true;
 							continue;
 						}
@@ -970,8 +970,8 @@ class AIPlayer extends Player{
 						if (s.getName()=="sd" && s.getMyQueues().isEmpty()&& getAttackSelectable().size() > 0){
 					//System.out.println(s.getMyQueues());
 					
-							Random r = new Random();
-							int r2 = r.nextInt(getAttackSelectable().size());
+							Random rand = new Random();
+							int r2 = rand.nextInt(getAttackSelectable().size());
 							createQueue("attack",s,getAttackSelectable().get(r2));
 							break;
 						}
@@ -979,11 +979,11 @@ class AIPlayer extends Player{
 				}
 			} else {
 				if (getResources()>=50){
-					int wC = 0;
+					int wCount = 0;
 					for (Unit w : getUnitList()){
 						if (w.getName()=="wk"){
-							wC ++;
-							if (wC == 3){
+							wCount ++;
+							if (wCount == 3){
 								w.getMyQueues().clear();
 								int x = getBuildingList().get(0).getX();
 								int y = getBuildingList().get(0).getY();
@@ -1063,9 +1063,9 @@ class AIPlayer extends Player{
 		return count;
 	}
 	
-	boolean checkResources(Character c){
+	boolean checkResources(Character charac){
 		boolean b;
-		if (getResources() >= c.getCost()){
+		if (getResources() >= charac.getCost()){
 			b = true;
 		} else {
 			b = false;
