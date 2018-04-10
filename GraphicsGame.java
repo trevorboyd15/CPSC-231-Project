@@ -23,7 +23,7 @@ import javafx.animation.KeyValue;
 
 public class GraphicsGame extends Application{
 	private GameState gs = new GameState();
-	private Character c;
+	private Character charac;
 	
 	private Text res = new Text();
 	
@@ -34,8 +34,8 @@ public class GraphicsGame extends Application{
 	private Timeline timeline = new Timeline();
 	private Timeline aiTurn = new Timeline();
 	
-	private Stage r = new Stage();
-	private Stage i = new Stage();
+	private Stage stage1 = new Stage();
+	private Stage stage2 = new Stage();
 	
 	private int numAI = 1;
 	private int theme = 0;
@@ -67,14 +67,14 @@ public class GraphicsGame extends Application{
 	" Your goal is to build an army and destroy the enemy, Good Luck!");
 	
 	
-	public void addPlayers(int a){
+	public void addPlayers(int num){
 		gs.addHumanPlayer(1,gs);
-		for (int i = 2; i < a +2; i ++){
-			gs.addAIPlayer(i,gs);
+		for (int index = 2; index < num +2; index ++){
+			gs.addAIPlayer(index,gs);
 		}
 	}
-	public void addAiPlayers(int a){
-		for (int i = 0; i < a; i ++){
+	public void addAiPlayers(int num) {
+		for (int index = 0; index < num; index ++) {
 			gs.addAIPlayer(i+3,gs);
 		}
 	}
