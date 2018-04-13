@@ -250,6 +250,8 @@ class Map {// the map of the world
 	}
 
 	/** adds character to the map, showing it as the player's number plus the unit's abbreviated name
+	* @param p the player number
+	* @param c the chosen character
 	*/
 	void placeObject(int p,Character c){// uses the given player and character to change the map
 		map[c.getY()][c.getX()] = p + c.getName();
