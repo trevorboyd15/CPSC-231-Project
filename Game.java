@@ -413,7 +413,6 @@ class Player {// generic player, used for human and AI
 	}
 
 
-
 	List<Unit> getUnitList() {// get function for unit list
 		return units;
 	}
@@ -756,8 +755,10 @@ class MainBase extends Building{// The core structure of an army; If destroyed, 
 
 	}
   
+
 	MainBase (String n, int x, int y,int h,int c,int num,int amr,String theme,int size){//Creates MainBase, using values inherited from Building
 		super(n,x,y,h,c,amr);
+
 		addMyActions("construct");
 		imSize = size;
 		myImage = new ImageView();

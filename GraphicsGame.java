@@ -307,7 +307,9 @@ public class GraphicsGame extends Application{
 					hs.setName(name.get());
 				} else {
 				}
+
 				//System.out.println(hs.getName());
+
 				gs = new GameState();
 
 				for (int index = 0; index < imstorage.size(); index++){
@@ -324,8 +326,10 @@ public class GraphicsGame extends Application{
 				buildingimAdd2(root);
 				stage.setScene(scene);
 
+
 				s2.setScene(intro);
 				s2.show();
+
 
 			}
 		});
@@ -342,7 +346,7 @@ public class GraphicsGame extends Application{
 				stage.setScene(menu);
 				stage.show();
 				s1.close();
-
+				s2.close();
 			}
 		});
 		highScoreButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -489,6 +493,7 @@ public class GraphicsGame extends Application{
 								keyThree.setText("B: Build Ranged Fighter");
 							}else if (charac instanceof Soldier){
 								keyOne.setText("Click To Attack");
+
 								keyTwo.setText("");
 								keyThree.setText("");
 							
@@ -497,6 +502,7 @@ public class GraphicsGame extends Application{
 								keyTwo.setText("");
 								keyThree.setText("");
 							
+
 							}else if (charac instanceof RangedFighter){
 								keyOne.setText("Click To Attack");
 								keyTwo.setText("");
@@ -672,6 +678,7 @@ public class GraphicsGame extends Application{
 			}
 		}
 	}
+      
 	public void unitimAdd(int num1,Group root,int num2){ 
 
 		String[][] uRef = { {"Images/MoonWorker1.png","Images/MoonWorker2.png","Images/MoonWorker3.png",
