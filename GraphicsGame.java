@@ -35,9 +35,11 @@ import javafx.animation.KeyValue;
 
 public class GraphicsGame extends Application{
 	private GameState gs = new GameState();
-	private Character c;
+
+	private Character charac;
 	highScore hs = new highScore("", 0);
 	private 	Optional<String> name;
+
 	
 	private Text res = new Text();
 	
@@ -48,8 +50,8 @@ public class GraphicsGame extends Application{
 	private Timeline timeline = new Timeline();
 	private Timeline aiTurn = new Timeline();
 	
-	private Stage r = new Stage();
-	private Stage i = new Stage();
+	private Stage s1 = new Stage();
+	private Stage s2 = new Stage();
 	
 	private int numAI = 1;
 	private int theme = 0;
@@ -81,15 +83,15 @@ public class GraphicsGame extends Application{
 	" Your goal is to build an army and destroy the enemy, Good Luck!");
 	
 	
-	public void addPlayers(int a){
+	public void addPlayers(int num){
 		gs.addHumanPlayer(1,gs);
-		for (int i = 2; i < a +2; i ++){
-			gs.addAIPlayer(i,gs);
+		for (int index = 2; index < num +2; index ++){
+			gs.addAIPlayer(index,gs);
 		}
 	}
-	public void addAiPlayers(int a){
-		for (int i = 0; i < a; i ++){
-			gs.addAIPlayer(i+3,gs);
+	public void addAiPlayers(int num){
+		for (int index = 0; index < num; index ++){
+			gs.addAIPlayer(index+3,gs);
 		}
 	}
 	
@@ -104,8 +106,8 @@ public class GraphicsGame extends Application{
 			public void handle(WindowEvent we) {
 				timeline.stop();
 				aiTurn.stop();
-				i.close();
-				r.close();
+				s2.close();
+				s1.close();
 			}
 		});    
 		
@@ -114,15 +116,15 @@ public class GraphicsGame extends Application{
 		timeline2.setOnFinished(new EventHandler<ActionEvent>(){
 			@Override
 			public void handle(ActionEvent event){
-				int pn = gs.getPlayers().size();
+				int pNum = gs.getPlayers().size();
 				//timeline2.stop();
 				timeline2.getKeyFrames().clear();
-				for (int i = 0; i < pn; i++){
-					int n = gs.getPlayers().get(i).getNum();
-					for(int j = 0; j < gs.getPlayers().get(i).getUnitList().size();j ++){
-						if (imstorage.get(n+3).size() > j){
-							imstorage.get(n+3).get(j).setX(imSize*gs.getPlayers().get(i).getUnitList().get(j).getX());
-							imstorage.get(n+3).get(j).setY(imSize*gs.getPlayers().get(i).getUnitList().get(j).getY());
+				for (int index = 0; index < pNum; index++){
+					int num = gs.getPlayers().get(index).getNum();
+					for(int index1 = 0; index1 < gs.getPlayers().get(index).getUnitList().size();index1 ++){
+						if (imstorage.get(num+3).size() > index1){
+							imstorage.get(num+3).get(index1).setX(imSize*gs.getPlayers().get(index).getUnitList().get(index1).getX());
+							imstorage.get(num+3).get(index1).setY(imSize*gs.getPlayers().get(index).getUnitList().get(index1).getY());
 						}
 					}
 				}
@@ -160,7 +162,7 @@ public class GraphicsGame extends Application{
 			public void handle(ActionEvent event){
 				timeline.play();
 				aiTurn.play();
-				i.close();
+				s2.close();
 			}
 		});
 		
@@ -175,7 +177,7 @@ public class GraphicsGame extends Application{
 			public void handle(ActionEvent event){
 				timeline.play();
 				aiTurn.play();
-				i.close();
+				s2.close();
 			}
 		});
 		
@@ -209,7 +211,7 @@ public class GraphicsGame extends Application{
             public void handle(ActionEvent event) {
 				stage.setScene(menu);
 				stage.show();
-				r.close();
+				s1.close();
 			}
 		});
 		
@@ -219,7 +221,7 @@ public class GraphicsGame extends Application{
             @Override
             public void handle(ActionEvent event) {
 				stage.close();
-				r.close();
+				s1.close();
 			}
 		});
 		
@@ -293,8 +295,9 @@ public class GraphicsGame extends Application{
 				}
 				System.out.println(hs.getName());
 				gs = new GameState();
-				for (int i = 0; i < imstorage.size(); i++) {
-					imstorage.get(i).clear();
+
+				for (int index = 0; index < imstorage.size(); index++){
+					imstorage.get(index).clear();
 				}
 				root.getChildren().clear();
 				root.getChildren().add(res);
@@ -304,8 +307,9 @@ public class GraphicsGame extends Application{
 				addPlayers(numAI);
 				display(root);
 				stage.setScene(scene);
-				i.setScene(intro);
-				i.show();
+
+				index.setScene(intro);
+				index.show();
 
 			}
 		});
@@ -430,10 +434,10 @@ public class GraphicsGame extends Application{
 		
 		EventHandler<MouseEvent> mhand = new EventHandler<MouseEvent>(){
 			@Override
-			public void handle(MouseEvent e){
+			public void handle(MouseEvent mouseE){
 				//System.out.println("cool");
-				int x = (int)(e.getX()/imSize);
-				int y = (int)(e.getY()/ imSize);
+				int x = (int)(mouseE.getX()/imSize);
+				int y = (int)(mouseE.getY()/ imSize);
 				if (x >= gs.getMap().getSize()){
 					x = gs.getMap().getSize() -1;
 				}
@@ -448,36 +452,36 @@ public class GraphicsGame extends Application{
 						cursor.setFitWidth(imSize-2);
 						root.getChildren().add(cursor);
 					}
-					Player p = gs.getPlayers().get(0);
-					p.findSelectables();
-					for (int index = 0;index<p.getSelectables().size();index++){
-						if (p.getSelectables().get(index).getX() == x &&p.getSelectables().get(index).getY() == y){
-							c = p.getSelectables().get(index);
+					Player player = gs.getPlayers().get(0);
+					player.findSelectables();
+					for (int index = 0;index<player.getSelectables().size();index++){
+						if (player.getSelectables().get(index).getX() == x &&player.getSelectables().get(index).getY() == y){
+							charac = player.getSelectables().get(index);
 							cursor.setX(c.getX()*imSize+1);
 							cursor.setY(c.getY()*imSize+1);
-							if (c instanceof Worker){
+							if (charac instanceof Worker){
 								keyOne.setText("C: Construct Barracks");
 								keyTwo.setText("G: Gather Resources");
 								keyThree.setText("");
-							} else if (c instanceof MainBase){
+							} else if (charac instanceof MainBase){
 								keyOne.setText("B: Build Worker");
 								keyTwo.setText("");
 								keyThree.setText("");
-							}else if (c instanceof Barracks){
+							}else if (charac instanceof Barracks){
 								keyOne.setText("B: Build Soldier");
 								keyTwo.setText("B: Build Tank");
 								keyThree.setText("B: Build Ranged Fighter");
-							}else if (c instanceof Soldier){
+							}else if (charac instanceof Soldier){
 								keyOne.setText("Click To Attack");
 								keyTwo.setText("");
 								keyThree.setText("");
 							
-							}else if (c instanceof Tank){
+							}else if (charac instanceof Tank){
 								keyOne.setText("Click To Attack");
 								keyTwo.setText("");
 								keyThree.setText("");
 							
-							}else if (c instanceof RangedFighter){
+							}else if (charac instanceof RangedFighter){
 								keyOne.setText("Click To Attack");
 								keyTwo.setText("");
 								keyThree.setText("");
@@ -487,25 +491,25 @@ public class GraphicsGame extends Application{
 							break;
 						}
 					}
-				}else if(MouseState == 1 && c instanceof Unit){
+				}else if(MouseState == 1 && charac instanceof Unit){
 					if (gs.getMap().getBoard()[y][x].equals("---")){
-						c.getMyQueues().clear();
-						c.getMyQueues().add(new MoveQueue("move",c,x,y));
+						charac.getMyQueues().clear();
+						charac.getMyQueues().add(new MoveQueue("move",charac,x,y));
 					}else if(gs.getMap().getBoard()[y][x].charAt(0) != '1'){
 						c.getMyQueues().clear();
-						gs.getPlayers().get(0).findAttackSelection(c,gs);
-						for (int i = 0;i < gs.getPlayers().get(0).getAttackSelectable().size();i++){
-							Character a = gs.getPlayers().get(0).getAttackSelectable().get(i);
-							if (a.getX() == x && a.getY() == y){
-								c.getMyQueues().add(new AttackQueue("attack",c,a));
+						gs.getPlayers().get(0).findAttackSelection(charac,gs);
+						for (int index = 0;index < gs.getPlayers().get(0).getAttackSelectable().size();index++){
+							Character charac1 = gs.getPlayers().get(0).getAttackSelectable().get(i);
+							if (charac1.getX() == x && charac1.getY() == y){
+								charac.getMyQueues().add(new AttackQueue("attack",charac,charac1));
 								break;
 							}
 						}
 					}
 				}else if(MouseState == 2){
 					if (gs.getMap().getBoard()[y][x].equals("---")){
-						c.getMyQueues().clear();
-						c.getMyQueues().add(new BuildQueue("build",c,x,y));
+						charac.getMyQueues().clear();
+						charac.getMyQueues().add(new BuildQueue("build",charac,x,y));
 						gs.getPlayers().get(0).decRes(50);
 						MouseState = 1;
 					}
@@ -516,33 +520,33 @@ public class GraphicsGame extends Application{
 		
 		EventHandler<KeyEvent> kb = new EventHandler<KeyEvent>() { 
 			@Override 
-			public void handle(KeyEvent k) { 
+			public void handle(KeyEvent keyE) { 
 				if (MouseState == 1){
-					if (c instanceof MainBase && k.getText().equals("b") && enoughRes("worker",0)){
-						c.getMyQueues().add(new ConstructQueue("construct",c,"worker",2));
+					if (charac instanceof MainBase && keyE.getText().equals("b") && enoughRes("worker",0)){
+						charac.getMyQueues().add(new ConstructQueue("construct",charac,"worker",2));
 						gs.getPlayers().get(0).decRes(10);
-					}else if(c instanceof Worker && k.getText().equals("g")){
-						c.getMyQueues().clear();
-						c.getMyQueues().add(new CollectionQueue("collect",c));
-					}else if(c instanceof Worker && k.getText().equals("c") &&enoughRes("barracks",0) ){
+					}else if(charac instanceof Worker && keyE.getText().equals("g")){
+						charac.getMyQueues().clear();
+						charac.getMyQueues().add(new CollectionQueue("collect",charac));
+					}else if(charac instanceof Worker && keyE.getText().equals("c") &&enoughRes("barracks",0) ){
 						MouseState = 2;
-					}else if (c instanceof Barracks && k.getText().equals("b") && enoughRes("soldier",0)){
-						c.getMyQueues().add(new ConstructQueue("construct",c,"soldier",3));
+					}else if (charac instanceof Barracks && keyE.getText().equals("b") && enoughRes("soldier",0)){
+						charac.getMyQueues().add(new ConstructQueue("construct",charac,"soldier",3));
 						gs.getPlayers().get(0).decRes(20);
-					}else if (c instanceof Barracks && k.getText().equals("b") && enoughRes("tank",0)){
-						c.getMyQueues().add(new ConstructQueue("construct",c,"tank",3));
+					}else if (charac instanceof Barracks && keyE.getText().equals("b") && enoughRes("tank",0)){
+						charac.getMyQueues().add(new ConstructQueue("construct",charac,"tank",3));
 						gs.getPlayers().get(0).decRes(50);
-					}else if (c instanceof Barracks && k.getText().equals("b") && enoughRes("rangedFighter",0)){
-						c.getMyQueues().add(new ConstructQueue("construct",c,"rangedFighter",3));
+					}else if (charac instanceof Barracks && keyE.getText().equals("b") && enoughRes("rangedFighter",0)){
+						charac.getMyQueues().add(new ConstructQueue("construct",charac,"rangedFighter",3));
 						gs.getPlayers().get(0).decRes(30);
 						
 					}
 				}
-				if (k.getText().equals("p")){
+				if (keyE.getText().equals("p")){
 					timeline.stop();
 					aiTurn.stop();
-					i.setScene(pause);
-					i.show();
+					s2.setScene(pause);
+					s2.show(); 
 				}
 			}
 				
@@ -568,10 +572,10 @@ public class GraphicsGame extends Application{
 		stage.show();
 	}
 	
-	public void aiT (){
-		for (int i = 1;i < gs.getPlayers().size();i++){
-			if (gs.getPlayers().get(i).getBuildingList().size() >= 1){
-				gs.getPlayers().get(i).getChoice(gs);
+	public void aiT (){ 
+		for (int index = 1;index < gs.getPlayers().size();index++){
+			if (gs.getPlayers().get(index).getBuildingList().size() >= 1){
+				gs.getPlayers().get(index).getChoice(gs);
 			}
 		}
 	}
@@ -593,16 +597,16 @@ public class GraphicsGame extends Application{
 			if (gs.getPlayers().get(index).getUnitList().size() > imstorage.get(index+4).size()){
 			a = gs.getPlayers().get(index).getUnitList().size();
 			b = imstorage.get(index+4).size();
-			for(int i = a-1; i >= b; i--){
-				unitimAdd(i,root,index);
+			for(int index = a-1; index >= b; index--){
+				unitimAdd(index,root,index);
 				//System.out.println(b);
 			}
 			}
 			if (gs.getPlayers().get(index).getBuildingList().size() > imstorage.get(index).size()){
 			a = gs.getPlayers().get(index).getBuildingList().size();
 			b = imstorage.get(index).size();
-			for(int i = a-1; i >= b; i--){
-				buildingImAdd(i,root,index);
+			for(int index = a-1; index >= b; index--){
+				buildingImAdd(index,root,index);
 				//System.out.println(b);
 			}
 			
@@ -616,9 +620,11 @@ public class GraphicsGame extends Application{
 		//gs.displayBoard();
 		updateUnitLocations(gs,timeline2);
 		gs.checkBase();
-		for (int i = 0; i < gs.getPlayers().size(); i++) {
-			if (gs.getPlayers().get(i).getBuildingList().size() == 0) {
-				dead++;
+
+		for (int index = 0; index < gs.getPlayers().size(); index ++){
+			if (gs.getPlayers().get(index).getBuildingList().size() == 0){
+				dead ++;
+
 			}
 		}
 		if (dead >= numAI) {
@@ -634,15 +640,20 @@ public class GraphicsGame extends Application{
 			timeline.stop();
 			timeline2.stop();
 			aiTurn.stop();
-			r.setScene(restart);
-			r.show();
+
+			s1.setScene(restart); 
+			s1.show();
+			
+
 
 		}
 		res.setText("Minerals: " + gs.getPlayers().get(0).getResources());
 
 	}
 
-	public void unitimAdd(int i,Group root,int j){
+	
+	public void unitimAdd(int num1,Group root,int num2){ 
+
 		String[][] uRef = { {"Images/MoonWorker1.png","Images/MoonWorker2.png","Images/MoonWorker3.png",
 		"Images/MoonWorker4.png","Images/MoonSoldier1.png","Images/MoonSoldier2.png","Images/MoonSoldier3.png",
 		"Images/MoonSoldier4.png", "Images/MoonTank1.png", "Images/MoonTank2.png", "Images/MoonTank3.png", "Images/MoonTank4.png", 
@@ -656,41 +667,41 @@ public class GraphicsGame extends Application{
 		//System.out.println(i);
 		//System.out.println(j);
 		boolean valid = false;
-		if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Worker){
-			i2 = new Image(uRef[theme][j],true);
+		if (gs.getPlayers().get(num2).getUnitList().get(num) instanceof Worker){
+			i2 = new Image(uRef[theme][num2],true);
 			iV2.setImage(i2);
 			valid = true;
 			
-		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Soldier){
-			i2 = new Image(uRef[theme][j+4],true);
+		} else if (gs.getPlayers().get(num2).getUnitList().get(num) instanceof Soldier){
+			i2 = new Image(uRef[theme][num2+4],true);
 			iV2.setImage(i2);
 			valid = true;
 			
-		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Tank){
-			i2 = new Image(uRef[theme][j+8],true);
+		} else if (gs.getPlayers().get(num2).getUnitList().get(num) instanceof Tank){
+			i2 = new Image(uRef[theme][num2+8],true);
 			iV2.setImage(i2);
 			valid = true;
 			
-		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof RangedFighter){
-			i2 = new Image(uRef[theme][j+12],true);
+		} else if (gs.getPlayers().get(num2).getUnitList().get(num) instanceof RangedFighter){
+			i2 = new Image(uRef[theme][num2+12],true);
 			iV2.setImage(i2);
 			valid = true;
 		}
 		
 		if (valid){
-			int k = gs.getPlayers().get(j).getUnitList().get(i).getX();
-			int l = gs.getPlayers().get(j).getUnitList().get(i).getY();
+			int k = gs.getPlayers().get(num2).getUnitList().get(num).getX();
+			int l = gs.getPlayers().get(num2).getUnitList().get(num).getY();
 			iV2.setX(k*imSize+1);
 			iV2.setY(l*imSize+1);
 			iV2.setFitHeight(imSize -2);
 			iV2.setFitWidth(imSize -2);
 			root.getChildren().add(iV2);
 			//System.out.println(j+2);
-			imstorage.get(j+4).add(iV2);
+			imstorage.get(num2+4).add(iV2);
 		}
 	}
 	
-	public void buildingImAdd(int i,Group root,int j){
+	public void buildingImAdd(int num,Group root,int num2){
 		String[][] uRef = {{"Images/MoonBarracks1.jpg","Images/MoonBarracks2.jpg","Images/MoonBarracks3.jpg",
 		"Images/MoonBarracks4.jpg","Images/MoonBase1.jpg","Images/MoonBase2.jpg","Images/MoonBase3.jpg",
 		"Images/MoonBase4.jpg"},{"Images/PlainsBarracks1.jpg","Images/PlainsBarracks2.jpg","Images/PlainsBarracks3.jpg",
@@ -700,46 +711,46 @@ public class GraphicsGame extends Application{
 		ImageView iV2 = new ImageView();
 		boolean valid = false;
 		
-		if (gs.getPlayers().get(j).getBuildingList().get(i) instanceof Barracks){
-			i2 = new Image(uRef[theme][j],true);
+		if (gs.getPlayers().get(num2).getBuildingList().get(num) instanceof Barracks){
+			i2 = new Image(uRef[theme][num2],true);
 			iV2.setImage(i2);
 			valid = true;
-		} else if (gs.getPlayers().get(j).getBuildingList().get(i) instanceof MainBase){
-			i2 = new Image(uRef[theme][j+4],true);
+		} else if (gs.getPlayers().get(num2).getBuildingList().get(num) instanceof MainBase){
+			i2 = new Image(uRef[theme][num2+4],true);
 			iV2.setImage(i2);
 			valid = true;
 		}
 		if (valid){
-			int k = gs.getPlayers().get(j).getBuildingList().get(i).getX();
-			int l = gs.getPlayers().get(j).getBuildingList().get(i).getY();
+			int k = gs.getPlayers().get(num2).getBuildingList().get(num).getX();
+			int l = gs.getPlayers().get(num2).getBuildingList().get(num).getY();
 			iV2.setX(k*imSize+1);
 			iV2.setY(l*imSize+1);
 			iV2.setFitHeight(imSize-2);
 			iV2.setFitWidth(imSize-2);
 			root.getChildren().add(iV2);
-			imstorage.get(j).add(iV2);
+			imstorage.get(num2).add(iV2);
 		}
 	}
 	
-	public void checkHealth(Group root,int i){
+	public void checkHealth(Group root,int num){
 		
 		
-			for (int j = 0; j < gs.getPlayers().get(i).getBuildingList().size(); j ++){
+			for (int index = 0; index < gs.getPlayers().get(num).getBuildingList().size(); index ++){
 				//System.out.println(j);
-				if (gs.getPlayers().get(i).getBuildingList().get(j).getHealth() <= 0){
-					gs.getPlayers().get(i).getBuildingList().remove(j);
-					root.getChildren().remove(imstorage.get(i).get(j));
-					imstorage.get(i).remove(j);
+				if (gs.getPlayers().get(num).getBuildingList().get(index).getHealth() <= 0){
+					gs.getPlayers().get(num).getBuildingList().remove(index);
+					root.getChildren().remove(imstorage.get(num).get(index));
+					imstorage.get(num).remove(index);
 					
 				}
-			}
-			for (int j = 0; j < gs.getPlayers().get(i).getUnitList().size(); j ++){
+			} 
+			for (int index = 0; index < gs.getPlayers().get(num).getUnitList().size(); index ++){
 				//System.out.println(j + "ch" + i);
-				if (gs.getPlayers().get(i).getUnitList().get(j).getHealth() <= 0){
+				if (gs.getPlayers().get(num).getUnitList().get(index).getHealth() <= 0){
 					//System.out.println(j + "ch" + i);
-					gs.getPlayers().get(i).getUnitList().remove(j);
-					root.getChildren().remove(imstorage.get(i+4).get(j));
-					imstorage.get(i+4).remove(j);
+					gs.getPlayers().get(num).getUnitList().remove(index);
+					root.getChildren().remove(imstorage.get(num+4).get(index));
+					imstorage.get(num+4).remove(index);
 					
 				}
 			}
@@ -756,12 +767,12 @@ public class GraphicsGame extends Application{
 		if (pn > 1){
 			timeline.stop();
 			timeline.getKeyFrames().clear();
-			for (int i = 0; i < pn; i++){
-				int n = gs.getPlayers().get(i).getNum();				
-				for(int j = 0; j < gs.getPlayers().get(i).getUnitList().size();j ++){
-					if (imstorage.get(n+3).size() > j){
-						final KeyValue keyValue1 = new KeyValue(imstorage.get(n+3).get(j).xProperty(),imSize*gs.getPlayers().get(i).getUnitList().get(j).getX());
-						final KeyValue keyValue2 = new KeyValue(imstorage.get(n+3).get(j).yProperty(),imSize*gs.getPlayers().get(i).getUnitList().get(j).getY());
+			for (int index = 0; index < pn; index++){
+				int num = gs.getPlayers().get(index).getNum();				
+				for(int index1 = 0; index1 < gs.getPlayers().get(index).getUnitList().size();index1 ++){
+					if (imstorage.get(n+3).size() > index1){
+						final KeyValue keyValue1 = new KeyValue(imstorage.get(n+3).get(index1).xProperty(),imSize*gs.getPlayers().get(index).getUnitList().get(index1).getX());
+						final KeyValue keyValue2 = new KeyValue(imstorage.get(n+3).get(index1).yProperty(),imSize*gs.getPlayers().get(index).getUnitList().get(index1).getY());
 						KeyFrame keyFrame = new KeyFrame(Duration.seconds(speed), keyValue1, keyValue2);
 						timeline.getKeyFrames().add(keyFrame);
 					}
@@ -771,17 +782,17 @@ public class GraphicsGame extends Application{
 		}
 	}
 	
-	public boolean enoughRes(String s,int n){
+	public boolean enoughRes(String string,int num) { 
 		boolean res = false;
-		if (s.equals("worker") && gs.getPlayers().get(n).getResources() >= 10){
+		if (string.equals("worker") && gs.getPlayers().get(num).getResources() >= 10){
 			res = true;
-		}else if (s.equals("barracks") && gs.getPlayers().get(n).getResources() >= 50){
+		}else if (string.equals("barracks") && gs.getPlayers().get(num).getResources() >= 50){
 			res = true;
-		}else if (s.equals("soldier") && gs.getPlayers().get(n).getResources() >= 20){
+		}else if (string.equals("soldier") && gs.getPlayers().get(num).getResources() >= 20){
 			res = true;
-		}else if (s.equals("tank") && gs.getPlayers().get(n).getResources() >= 50) {
+		}else if (string.equals("tank") && gs.getPlayers().get(num).getResources() >= 50) {
 			res = true;
-		}else if (s.equals("rangedFighter") && gs.getPlayers().get(n).getResources() >= 30) {
+		}else if (string.equals("rangedFighter") && gs.getPlayers().get(num).getResources() >= 30) {
 			res = true;
 		}
 		return res;
@@ -798,39 +809,44 @@ public class GraphicsGame extends Application{
 		int s = gs.getMap().getSize();
 		
 		
-		for (int i = 0;i<s;i++){
-			for (int j = 0;j<s;j++){
+		for (int index = 0;index<s;index++){
+			for (int index1 = 0;index1<s;index1++){
 				ImageView iV = new ImageView();
 				Image i1 = new Image(space[theme],true);
 				iV.setImage(i1);
-				iV.setX(j*imSize+1);
-				iV.setY(i*imSize+1);
+				iV.setX(index1*imSize+1);
+				iV.setY(index*imSize+1);
 				iV.setFitHeight(imSize-2);
 				iV.setFitWidth(imSize-2);
 				root.getChildren().add(iV);
 				
-				if (map[i][j] != "---") {
+
+
+				if (map[index][index1]!="---"){
 					ImageView iV2 = new ImageView();
 					String im = "MoonBarricade.jpg";
-					if (map[i][j].equals("1mb")) {
+					if (map[index][index1].equals("1mb")){
 						im = base[theme][0];
 						selector = 0;
-					} else if (map[i][j].equals("2mb")) {
+					} else if (map[index][index1].equals("2mb")){
 						im = base[theme][1];
 						selector = 1;
-					} else if (map[i][j].equals("3mb")) {
+					} else if (map[index][index1].equals("3mb")){
 						im = base[theme][2];
 						selector = 2;
-					} else if (map[i][j].equals("4mb")) {
+					}else if (map[index][index1].equals("4mb")){
+
 						im = base[theme][3];
 						selector = 3;
 					}
 					Image i2 = new Image(im, true);
 					iV2.setImage(i2);
-					iV2.setX(j * imSize + 1);
-					iV2.setY(i * imSize + 1);
-					iV2.setFitHeight(imSize - 2);
-					iV2.setFitWidth(imSize - 2);
+
+					iV2.setX(index1*imSize+1);
+					iV2.setY(index*imSize+1);
+					iV2.setFitHeight(imSize-2);
+					iV2.setFitWidth(imSize-2);
+
 					root.getChildren().add(iV2);
 					imstorage.get(selector).add(iV2);
 				}
