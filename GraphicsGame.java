@@ -9,7 +9,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.*;
 import javafx.event.*;
 import javafx.util.Duration;
@@ -17,13 +19,27 @@ import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.geometry.Pos;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
+
+import javax.swing.JOptionPane;
+
 import javafx.animation.KeyValue;
 
 
 public class GraphicsGame extends Application{
 	private GameState gs = new GameState();
+
 	private Character charac;
+	highScore hs = new highScore("", 0);
+	private 	Optional<String> name;
+
 	
 	private Text res = new Text();
 	
@@ -39,7 +55,7 @@ public class GraphicsGame extends Application{
 	
 	private int numAI = 1;
 	private int theme = 0;
-	
+	private int score;
 	private int MouseState = 0;
 	private int selector = 0;
 	private double speed = 0.5;
@@ -119,6 +135,7 @@ public class GraphicsGame extends Application{
 		addPlayers(1);
 		Group root = new Group();
 		VBox men = new VBox(5);
+		BorderPane highScoreMenu = new BorderPane();
 		VBox rest = new VBox(10);
 		VBox paus = new VBox(10);
 		VBox introL = new VBox(10);
@@ -129,6 +146,7 @@ public class GraphicsGame extends Application{
 		Scene pause = new Scene(paus,200,200);
 		Scene intro = new Scene(introL,400,300);
 		Scene menu = new Scene(men,400,400);
+		Scene hsmenu = new Scene(highScoreMenu, 400, 300);
 		stage.setTitle("StarCraft III");
 		
 		Text didWin = new Text();
@@ -214,8 +232,11 @@ public class GraphicsGame extends Application{
 		Label themeExp = new Label("Please Select A Theme");
 		Text numOfAi = new Text();
 		Text curTheme = new Text();
+		Text highScores = new Text();
+		Text highScoreList = new Text();
 		curTheme.setText("Theme: Moon");
 		numOfAi.setText("You Have 1 Opponent");
+		highScores.setText("High Scores");
 		
 		Button moon = new Button();
 		Button plain = new Button();
@@ -262,10 +283,19 @@ public class GraphicsGame extends Application{
 		start.setText("START");
 		
 		start.setOnAction(new EventHandler<ActionEvent>() {
- 
-            @Override
-            public void handle(ActionEvent event) {
+
+			@Override
+			public void handle(ActionEvent event) {
+				TextInputDialog dialog = new TextInputDialog();
+				dialog.setHeaderText("Please enter your name:");
+				name = dialog.showAndWait();
+				if (name.isPresent()) {
+					hs.setName(name.get());
+				} else {
+				}
+				System.out.println(hs.getName());
 				gs = new GameState();
+
 				for (int index = 0; index < imstorage.size(); index++){
 					imstorage.get(index).clear();
 				}
@@ -277,12 +307,43 @@ public class GraphicsGame extends Application{
 				addPlayers(numAI);
 				display(root);
 				stage.setScene(scene);
+
 				index.setScene(intro);
 				index.show();
+
 			}
 		});
-		
-		
+
+		Label title = new Label("RTS is Best");
+
+		Button highScoreButton = new Button();
+		highScoreButton.setText("High Scores");
+		Button back = new Button();
+		back.setText("Back");
+		back.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				stage.setScene(menu);
+				stage.show();
+				r.close();
+
+			}
+		});
+		highScoreButton.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				highScoreList.setText(hs.highScoreList());
+				highScoreMenu.setCenter(highScoreList);
+				Text hsTitle = new Text("High Scores");
+				highScoreMenu.setTop(hsTitle);
+				hsTitle.setStyle("-fx-font: 24 arial;");
+				highScoreMenu.setAlignment(hsTitle, Pos.CENTER);
+				stage.setScene(hsmenu);
+				back.setVisible(true);
+			}
+		});
+
 		one.setOnAction(new EventHandler<ActionEvent>() {
  
             @Override
@@ -310,7 +371,6 @@ public class GraphicsGame extends Application{
 		
 		men.setAlignment(Pos.TOP_CENTER);
 		
-		Label title = new Label("RTS is Best");
 		
 		men.getChildren().add(title);
 		men.getChildren().add(buttonExp);
@@ -320,6 +380,14 @@ public class GraphicsGame extends Application{
 		men.getChildren().add(themeSel);
 		men.getChildren().add(curTheme);
 		men.getChildren().add(start);
+		men.getChildren().add(highScores);
+		men.getChildren().add(highScoreButton);
+		highScoreMenu.setBottom(back);
+		back.setVisible(false);
+		highScoreMenu.setAlignment(back, Pos.CENTER);
+		
+		
+		
 		
 		
 		res.setText("Minerals: " +gs.getPlayers().get(0).getResources());
@@ -471,6 +539,7 @@ public class GraphicsGame extends Application{
 					}else if (charac instanceof Barracks && keyE.getText().equals("b") && enoughRes("rangedFighter",0)){
 						charac.getMyQueues().add(new ConstructQueue("construct",charac,"rangedFighter",3));
 						gs.getPlayers().get(0).decRes(30);
+						
 					}
 				}
 				if (keyE.getText().equals("p")){
@@ -516,7 +585,7 @@ public class GraphicsGame extends Application{
 		int a = 0;
 		int b = 0;
 		int dead = 0;
-		
+		hs.updateScore(10);
 		
 		//ImageView iV2 = new ImageView();
 		
@@ -551,31 +620,40 @@ public class GraphicsGame extends Application{
 		//gs.displayBoard();
 		updateUnitLocations(gs,timeline2);
 		gs.checkBase();
+
 		for (int index = 0; index < gs.getPlayers().size(); index ++){
 			if (gs.getPlayers().get(index).getBuildingList().size() == 0){
 				dead ++;
+
 			}
 		}
-		if (dead >= numAI){
-			if (gs.getPlayers().get(0).getBuildingList().size() >= 1){
+		if (dead >= numAI) {
+			if (gs.getPlayers().get(0).getBuildingList().size() >= 1) {
 				System.out.println("you won!");
 				didWin.setText("you won!");
+				hs.writeHighScore(hs.getName(), hs.getScore() + 1000);
 			} else {
 				System.out.println("you lost :(");
 				didWin.setText("you lost :(");
+				hs.writeHighScore(hs.getName(), hs.getScore());
 			}
 			timeline.stop();
 			timeline2.stop();
 			aiTurn.stop();
+
 			s1.setScene(restart); 
 			s1.show();
 			
+
+
 		}
-		res.setText("Minerals: " +gs.getPlayers().get(0).getResources());
-		
+		res.setText("Minerals: " + gs.getPlayers().get(0).getResources());
+
 	}
+
 	
 	public void unitimAdd(int num1,Group root,int num2){ 
+
 		String[][] uRef = { {"Images/MoonWorker1.png","Images/MoonWorker2.png","Images/MoonWorker3.png",
 		"Images/MoonWorker4.png","Images/MoonSoldier1.png","Images/MoonSoldier2.png","Images/MoonSoldier3.png",
 		"Images/MoonSoldier4.png", "Images/MoonTank1.png", "Images/MoonTank2.png", "Images/MoonTank3.png", "Images/MoonTank4.png", 
@@ -743,6 +821,7 @@ public class GraphicsGame extends Application{
 				root.getChildren().add(iV);
 				
 
+
 				if (map[index][index1]!="---"){
 					ImageView iV2 = new ImageView();
 					String im = "MoonBarricade.jpg";
@@ -756,30 +835,23 @@ public class GraphicsGame extends Application{
 						im = base[theme][2];
 						selector = 2;
 					}else if (map[index][index1].equals("4mb")){
+
 						im = base[theme][3];
 						selector = 3;
 					}
-					Image i2 = new Image(im,true);
+					Image i2 = new Image(im, true);
 					iV2.setImage(i2);
+
 					iV2.setX(index1*imSize+1);
 					iV2.setY(index*imSize+1);
 					iV2.setFitHeight(imSize-2);
 					iV2.setFitWidth(imSize-2);
+
 					root.getChildren().add(iV2);
 					imstorage.get(selector).add(iV2);
 				}
 			}
 		}
-		
-	
-	
+
 	}
 }
-
-
-
-
-
-
-
-
