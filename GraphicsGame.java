@@ -9,9 +9,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.image.*;
 import javafx.event.*;
 import javafx.util.Duration;
@@ -19,31 +17,17 @@ import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.geometry.Pos;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
-
-import javax.swing.JOptionPane;
-
 import javafx.animation.KeyValue;
 
-
+/** class used for the graphics-based version of the game
+*/
 public class GraphicsGame extends Application{
+	
 	private GameState gs = new GameState();
-
-
-	private Character charac;
-	highScore hs = new highScore("", 0);
-	private 	Optional<String> name;
-
+	private Character c;
 	
 	private Text res = new Text();
-	private State state;
 	
 	private Text keyOne = new Text();
 	private Text keyTwo = new Text();
@@ -52,23 +36,20 @@ public class GraphicsGame extends Application{
 	private Timeline timeline = new Timeline();
 	private Timeline aiTurn = new Timeline();
 	
-
-	private Stage s1 = new Stage();
-	private Stage s2 = new Stage();
-
+	//two stages, one for the game, and one for the information page
+	private Stage r = new Stage();
+	private Stage i = new Stage();
 	
 	private int numAI = 1;
 	private int theme = 0;
-  
-	private String theme2 = "moon";
 	
-	private int score;
-
+	//various useful variables, such as turn speed for the AI's turns, image sizes, and mouse state
 	private int MouseState = 0;
 	private int selector = 0;
 	private double speed = 0.5;
 	private int imSize = 100;
 	
+	//these are used to store the images for various player's units and buildings
 	private List<ImageView> p1unit = new ArrayList<ImageView>();
 	private List<ImageView> p2unit = new ArrayList<ImageView>();
 	private List<ImageView> p3unit = new ArrayList<ImageView>();
@@ -90,64 +71,60 @@ public class GraphicsGame extends Application{
 	" armor to protect it which can be built with t." +
 	" Your goal is to build an army and destroy the enemy, Good Luck!");
 	
-	
-	public void addPlayers(int num){
+	/** adds players up to the chosen amount
+	* @param a the number of players in the game
+	*/
+	public void addPlayers(int a){
 		gs.addHumanPlayer(1,gs);
-		for (int index = 2; index < num +2; index ++){
-			gs.addAIPlayer(index,gs);
+		for (int i = 2; i < a +2; i ++){
+			gs.addAIPlayer(i,gs);
 		}
 	}
 
-	public void addAiPlayers(int num){
-		for (int index = 0; index < num; index ++){
-			gs.addAIPlayer(index+3,gs);
-
-		}
-	}
-	
+	/** main function containing call to launch JavaFX
+	* @param args initial arguments
+	*/
 	public static void main(String[] args){
 		launch();
 	}
 	
+	/** start function to initiate JavaFX
+	* @param stage the JavaFX window
+	*/
 	public void start(Stage stage){
 		imSize = 1000/gs.getMap().getSize();
-		stage.setX(100);
-		stage.setY(0);
 		
-		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {//what happens when you close the program
 			public void handle(WindowEvent we) {
 				timeline.stop();
 				aiTurn.stop();
-				s2.close();
-				s1.close();
+				i.close();
+				r.close();
 			}
 		});    
 		
-		
 		Timeline timeline2 = new Timeline();
-		timeline2.setOnFinished(new EventHandler<ActionEvent>(){
+		timeline2.setOnFinished(new EventHandler<ActionEvent>(){//change unit locations
 			@Override
 			public void handle(ActionEvent event){
-				int pNum = gs.getPlayers().size();
-				//timeline2.stop();
+				int pn = gs.getPlayers().size();
 				timeline2.getKeyFrames().clear();
-				for (int index = 0; index < pNum; index++){
-					int num = gs.getPlayers().get(index).getNum();
-					for(int index1 = 0; index1 < gs.getPlayers().get(index).getUnitList().size();index1 ++){
-						if (imstorage.get(num+3).size() > index1){
-							imstorage.get(num+3).get(index1).setX(imSize*gs.getPlayers().get(index).getUnitList().get(index1).getX());
-							imstorage.get(num+3).get(index1).setY(imSize*gs.getPlayers().get(index).getUnitList().get(index1).getY());
+				for (int i = 0; i < pn; i++){//for each player in the game
+					int n = gs.getPlayers().get(i).getNum();
+					for(int j = 0; j < gs.getPlayers().get(i).getUnitList().size();j ++){//for unit in player's unit list, update the location of its corresponding image
+						if (imstorage.get(n+3).size() > j){
+							imstorage.get(n+3).get(j).setX(imSize*gs.getPlayers().get(i).getUnitList().get(j).getX());
+							imstorage.get(n+3).get(j).setY(imSize*gs.getPlayers().get(i).getUnitList().get(j).getY());
 						}
 					}
 				}
-				//timeline2.play();
 			}
 		});
 		
+		//setting up the scene, and the JavaFX window
 		addPlayers(1);
 		Group root = new Group();
 		VBox men = new VBox(5);
-		BorderPane highScoreMenu = new BorderPane();
 		VBox rest = new VBox(10);
 		VBox paus = new VBox(10);
 		VBox introL = new VBox(10);
@@ -158,7 +135,6 @@ public class GraphicsGame extends Application{
 		Scene pause = new Scene(paus,200,200);
 		Scene intro = new Scene(introL,400,300);
 		Scene menu = new Scene(men,400,400);
-		Scene hsmenu = new Scene(highScoreMenu, 400, 300);
 		stage.setTitle("StarCraft III");
 		
 		Text didWin = new Text();
@@ -169,12 +145,12 @@ public class GraphicsGame extends Application{
 		
 		Button resume = new Button();
 		resume.setText("Resume");
-		resume.setOnAction(new EventHandler<ActionEvent>(){
+		resume.setOnAction(new EventHandler<ActionEvent>(){//resumes play of the game (for if it's paused)
 			@Override
 			public void handle(ActionEvent event){
 				timeline.play();
 				aiTurn.play();
-				s2.close();
+				i.close();
 			}
 		});
 		
@@ -184,22 +160,21 @@ public class GraphicsGame extends Application{
 		
 		Button play = new Button();
 		play.setText("Lets Play!");
-		play.setOnAction(new EventHandler<ActionEvent>(){
+		play.setOnAction(new EventHandler<ActionEvent>(){//start button attached to the information page, starts the game
 			@Override
 			public void handle(ActionEvent event){
 				timeline.play();
 				aiTurn.play();
-				s2.close();
+				i.close();
 			}
 		});
 		
-		s2.setOnCloseRequest(new EventHandler<WindowEvent>() {
+		i.setOnCloseRequest(new EventHandler<WindowEvent>() {//what happens when you close the information page (same as above button handler)
 			public void handle(WindowEvent we) {
 				timeline.play();
 				aiTurn.play();
 			}
 		});        
-				
 		
 		introL.setAlignment(Pos.TOP_CENTER);
 		
@@ -210,6 +185,7 @@ public class GraphicsGame extends Application{
 		Button backToMen = new Button();
 		Button quit = new Button();
 		
+		//end game options
 		backToMen.setText("Return to Menu");
 		quit.setText("Quit");
 		
@@ -217,38 +193,30 @@ public class GraphicsGame extends Application{
 		rest.getChildren().add(backToMen);
 		rest.getChildren().add(quit);
 		
-		backToMen.setOnAction(new EventHandler<ActionEvent>() {
- 
+		backToMen.setOnAction(new EventHandler<ActionEvent>() {//returns to menu
             @Override
             public void handle(ActionEvent event) {
 				stage.setScene(menu);
 				stage.show();
-				s1.close();
+				r.close();
 			}
 		});
 		
-		
-		quit.setOnAction(new EventHandler<ActionEvent>() {
- 
+		quit.setOnAction(new EventHandler<ActionEvent>() {//ends the game
             @Override
             public void handle(ActionEvent event) {
 				stage.close();
-				s1.close();
+				r.close();
 			}
 		});
 		
-		
-		
-		
+		//main menu setup options
 		Label buttonExp = new Label("How Many Opponents Would You Like To Face?");
 		Label themeExp = new Label("Please Select A Theme");
 		Text numOfAi = new Text();
 		Text curTheme = new Text();
-		Text highScores = new Text();
-		Text highScoreList = new Text();
 		curTheme.setText("Theme: Moon");
 		numOfAi.setText("You Have 1 Opponent");
-		highScores.setText("High Scores");
 		
 		Button moon = new Button();
 		Button plain = new Button();
@@ -256,21 +224,18 @@ public class GraphicsGame extends Application{
 		moon.setText("Moon");
 		plain.setText("Plains");
 		
-		moon.setOnAction(new EventHandler<ActionEvent>() {
- 
+		moon.setOnAction(new EventHandler<ActionEvent>() {//selects the moon theme
             @Override
             public void handle(ActionEvent event) {
 				theme = 0;
-				theme2 = "Moon";
 				curTheme.setText("Theme: Moon");
 			}
 		});
-		plain.setOnAction(new EventHandler<ActionEvent>() {
- 
+		
+		plain.setOnAction(new EventHandler<ActionEvent>() {//selects the plains theme
             @Override
             public void handle(ActionEvent event) {
 				theme = 1;
-				theme2 = "Plains";
 				curTheme.setText("Theme: Plains");
 			}
 		});
@@ -296,26 +261,13 @@ public class GraphicsGame extends Application{
 		Button start = new Button();
 		start.setText("START");
 		
-		start.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				TextInputDialog dialog = new TextInputDialog();
-				dialog.setHeaderText("Please enter your name:");
-				name = dialog.showAndWait();
-				if (name.isPresent()) {
-					hs.setName(name.get());
-				} else {
-				}
-
-				//System.out.println(hs.getName());
-
+		start.setOnAction(new EventHandler<ActionEvent>() {//clears the game (for replays) and resets to original values, starting the game again
+            @Override
+            public void handle(ActionEvent event) {
 				gs = new GameState();
-
-				for (int index = 0; index < imstorage.size(); index++){
-					imstorage.get(index).clear();
+				for (int i = 0; i < imstorage.size(); i++){
+					imstorage.get(i).clear();
 				}
-				state = new State(imSize,theme2);
 				root.getChildren().clear();
 				root.getChildren().add(res);
 				root.getChildren().add(keyOne);
@@ -323,65 +275,30 @@ public class GraphicsGame extends Application{
 				root.getChildren().add(keyThree);
 				addPlayers(numAI);
 				display(root);
-				buildingimAdd2(root);
 				stage.setScene(scene);
-
-
-				s2.setScene(intro);
-				s2.show();
-
-
+				i.setScene(intro);
+				i.show();
 			}
 		});
-
-		Label title = new Label("RTS is Best");
-
-		Button highScoreButton = new Button();
-		highScoreButton.setText("High Scores");
-		Button back = new Button();
-		back.setText("Back");
-		back.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				stage.setScene(menu);
-				stage.show();
-				s1.close();
-				s2.close();
-			}
-		});
-		highScoreButton.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				highScoreList.setText(hs.highScoreList());
-				highScoreMenu.setCenter(highScoreList);
-				Text hsTitle = new Text("High Scores");
-				highScoreMenu.setTop(hsTitle);
-				hsTitle.setStyle("-fx-font: 24 arial;");
-				highScoreMenu.setAlignment(hsTitle, Pos.CENTER);
-				stage.setScene(hsmenu);
-				back.setVisible(true);
-			}
-		});
-
-		one.setOnAction(new EventHandler<ActionEvent>() {
- 
+		
+		
+		one.setOnAction(new EventHandler<ActionEvent>() {//One AI opponent option
             @Override
             public void handle(ActionEvent event) {
 				numOfAi.setText("You Have 1 Opponent");
 				numAI = 1;
 			}
 		});
-		two.setOnAction(new EventHandler<ActionEvent>() {
- 
+		
+		two.setOnAction(new EventHandler<ActionEvent>() {//Two AI opponents option
             @Override
             public void handle(ActionEvent event) {
 				numOfAi.setText("You Have 2 Opponents");
 				numAI = 2;
 			}
 		});
-		three.setOnAction(new EventHandler<ActionEvent>() {
- 
+		
+		three.setOnAction(new EventHandler<ActionEvent>() {//Three AI opponents option
             @Override
             public void handle(ActionEvent event) {
 				numOfAi.setText("You Have 3 Opponents");
@@ -391,6 +308,7 @@ public class GraphicsGame extends Application{
 		
 		men.setAlignment(Pos.TOP_CENTER);
 		
+		Label title = new Label("RTS is Best");
 		
 		men.getChildren().add(title);
 		men.getChildren().add(buttonExp);
@@ -400,16 +318,8 @@ public class GraphicsGame extends Application{
 		men.getChildren().add(themeSel);
 		men.getChildren().add(curTheme);
 		men.getChildren().add(start);
-		men.getChildren().add(highScores);
-		men.getChildren().add(highScoreButton);
-		highScoreMenu.setBottom(back);
-		back.setVisible(false);
-		highScoreMenu.setAlignment(back, Pos.CENTER);
 		
-		
-		
-		
-		
+		//for displaying the resource count
 		res.setText("Minerals: " +gs.getPlayers().get(0).getResources());
 		res.setX(1005);
 		res.setY(50);
@@ -447,17 +357,13 @@ public class GraphicsGame extends Application{
 		imstorage.add( p2unit);	
 		imstorage.add( p3unit);	
 		imstorage.add( p4unit);	
-			
+
 		
-		
-		
-		
-		EventHandler<MouseEvent> mhand = new EventHandler<MouseEvent>(){
+		EventHandler<MouseEvent> mhand = new EventHandler<MouseEvent>(){//for clicking on something
 			@Override
-			public void handle(MouseEvent mouseE){
-				//System.out.println("cool");
-				int x = (int)(mouseE.getX()/imSize);
-				int y = (int)(mouseE.getY()/ imSize);
+			public void handle(MouseEvent e){
+				int x = (int)(e.getX()/imSize);
+				int y = (int)(e.getY()/imSize);
 				if (x >= gs.getMap().getSize()){
 					x = gs.getMap().getSize() -1;
 				}
@@ -465,73 +371,69 @@ public class GraphicsGame extends Application{
 					y = gs.getMap().getSize();
 				}
 				
-				if (gs.getMap().getBoard()[y][x].charAt(0) == '1'){
+				if (gs.getMap().getBoard()[y][x].charAt(0) == '1'){//if it is one of your characters
 					if (MouseState == 0){
 						cursor.setImage(new Image(cursTheme[theme]));
 						cursor.setFitHeight(imSize-2);
 						cursor.setFitWidth(imSize-2);
 						root.getChildren().add(cursor);
 					}
-					Player player = gs.getPlayers().get(0);
-					player.findSelectables();
-					for (int index = 0;index<player.getSelectables().size();index++){
-						if (player.getSelectables().get(index).getX() == x &&player.getSelectables().get(index).getY() == y){
-							charac = player.getSelectables().get(index);
-							cursor.setX(charac.getX()*imSize+1);
-							cursor.setY(charac.getY()*imSize+1);
-							if (charac instanceof Worker){
+					Player p = gs.getPlayers().get(0);
+					p.findSelectables();
+					for (int index = 0;index<p.getSelectables().size();index++){
+						if (p.getSelectables().get(index).getX() == x &&p.getSelectables().get(index).getY() == y){
+							c = p.getSelectables().get(index);
+							cursor.setX(c.getX()*imSize+1);
+							cursor.setY(c.getY()*imSize+1);
+							if (c instanceof Worker){//gives different options based on which type of character you selected
 								keyOne.setText("C: Construct Barracks");
 								keyTwo.setText("G: Gather Resources");
 								keyThree.setText("");
-							} else if (charac instanceof MainBase){
+							} else if (c instanceof MainBase){
 								keyOne.setText("B: Build Worker");
 								keyTwo.setText("");
 								keyThree.setText("");
-							}else if (charac instanceof Barracks){
+							}else if (c instanceof Barracks){
 								keyOne.setText("B: Build Soldier");
 								keyTwo.setText("B: Build Tank");
 								keyThree.setText("B: Build Ranged Fighter");
-							}else if (charac instanceof Soldier){
+							}else if (c instanceof Soldier){
 								keyOne.setText("Click To Attack");
-
 								keyTwo.setText("");
 								keyThree.setText("");
-							
-							}else if (charac instanceof Tank){
+							}else if (c instanceof Tank){
 								keyOne.setText("Click To Attack");
 								keyTwo.setText("");
 								keyThree.setText("");
 							
-
-							}else if (charac instanceof RangedFighter){
+							}else if (c instanceof RangedFighter){
 								keyOne.setText("Click To Attack");
 								keyTwo.setText("");
 								keyThree.setText("");
 							}
-								
 							MouseState = 1;
 							break;
 						}
 					}
-				}else if(MouseState == 1 && charac instanceof Unit){
-					if (gs.getMap().getBoard()[y][x].equals("---")){
-						charac.getMyQueues().clear();
-						charac.getMyQueues().add(new MoveQueue("move",charac,x,y));
-					}else if(gs.getMap().getBoard()[y][x].charAt(0) != '1'){
-						charac.getMyQueues().clear();
-						gs.getPlayers().get(0).findAttackSelection(charac,gs);
-						for (int index = 0;index < gs.getPlayers().get(0).getAttackSelectable().size();index++){
-							Character charac1 = gs.getPlayers().get(0).getAttackSelectable().get(index);
-							if (charac1.getX() == x && charac1.getY() == y){
-								charac.getMyQueues().add(new AttackQueue("attack",charac,charac1));
+				}else if(MouseState == 1 && c instanceof Unit){//if you clicked on a space after selecting a unit
+					if (gs.getMap().getBoard()[y][x].equals("---")){//if the space is empty, move there
+						c.getMyQueues().clear();
+						c.getMyQueues().add(new MoveQueue("move",c,x,y));
+					}else if(gs.getMap().getBoard()[y][x].charAt(0) != '1'){//otherwise, unless it is your unit, attack it
+						c.getMyQueues().clear();
+						gs.getPlayers().get(0).findAttackSelection(c,gs);
+						for (int i = 0;i < gs.getPlayers().get(0).getAttackSelectable().size();i++){
+							Character a = gs.getPlayers().get(0).getAttackSelectable().get(i);
+							if (a.getX() == x && a.getY() == y){
+								c.getMyQueues().add(new AttackQueue("attack",c,a));
 								break;
 							}
 						}
 					}
-				}else if(MouseState == 2){
+				}else if(MouseState == 2){//for building a barracks
 					if (gs.getMap().getBoard()[y][x].equals("---")){
-						charac.getMyQueues().clear();
-						charac.getMyQueues().add(new BuildQueue("build",charac,x,y));
+						c.getMyQueues().clear();
+						c.getMyQueues().add(new BuildQueue("build",c,x,y));
 						gs.getPlayers().get(0).decRes(50);
 						MouseState = 1;
 					}
@@ -540,45 +442,42 @@ public class GraphicsGame extends Application{
 		};
 		
 		
-		EventHandler<KeyEvent> kb = new EventHandler<KeyEvent>() { 
+		EventHandler<KeyEvent> kb = new EventHandler<KeyEvent>() {//once you've selected a character, choose what to build
 			@Override 
-			public void handle(KeyEvent keyE) { 
+			public void handle(KeyEvent k) { 
 				if (MouseState == 1){
-					if (charac instanceof MainBase && keyE.getText().equals("b") && enoughRes("worker",0)){
-						charac.getMyQueues().add(new ConstructQueue("construct",charac,"worker",2));
+					if (c instanceof MainBase && k.getText().equals("b") && enoughRes("worker",0)){
+						c.getMyQueues().add(new ConstructQueue("construct",c,"worker",2));
 						gs.getPlayers().get(0).decRes(10);
-					}else if(charac instanceof Worker && keyE.getText().equals("g")){
-						charac.getMyQueues().clear();
-						charac.getMyQueues().add(new CollectionQueue("collect",charac));
-					}else if(charac instanceof Worker && keyE.getText().equals("c") &&enoughRes("barracks",0) ){
+					}else if(c instanceof Worker && k.getText().equals("g")){
+						c.getMyQueues().clear();
+						c.getMyQueues().add(new CollectionQueue("collect",c));
+					}else if(c instanceof Worker && k.getText().equals("c") &&enoughRes("barracks",0) ){
 						MouseState = 2;
-					}else if (charac instanceof Barracks && keyE.getText().equals("b") && enoughRes("soldier",0)){
-						charac.getMyQueues().add(new ConstructQueue("construct",charac,"soldier",3));
+					}else if (c instanceof Barracks && k.getText().equals("b") && enoughRes("soldier",0)){
+						c.getMyQueues().add(new ConstructQueue("construct",c,"soldier",3));
 						gs.getPlayers().get(0).decRes(20);
-					}else if (charac instanceof Barracks && keyE.getText().equals("b") && enoughRes("tank",0)){
-						charac.getMyQueues().add(new ConstructQueue("construct",charac,"tank",3));
+					}else if (c instanceof Barracks && k.getText().equals("b") && enoughRes("tank",0)){
+						c.getMyQueues().add(new ConstructQueue("construct",c,"tank",3));
 						gs.getPlayers().get(0).decRes(50);
-					}else if (charac instanceof Barracks && keyE.getText().equals("b") && enoughRes("rangedFighter",0)){
-						charac.getMyQueues().add(new ConstructQueue("construct",charac,"rangedFighter",3));
+					}else if (c instanceof Barracks && k.getText().equals("b") && enoughRes("rangedFighter",0)){
+						c.getMyQueues().add(new ConstructQueue("construct",c,"rangedFighter",3));
 						gs.getPlayers().get(0).decRes(30);
-						
 					}
 				}
-				if (keyE.getText().equals("p")){
+				if (k.getText().equals("p")){//pressing p pauses the game
 					timeline.stop();
 					aiTurn.stop();
-					s2.setScene(pause);
-					s2.show(); 
+					i.setScene(pause);
+					i.show();
 				}
 			}
 				
 		};     
 		
 		
-		timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(speed),ae -> up(root,timeline,
-		stage,restart,aiTurn,didWin,timeline2)));
-		aiTurn.getKeyFrames().add(new KeyFrame(Duration.seconds(1),ae -> aiT()));
-		timeline2.play();
+		timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(speed),ae -> up(root,timeline,stage,restart,aiTurn,didWin,timeline2)));
+		aiTurn.getKeyFrames().add(new KeyFrame(Duration.seconds(1),ae -> aiT()));timeline2.play();
 		
 		root.getChildren().add(res);
 		
@@ -588,99 +487,90 @@ public class GraphicsGame extends Application{
 		root.addEventFilter(MouseEvent.MOUSE_CLICKED, mhand);
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, kb);
 		
-		
+		//displays the game
 		stage.setScene(menu);
-		//stage.setScene(scene);
 		stage.show();
 	}
 	
-	public void aiT (){ 
-		for (int index = 1;index < gs.getPlayers().size();index++){
-			if (gs.getPlayers().get(index).getBuildingList().size() >= 1){
-				gs.getPlayers().get(index).getChoice(gs);
+	/** method for getting each player's choice (for the ai players)
+	*/
+	public void aiT (){
+		for (int i = 1;i < gs.getPlayers().size();i++){
+			if (gs.getPlayers().get(i).getBuildingList().size() >= 1){
+				gs.getPlayers().get(i).getChoice(gs);
 			}
 		}
 	}
 		
-	
+	/** method for updating the board
+	* @param root the storage for the stage
+	* @param timeline the running timeline of evens
+	* @param stage the primary setting for the JavaFX windows
+	* @param restart screen used for restarting the game
+	* @param aiTurn another timeline for the ai
+	* @param didWin used for displaying victory
+	* @param timeline2 used for smooth movement of objects
+	*/
 	public void up(Group root,Timeline timeline,Stage stage,Scene restart,Timeline aiTurn,Text didWin,Timeline timeline2){
 		int a = 0;
 		int b = 0;
 		int dead = 0;
-		hs.updateScore(10);
 		
-		//ImageView iV2 = new ImageView();
-		
-		for (int index = 0; index < gs.getPlayers().size();index++){
-			
+		for (int index = 0; index < gs.getPlayers().size();index++){//for each player, update queues, check health, and add new images for any newly built characters
 			gs.getPlayers().get(index).updateQueues(gs);
 			checkHealth(root,index);
-		
+			
+			if (gs.getPlayers().get(index).getUnitList().size() > imstorage.get(index+4).size()){
+				a = gs.getPlayers().get(index).getUnitList().size();
+				b = imstorage.get(index+4).size();
+				for(int i = a-1; i >= b; i--){
+					unitimAdd(i,root,index);
+				}
+			}
+			if (gs.getPlayers().get(index).getBuildingList().size() > imstorage.get(index).size()){
+				a = gs.getPlayers().get(index).getBuildingList().size();
+				b = imstorage.get(index).size();
+				for(int i = a-1; i >= b; i--){
+					buildingImAdd(i,root,index);
+				}
+			
+			}
 		}
-		unitimAdd2(root);
-		buildingimAdd2(root);
 		
-		//System.out.println(c.getMyQueues());
-		
-		//System.out.println("you have " + gs.getPlayers().get(0).getResources());
-		//gs.displayBoard();
 		updateUnitLocations(gs,timeline2);
 		gs.checkBase();
-
-		for (int index = 0; index < gs.getPlayers().size(); index ++){
-			if (gs.getPlayers().get(index).getBuildingList().size() == 0){
+		for (int i = 0; i < gs.getPlayers().size(); i ++){//checks if any players have lost their main base
+			if (gs.getPlayers().get(i).getBuildingList().size() == 0){
 				dead ++;
-
 			}
 		}
-		if (dead >= numAI) {
-			if (gs.getPlayers().get(0).getBuildingList().size() >= 1) {
-				//System.out.println("you won!");
+		if (dead >= numAI){//if there is only one player left in the game
+			if (gs.getPlayers().get(0).getBuildingList().size() >= 1){//if you have a building left, you won
+				System.out.println("you won!");
 				didWin.setText("you won!");
-				hs.writeHighScore(hs.getName(), hs.getScore() + 1000);
-			} else {
-				//System.out.println("you lost :(");
+			} else {//otherwise, you lost
+				System.out.println("you lost :(");
 				didWin.setText("you lost :(");
-				hs.writeHighScore(hs.getName(), hs.getScore());
 			}
+			//stops the game, and then loads the restart screen
 			timeline.stop();
 			timeline2.stop();
 			aiTurn.stop();
-
-			s1.setScene(restart); 
-			s1.show();
+			r.setScene(restart);
+			r.show();
 			
-
-
 		}
-		res.setText("Minerals: " + gs.getPlayers().get(0).getResources());
-
-	}
-
-	
-
-	private void unitimAdd2(Group root){
-		for(int i = 0; i < gs.getPlayers().size(); i++){
-			for (int j = 0; j < gs.getPlayers().get(i).getUnitList().size();j++){
-				if (! root.getChildren().contains(gs.getPlayers().get(i).getUnitList().get(j).getImageView())){
-					root.getChildren().add(gs.getPlayers().get(i).getUnitList().get(j).getImageView());
-				}
-			}
-		}
+		res.setText("Minerals: " +gs.getPlayers().get(0).getResources());
+		
 	}
 	
-	private void buildingimAdd2(Group root){
-		for(int i = 0; i < gs.getPlayers().size(); i++){
-			for (int j = 0; j < gs.getPlayers().get(i).getBuildingList().size();j++){
-				if (! root.getChildren().contains(gs.getPlayers().get(i).getBuildingList().get(j).getImageView())){
-					root.getChildren().add(gs.getPlayers().get(i).getBuildingList().get(j).getImageView());
-				}
-			}
-		}
-	}
-      
-	public void unitimAdd(int num1,Group root,int num2){ 
-
+	/** method for adding unit images
+	* @param i the index of the new item in the player's unit list
+	* @param root the storage for the main stage
+	* @param j the player's index in the player list
+	*/
+	public void unitimAdd(int i,Group root,int j){
+		//unit image location/title reference
 		String[][] uRef = { {"Images/MoonWorker1.png","Images/MoonWorker2.png","Images/MoonWorker3.png",
 		"Images/MoonWorker4.png","Images/MoonSoldier1.png","Images/MoonSoldier2.png","Images/MoonSoldier3.png",
 		"Images/MoonSoldier4.png", "Images/MoonTank1.png", "Images/MoonTank2.png", "Images/MoonTank3.png", "Images/MoonTank4.png", 
@@ -691,44 +581,49 @@ public class GraphicsGame extends Application{
 		"Images/PlainsRanged1.png", "Images/PlainsRanged2.png", "Images/PlainsRanged3.png", "Images/PlainsRanged4.png" }};
 		ImageView iV2 = new ImageView();
 		Image i2;
-		//System.out.println(i);
-		//System.out.println(j);
 		boolean valid = false;
-		if (gs.getPlayers().get(num2).getUnitList().get(num1) instanceof Worker){
-			i2 = new Image(uRef[theme][num2],true);
+		
+		//finds the correct image to add, then adds it to an image view
+		if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Worker){
+			i2 = new Image(uRef[theme][j],true);
 			iV2.setImage(i2);
 			valid = true;
 			
-		} else if (gs.getPlayers().get(num2).getUnitList().get(num1) instanceof Soldier){
-			i2 = new Image(uRef[theme][num2+4],true);
+		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Soldier){
+			i2 = new Image(uRef[theme][j+4],true);
 			iV2.setImage(i2);
 			valid = true;
 			
-		} else if (gs.getPlayers().get(num2).getUnitList().get(num1) instanceof Tank){
-			i2 = new Image(uRef[theme][num2+8],true);
+		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof Tank){
+			i2 = new Image(uRef[theme][j+8],true);
 			iV2.setImage(i2);
 			valid = true;
 			
-		} else if (gs.getPlayers().get(num2).getUnitList().get(num1) instanceof RangedFighter){
-			i2 = new Image(uRef[theme][num2+12],true);
+		} else if (gs.getPlayers().get(j).getUnitList().get(i) instanceof RangedFighter){
+			i2 = new Image(uRef[theme][j+12],true);
 			iV2.setImage(i2);
 			valid = true;
 		}
 		
-		if (valid){
-			int k = gs.getPlayers().get(num2).getUnitList().get(num1).getX();
-			int l = gs.getPlayers().get(num2).getUnitList().get(num1).getY();
+		if (valid){//if a valid image was added, set it up in the right location and add it to storage
+			int k = gs.getPlayers().get(j).getUnitList().get(i).getX();
+			int l = gs.getPlayers().get(j).getUnitList().get(i).getY();
 			iV2.setX(k*imSize+1);
 			iV2.setY(l*imSize+1);
 			iV2.setFitHeight(imSize -2);
 			iV2.setFitWidth(imSize -2);
 			root.getChildren().add(iV2);
-			//System.out.println(j+2);
-			imstorage.get(num2+4).add(iV2);
+			imstorage.get(j+4).add(iV2);
 		}
 	}
 	
-	public void buildingImAdd(int num,Group root,int num2){
+	/** method for adding building images
+	* @param i the index of the new item in the player's building list
+	* @param root the storage for the main stage
+	* @param j the player's index in the player list
+	*/
+	public void buildingImAdd(int i,Group root,int j){
+		//building image location/title reference
 		String[][] uRef = {{"Images/MoonBarracks1.jpg","Images/MoonBarracks2.jpg","Images/MoonBarracks3.jpg",
 		"Images/MoonBarracks4.jpg","Images/MoonBase1.jpg","Images/MoonBase2.jpg","Images/MoonBase3.jpg",
 		"Images/MoonBase4.jpg"},{"Images/PlainsBarracks1.jpg","Images/PlainsBarracks2.jpg","Images/PlainsBarracks3.jpg",
@@ -738,97 +633,104 @@ public class GraphicsGame extends Application{
 		ImageView iV2 = new ImageView();
 		boolean valid = false;
 		
-		if (gs.getPlayers().get(num2).getBuildingList().get(num) instanceof Barracks){
-			i2 = new Image(uRef[theme][num2],true);
+		//finds the correct image
+		if (gs.getPlayers().get(j).getBuildingList().get(i) instanceof Barracks){
+			i2 = new Image(uRef[theme][j],true);
 			iV2.setImage(i2);
 			valid = true;
-		} else if (gs.getPlayers().get(num2).getBuildingList().get(num) instanceof MainBase){
-			i2 = new Image(uRef[theme][num2+4],true);
+		} else if (gs.getPlayers().get(j).getBuildingList().get(i) instanceof MainBase){
+			i2 = new Image(uRef[theme][j+4],true);
 			iV2.setImage(i2);
 			valid = true;
 		}
-		if (valid){
-			int k = gs.getPlayers().get(num2).getBuildingList().get(num).getX();
-			int l = gs.getPlayers().get(num2).getBuildingList().get(num).getY();
+		
+		if (valid){//if the image was valid, set it up and add to storage
+			int k = gs.getPlayers().get(j).getBuildingList().get(i).getX();
+			int l = gs.getPlayers().get(j).getBuildingList().get(i).getY();
 			iV2.setX(k*imSize+1);
 			iV2.setY(l*imSize+1);
 			iV2.setFitHeight(imSize-2);
 			iV2.setFitWidth(imSize-2);
 			root.getChildren().add(iV2);
-			imstorage.get(num2).add(iV2);
-
+			imstorage.get(j).add(iV2);
 		}
 	}
 	
-	public void checkHealth(Group root,int num){
-		
-		
-			for (int index = 0; index < gs.getPlayers().get(num).getBuildingList().size(); index ++){
-				//System.out.println(j);
-				if (gs.getPlayers().get(num).getBuildingList().get(index).getHealth() <= 0){
-					
-					root.getChildren().remove(gs.getPlayers().get(num).getBuildingList().get(index).getImageView());
-					gs.getPlayers().get(num).getBuildingList().remove(index);
-					
-					
-				}
-			} 
-			for (int index = 0; index < gs.getPlayers().get(num).getUnitList().size(); index ++){
-				//System.out.println(j + "ch" + i);
-				if (gs.getPlayers().get(num).getUnitList().get(index).getHealth() <= 0){
-					//System.out.println(j + "ch" + i);
-					
-					root.getChildren().remove(gs.getPlayers().get(num).getUnitList().get(index).getImageView());
-					gs.getPlayers().get(num).getUnitList().remove(index);
-					
-					
-				}
+	/** method for checking the health of a player's characters
+	* @param root the storage for the main stage
+	* @param i the player's number
+	*/
+	public void checkHealth(Group root,int i){
+		for (int j = 0; j < gs.getPlayers().get(i).getBuildingList().size(); j ++){//if a building has no health, remove its image
+			if (gs.getPlayers().get(i).getBuildingList().get(j).getHealth() <= 0){
+				gs.getPlayers().get(i).getBuildingList().remove(j);
+				root.getChildren().remove(imstorage.get(i).get(j));
+				imstorage.get(i).remove(j);
 			}
-		
-	}		
+		}
+		for (int j = 0; j < gs.getPlayers().get(i).getUnitList().size(); j ++){//if a unit has no health, remove its image
+			if (gs.getPlayers().get(i).getUnitList().get(j).getHealth() <= 0){
+				gs.getPlayers().get(i).getUnitList().remove(j);
+				root.getChildren().remove(imstorage.get(i+4).get(j));
+				imstorage.get(i+4).remove(j);
+			}
+		}
+	}
 	
+	/** method for updating the units' locations
+	* @param gs the gamestate
+	* @param timeline the running timeline for the game
+	*/
 	public void updateUnitLocations(GameState gs,Timeline timeline){
+		
 		if (MouseState != 0){
-			cursor.setX(charac.getX()*imSize+1);
-			cursor.setY(charac.getY()*imSize+1);
+			cursor.setX(c.getX()*imSize+1);
+			cursor.setY(c.getY()*imSize+1);
 		}
 		int pn = gs.getPlayers().size();
 		
-		if (pn > 1){
+		if (pn > 1){//temporarily pauses the timeline, and clears all images
 			timeline.stop();
 			timeline.getKeyFrames().clear();
-
-			for (int index = 0; index < pn; index++){
-				int n = gs.getPlayers().get(index).getNum();				
-				for(int index1 = 0; index1 < gs.getPlayers().get(index).getUnitList().size();index1 ++){
-					
-						final KeyValue keyValue1 = new KeyValue(gs.getPlayers().get(index).getUnitList().get(index1).getImageView().xProperty(),imSize*gs.getPlayers().get(index).getUnitList().get(index1).getX());
-						final KeyValue keyValue2 = new KeyValue(gs.getPlayers().get(index).getUnitList().get(index1).getImageView().yProperty(),imSize*gs.getPlayers().get(index).getUnitList().get(index1).getY());
-						KeyFrame keyFrame = new KeyFrame(Duration.seconds(speed), keyValue1, keyValue2);
+			for (int i = 0; i < pn; i++){
+				int n = gs.getPlayers().get(i).getNum();				
+				for(int j = 0; j < gs.getPlayers().get(i).getUnitList().size();j ++){//for each player, for each unit, add new keyvalues and frames
+					if (imstorage.get(n+3).size() > j){
+						final KeyValue keyValue1 = new KeyValue(imstorage.get(n+3).get(j).xProperty(),imSize*gs.getPlayers().get(i).getUnitList().get(j).getX());
+						final KeyValue keyValue2 = new KeyValue(imstorage.get(n+3).get(j).yProperty(),imSize*gs.getPlayers().get(i).getUnitList().get(j).getY());
+						KeyFrame keyFrame = new KeyFrame(Duration.seconds(speed), keyValue1, keyValue2);//duration sets the amount of time it takes for an image to move the image across a space
 						timeline.getKeyFrames().add(keyFrame);
-					
+					}
 				}
 			}
 			timeline.play();
 		}
 	}
 	
-	public boolean enoughRes(String string,int num) { 
+	/**method for checking your resource count, and determining whether it is enough
+	* @param s the character being checked
+	* @param n the player number
+	* @return boolean stating whether you can buy it or not
+	*/
+	public boolean enoughRes(String s,int n){
 		boolean res = false;
-		if (string.equals("worker") && gs.getPlayers().get(num).getResources() >= 10){
+		if (s.equals("worker") && gs.getPlayers().get(n).getResources() >= 10){//for each type of character, compare resource count to cost
 			res = true;
-		}else if (string.equals("barracks") && gs.getPlayers().get(num).getResources() >= 50){
+		}else if (s.equals("barracks") && gs.getPlayers().get(n).getResources() >= 50){
 			res = true;
-		}else if (string.equals("soldier") && gs.getPlayers().get(num).getResources() >= 20){
+		}else if (s.equals("soldier") && gs.getPlayers().get(n).getResources() >= 20){
 			res = true;
-		}else if (string.equals("tank") && gs.getPlayers().get(num).getResources() >= 50) {
+		}else if (s.equals("tank") && gs.getPlayers().get(n).getResources() >= 50) {
 			res = true;
-		}else if (string.equals("rangedFighter") && gs.getPlayers().get(num).getResources() >= 30) {
+		}else if (s.equals("rangedFighter") && gs.getPlayers().get(n).getResources() >= 30) {
 			res = true;
 		}
 		return res;
 	}
 	
+	/** display the board on the screen
+	* @param root the stage storage
+	*/
 	public void display(Group root){
 	
 		String[][] base = {{"Images/MoonBase1.jpg","Images/MoonBase2.jpg","Images/MoonBase3.jpg","Images/MoonBase4.jpg"}
@@ -839,20 +741,51 @@ public class GraphicsGame extends Application{
 		String[][] map = gs.getMap().getBoard();
 		int s = gs.getMap().getSize();
 		
-		
-		for (int index = 0;index<s;index++){
-			for (int index1 = 0;index1<s;index1++){
+		for (int i = 0;i<s;i++){
+			for (int j = 0;j<s;j++){//creates an array of length and width equal to the size
 				ImageView iV = new ImageView();
 				Image i1 = new Image(space[theme],true);
 				iV.setImage(i1);
-				iV.setX(index1*imSize+1);
-				iV.setY(index*imSize+1);
+				iV.setX(j*imSize+1);
+				iV.setY(i*imSize+1);
 				iV.setFitHeight(imSize-2);
 				iV.setFitWidth(imSize-2);
 				root.getChildren().add(iV);
-				
+
+				if (map[i][j]!="---"){
+					ImageView iV2 = new ImageView();
+					String im = "MoonBarricade.jpg";//Overwritten
+					if (map[i][j].equals("1mb")){
+						im = base[theme][0];
+						selector = 0;
+					} else if (map[i][j].equals("2mb")){
+						im = base[theme][1];
+						selector = 1;
+					} else if (map[i][j].equals("3mb")){
+						im = base[theme][2];
+						selector = 2;
+					}else if (map[i][j].equals("4mb")){
+						im = base[theme][3];
+						selector = 3;
+					}//sets each base to the proper base image
+					Image i2 = new Image(im,true);
+					iV2.setImage(i2);
+					iV2.setX(j*imSize+1);
+					iV2.setY(i*imSize+1);
+					iV2.setFitHeight(imSize-2);
+					iV2.setFitWidth(imSize-2);
+					root.getChildren().add(iV2);
+					imstorage.get(selector).add(iV2);//adds bases to the list of selectable characters
+				}
 			}
 		}
-
 	}
 }
+
+
+
+
+
+
+
+
