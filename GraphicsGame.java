@@ -36,6 +36,7 @@ import javafx.animation.KeyValue;
 public class GraphicsGame extends Application{
 	private GameState gs = new GameState();
 
+
 	private Character charac;
 	highScore hs = new highScore("", 0);
 	private 	Optional<String> name;
@@ -50,8 +51,10 @@ public class GraphicsGame extends Application{
 	private Timeline timeline = new Timeline();
 	private Timeline aiTurn = new Timeline();
 	
+
 	private Stage s1 = new Stage();
 	private Stage s2 = new Stage();
+
 	
 	private int numAI = 1;
 	private int theme = 0;
@@ -89,9 +92,11 @@ public class GraphicsGame extends Application{
 			gs.addAIPlayer(index,gs);
 		}
 	}
+
 	public void addAiPlayers(int num){
 		for (int index = 0; index < num; index ++){
 			gs.addAIPlayer(index+3,gs);
+
 		}
 	}
 	
