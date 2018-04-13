@@ -182,7 +182,7 @@ class Map {// the map of the world
 
 
 	void placeObject(int num,Character character){// uses the given player and character to change the map
-		map[charcter.getY()][character.getX()] = num + character.getName();
+		map[character.getY()][character.getX()] = num + character.getName();
 	}
 
 	int getSize() {// returns board size
@@ -307,16 +307,16 @@ class Player {// generic player, used for human and AI
 		State s = new State();
 		if (s.getImSize() != -1){
 			if (pNum == 1){
-				buildings.add(new MainBase("mb",1,gs.getMap().getSize()-2,100,20000,pNum-1,s.getTheme(),s.getImSize()));
+				buildings.add(new MainBase("mb",1,gs.getMap().getSize()-2,100,20000,pNum-1,0,s.getTheme(),s.getImSize()));
 				resources += 20;
 			}else if (pNum == 2){
-				buildings.add(new MainBase("mb",gs.getMap().getSize()-2,1,100,20000,pNum-1,s.getTheme(),s.getImSize()));
+				buildings.add(new MainBase("mb",gs.getMap().getSize()-2,1,100,20000,pNum-1,0,s.getTheme(),s.getImSize()));
 				resources += 20;
 			}else if (pNum == 4){
-				buildings.add(new MainBase("mb",gs.getMap().getSize()-2,gs.getMap().getSize()-2,100,20000,pNum-1,s.getTheme(),s.getImSize()));
+				buildings.add(new MainBase("mb",gs.getMap().getSize()-2,gs.getMap().getSize()-2,100,20000,pNum-1,0,s.getTheme(),s.getImSize()));
 				resources += 20;
 			}else if (pNum == 3){
-				buildings.add(new MainBase("mb",1,1,100,20000,pNum-1,s.getTheme(),s.getImSize()));
+				buildings.add(new MainBase("mb",1,1,100,20000,pNum-1,0,s.getTheme(),s.getImSize()));
 				resources += 20;
 			}
 		}else {
@@ -334,6 +334,7 @@ class Player {// generic player, used for human and AI
 			  resources += 20;
 
 		  }
+		}
 	}
 
 	void turn(GameState gs) {// gets overwritten by inherited class just need to be defined here for now
@@ -402,21 +403,15 @@ class Player {// generic player, used for human and AI
 		State s = new State();
 		if (s.getImSize() != -1){
 			if (selection == "barracks" ){
-				buildings.add(new Barracks("bk",x,y,100,50,pNum-1,s.getTheme(),s.getImSize()));
+				buildings.add(new Barracks("bk",x,y,100,50,pNum-1,0,s.getTheme(),s.getImSize()));
 			}
 		}else{
 			if (selection == "barracks" ){
-				buildings.add(new Barracks("bk",x,y,100,50));
+				buildings.add(new Barracks("bk",x,y,100,50,0));
 			}
 		}
 	}
 
-	void buildBuilding(String selection, int x, int y) {// adds a new barracks building to the board
-
-		if (selection == "barracks") {
-			buildings.add(new Barracks("bk", x, y, 100, 50, 0));
-		}
-	}
 
 	List<Unit> getUnitList() {// get function for unit list
 		return units;
@@ -760,8 +755,10 @@ class MainBase extends Building{// The core structure of an army; If destroyed, 
 
 	}
   
-	MainBase (String n, int x, int y,int h,int c,int num,String theme,int size){//Creates MainBase, using values inherited from Building
-		super(n,x,y,h,c);
+
+	MainBase (String n, int x, int y,int h,int c,int num,int amr,String theme,int size){//Creates MainBase, using values inherited from Building
+		super(n,x,y,h,c,amr);
+
 		addMyActions("construct");
 		imSize = size;
 		myImage = new ImageView();
@@ -791,8 +788,8 @@ class Barracks extends Building{//building used for creating soldiers
 		addMyActions( "construct");
 	}
 	
-	Barracks (String n, int x, int y,int h,int c,int num,String theme,int size){//Creates barracks, using values from Building
-		super(n,x,y,h,c);
+	Barracks (String n, int x, int y,int h,int c,int num,int amr,String theme,int size){//Creates barracks, using values from Building
+		super(n,x,y,h,c,amr);
 		addMyActions( "construct");
 		imSize = size;
 		myImage = new ImageView();
@@ -830,7 +827,7 @@ class Worker extends Unit {// the resource gatherer of the army
 	}
 	
 	Worker (int x, int y,int num,String theme,int size){//Creates worker, using values inherited from Unit, and adds possible actions
-		super ("wk",10,0,x,y,2,10);
+		super ("wk",10,0,x,y,2,10,0);
 		addMyActions("move");
 		addMyActions("build");
 		addMyActions("collect");
@@ -865,7 +862,7 @@ class Soldier extends Unit {//the main fighting unit of the army
  	}
 	
 	Soldier (int x, int y,int num,String theme,int size){//Creates soldier and adds soldiers' actions
- 		super ("sd",20,0,x,y,10,20);
+ 		super ("sd",20,0,x,y,10,20,2);
 		addMyActions("move");
 		addMyActions("attack");
 		imSize = size;

@@ -113,8 +113,8 @@ public class highScore implements Comparable<highScore> {
 			// score
 			for (int i = 0; i < highScoreList.size(); i++) {
 				if (highScoreList.get(i).score < score) {
-					highScoreList.get(i).score = score;
-					highScoreList.get(i).name = name;
+					highScoreList.add(i,new highScore(name,score));
+					highScoreList.remove(highScoreList.size()-1);
 					break;
 				}
 			}

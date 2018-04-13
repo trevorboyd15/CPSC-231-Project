@@ -193,7 +193,7 @@ public class GraphicsGame extends Application{
 			}
 		});
 		
-		i.setOnCloseRequest(new EventHandler<WindowEvent>() {
+		s2.setOnCloseRequest(new EventHandler<WindowEvent>() {
 			public void handle(WindowEvent we) {
 				timeline.play();
 				aiTurn.play();
@@ -307,7 +307,9 @@ public class GraphicsGame extends Application{
 					hs.setName(name.get());
 				} else {
 				}
-				System.out.println(hs.getName());
+
+				//System.out.println(hs.getName());
+
 				gs = new GameState();
 
 				for (int index = 0; index < imstorage.size(); index++){
@@ -324,8 +326,10 @@ public class GraphicsGame extends Application{
 				buildingimAdd2(root);
 				stage.setScene(scene);
 
-				index.setScene(intro);
-				index.show();
+
+				s2.setScene(intro);
+				s2.show();
+
 
 			}
 		});
@@ -341,8 +345,8 @@ public class GraphicsGame extends Application{
 			public void handle(ActionEvent event) {
 				stage.setScene(menu);
 				stage.show();
-				r.close();
-
+				s1.close();
+				s2.close();
 			}
 		});
 		highScoreButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -473,8 +477,8 @@ public class GraphicsGame extends Application{
 					for (int index = 0;index<player.getSelectables().size();index++){
 						if (player.getSelectables().get(index).getX() == x &&player.getSelectables().get(index).getY() == y){
 							charac = player.getSelectables().get(index);
-							cursor.setX(c.getX()*imSize+1);
-							cursor.setY(c.getY()*imSize+1);
+							cursor.setX(charac.getX()*imSize+1);
+							cursor.setY(charac.getY()*imSize+1);
 							if (charac instanceof Worker){
 								keyOne.setText("C: Construct Barracks");
 								keyTwo.setText("G: Gather Resources");
@@ -489,6 +493,7 @@ public class GraphicsGame extends Application{
 								keyThree.setText("B: Build Ranged Fighter");
 							}else if (charac instanceof Soldier){
 								keyOne.setText("Click To Attack");
+
 								keyTwo.setText("");
 								keyThree.setText("");
 							
@@ -497,6 +502,7 @@ public class GraphicsGame extends Application{
 								keyTwo.setText("");
 								keyThree.setText("");
 							
+
 							}else if (charac instanceof RangedFighter){
 								keyOne.setText("Click To Attack");
 								keyTwo.setText("");
@@ -512,10 +518,10 @@ public class GraphicsGame extends Application{
 						charac.getMyQueues().clear();
 						charac.getMyQueues().add(new MoveQueue("move",charac,x,y));
 					}else if(gs.getMap().getBoard()[y][x].charAt(0) != '1'){
-						c.getMyQueues().clear();
+						charac.getMyQueues().clear();
 						gs.getPlayers().get(0).findAttackSelection(charac,gs);
 						for (int index = 0;index < gs.getPlayers().get(0).getAttackSelectable().size();index++){
-							Character charac1 = gs.getPlayers().get(0).getAttackSelectable().get(i);
+							Character charac1 = gs.getPlayers().get(0).getAttackSelectable().get(index);
 							if (charac1.getX() == x && charac1.getY() == y){
 								charac.getMyQueues().add(new AttackQueue("attack",charac,charac1));
 								break;
@@ -629,11 +635,11 @@ public class GraphicsGame extends Application{
 		}
 		if (dead >= numAI) {
 			if (gs.getPlayers().get(0).getBuildingList().size() >= 1) {
-				System.out.println("you won!");
+				//System.out.println("you won!");
 				didWin.setText("you won!");
 				hs.writeHighScore(hs.getName(), hs.getScore() + 1000);
 			} else {
-				System.out.println("you lost :(");
+				//System.out.println("you lost :(");
 				didWin.setText("you lost :(");
 				hs.writeHighScore(hs.getName(), hs.getScore());
 			}
@@ -670,6 +676,8 @@ public class GraphicsGame extends Application{
 					root.getChildren().add(gs.getPlayers().get(i).getBuildingList().get(j).getImageView());
 				}
 			}
+		}
+	}
       
 	public void unitimAdd(int num1,Group root,int num2){ 
 
@@ -686,30 +694,30 @@ public class GraphicsGame extends Application{
 		//System.out.println(i);
 		//System.out.println(j);
 		boolean valid = false;
-		if (gs.getPlayers().get(num2).getUnitList().get(num) instanceof Worker){
+		if (gs.getPlayers().get(num2).getUnitList().get(num1) instanceof Worker){
 			i2 = new Image(uRef[theme][num2],true);
 			iV2.setImage(i2);
 			valid = true;
 			
-		} else if (gs.getPlayers().get(num2).getUnitList().get(num) instanceof Soldier){
+		} else if (gs.getPlayers().get(num2).getUnitList().get(num1) instanceof Soldier){
 			i2 = new Image(uRef[theme][num2+4],true);
 			iV2.setImage(i2);
 			valid = true;
 			
-		} else if (gs.getPlayers().get(num2).getUnitList().get(num) instanceof Tank){
+		} else if (gs.getPlayers().get(num2).getUnitList().get(num1) instanceof Tank){
 			i2 = new Image(uRef[theme][num2+8],true);
 			iV2.setImage(i2);
 			valid = true;
 			
-		} else if (gs.getPlayers().get(num2).getUnitList().get(num) instanceof RangedFighter){
+		} else if (gs.getPlayers().get(num2).getUnitList().get(num1) instanceof RangedFighter){
 			i2 = new Image(uRef[theme][num2+12],true);
 			iV2.setImage(i2);
 			valid = true;
 		}
 		
 		if (valid){
-			int k = gs.getPlayers().get(num2).getUnitList().get(num).getX();
-			int l = gs.getPlayers().get(num2).getUnitList().get(num).getY();
+			int k = gs.getPlayers().get(num2).getUnitList().get(num1).getX();
+			int l = gs.getPlayers().get(num2).getUnitList().get(num1).getY();
 			iV2.setX(k*imSize+1);
 			iV2.setY(l*imSize+1);
 			iV2.setFitHeight(imSize -2);
@@ -781,8 +789,8 @@ public class GraphicsGame extends Application{
 	
 	public void updateUnitLocations(GameState gs,Timeline timeline){
 		if (MouseState != 0){
-			cursor.setX(c.getX()*imSize+1);
-			cursor.setY(c.getY()*imSize+1);
+			cursor.setX(charac.getX()*imSize+1);
+			cursor.setY(charac.getY()*imSize+1);
 		}
 		int pn = gs.getPlayers().size();
 		
