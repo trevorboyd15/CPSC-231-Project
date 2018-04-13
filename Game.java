@@ -1,4 +1,5 @@
 import java.util.*;
+import javafx.scene.image.*;
 
 public class Game {//where the game runs
     public static void main (String[] args){//main function; creates and runs the game
@@ -26,9 +27,11 @@ public class Game {//where the game runs
 class Character {//base object that all placeable things inherit from
 	private int posX;
 	private int posY;
+	protected int imSize;
 	private int health;
 	private int damage;
 	private int cost;
+	protected ImageView myImage;
 	private String name;
 	private List<Queue> myQueues = new ArrayList<Queue>(0);
 	private List<String> myActions = new ArrayList<String>(0);
@@ -104,6 +107,10 @@ class Character {//base object that all placeable things inherit from
 	
 	void setDamage(int d){//changes damage
 		damage = d;
+	}
+	
+	ImageView getImageView(){
+		return myImage;
 	}
 	
 }
@@ -289,18 +296,35 @@ class Player {//generic player, used for human and AI
 	
 	Player(int num,GameState gs){//saves the player numbers, and creates initial board conditions
 		pNum = num;
-		if (pNum == 1){
-			buildings.add(new MainBase("mb",1,gs.getMap().getSize()-2,100,20000));
-			resources += 20;
-		}else if (pNum == 2){
-			buildings.add(new MainBase("mb",gs.getMap().getSize()-2,1,100,20000));
-			resources += 20;
-		}else if (pNum == 4){
-			buildings.add(new MainBase("mb",gs.getMap().getSize()-2,gs.getMap().getSize()-2,100,20000));
-			resources += 20;
-		}else if (pNum == 3){
-			buildings.add(new MainBase("mb",1,1,100,20000));
-			resources += 20;
+		State s = new State();
+		if (s.getImSize() != -1){
+			if (pNum == 1){
+				buildings.add(new MainBase("mb",1,gs.getMap().getSize()-2,100,20000,pNum-1,s.getTheme(),s.getImSize()));
+				resources += 20;
+			}else if (pNum == 2){
+				buildings.add(new MainBase("mb",gs.getMap().getSize()-2,1,100,20000,pNum-1,s.getTheme(),s.getImSize()));
+				resources += 20;
+			}else if (pNum == 4){
+				buildings.add(new MainBase("mb",gs.getMap().getSize()-2,gs.getMap().getSize()-2,100,20000,pNum-1,s.getTheme(),s.getImSize()));
+				resources += 20;
+			}else if (pNum == 3){
+				buildings.add(new MainBase("mb",1,1,100,20000,pNum-1,s.getTheme(),s.getImSize()));
+				resources += 20;
+			}
+		}else {
+			if (pNum == 1){
+				buildings.add(new MainBase("mb",1,gs.getMap().getSize()-2,100,20000));
+				resources += 20;
+			}else if (pNum == 2){
+				buildings.add(new MainBase("mb",gs.getMap().getSize()-2,1,100,20000));
+				resources += 20;
+			}else if (pNum == 4){
+				buildings.add(new MainBase("mb",gs.getMap().getSize()-2,gs.getMap().getSize()-2,100,20000));
+				resources += 20;
+			}else if (pNum == 3){
+				buildings.add(new MainBase("mb",1,1,100,20000));
+				resources += 20;
+			}
 		}
 	}
 	
@@ -337,21 +361,40 @@ class Player {//generic player, used for human and AI
 	}
 	
 	void buildUnit(String selection,Character b, int x, int y){//uses the building pos to create a unit next to it
-		if (selection == "worker" ){
-			units.add(new Worker(x,y));
-		}else if (selection == "soldier"){
-			units.add(new Soldier(x,y));
- 		}else if (selection == "tank"){
- 			units.add(new Tank(x,y));
- 		}else if (selection == "ranged"){
- 			units.add(new RangedFighter(x,y));
- 		}
+		State s = new State();
+		if (s.getImSize() != -1){
+			if (selection == "worker" ){
+				units.add(new Worker(x,y,pNum-1,s.getTheme(),s.getImSize()));
+			}else if (selection == "soldier"){
+				units.add(new Soldier(x,y,pNum-1,s.getTheme(),s.getImSize()));
+			}else if (selection == "tank"){
+				units.add(new Tank(x,y));
+			}else if (selection == "ranged"){
+				units.add(new RangedFighter(x,y));
+			}
+		}else{
+			if (selection == "worker" ){
+				units.add(new Worker(x,y));
+			}else if (selection == "soldier"){
+				units.add(new Soldier(x,y));
+			}else if (selection == "tank"){
+				units.add(new Tank(x,y));
+			}else if (selection == "ranged"){
+				units.add(new RangedFighter(x,y));
+			}
+		}
 	}
 	
 	void buildBuilding(String selection,int x, int y){//adds a new barracks building to the board
-	
-		if (selection == "barracks" ){
-			buildings.add(new Barracks("bk",x,y,100,50));
+		State s = new State();
+		if (s.getImSize() != -1){
+			if (selection == "barracks" ){
+				buildings.add(new Barracks("bk",x,y,100,50,pNum-1,s.getTheme(),s.getImSize()));
+			}
+		}else{
+			if (selection == "barracks" ){
+				buildings.add(new Barracks("bk",x,y,100,50));
+			}
 		}
 	}
 	 
@@ -580,6 +623,7 @@ class Player {//generic player, used for human and AI
 				gameS.updateBoard();
 			}
 		}
+		
 		for (int index = 0; index < units.size(); index++){//goes through the units to update there queues
 			done = false;
 			
@@ -651,8 +695,6 @@ class Player {//generic player, used for human and AI
 			
 			}
 			gameS.updateBoard();
-			
-
 		}
 	}
 	
@@ -679,27 +721,70 @@ class Player {//generic player, used for human and AI
 
 class MainBase extends Building{// The core structure of an army; If destroyed, game is lost
 	
+	private String[][] uRef = {{"Images/MoonBase1.jpg","Images/MoonBase2.jpg","Images/MoonBase3.jpg",
+		"Images/MoonBase4.jpg"},{"Images/PlainsBase1.jpg","Images/PlainsBase2.jpg","Images/PlainsBase3.jpg",
+		"Images/PlainsBase4.jpg"}};
 	MainBase (String n, int x, int y,int h,int c){//Creates MainBase, using values inherited from Building
 		super(n,x,y,h,c);
 		addMyActions("construct");
 	
+	}
+	MainBase (String n, int x, int y,int h,int c,int num,String theme,int size){//Creates MainBase, using values inherited from Building
+		super(n,x,y,h,c);
+		addMyActions("construct");
+		imSize = size;
+		myImage = new ImageView();
+		int index = 0;
+		if (theme.contains("Moon")){
+			index = 0;
+		}else if(theme.contains("Plains")){
+			index = 1;
+		}
+		myImage.setImage(new Image(uRef[index][num]));
+		myImage.setX(x*imSize+1);
+		myImage.setY(y*imSize+1);
+		myImage.setFitHeight(imSize-2);
+		myImage.setFitWidth(imSize-2);
 	}
 	
 }
 
 class Barracks extends Building{//building used for creating soldiers
 	
+	private String[][] uRef = {{"Images/MoonBarracks1.jpg","Images/MoonBarracks2.jpg","Images/MoonBarracks3.jpg",
+		"Images/MoonBarracks4.jpg"},{"Images/PlainsBarracks1.jpg","Images/PlainsBarracks2.jpg","Images/PlainsBarracks3.jpg",
+		"Images/PlainsBarracks4.jpg"}};
+	
 	Barracks (String n, int x, int y,int h,int c){//Creates barracks, using values from Building
 		super(n,x,y,h,c);
 		addMyActions( "construct");
+	}
 	
+	Barracks (String n, int x, int y,int h,int c,int num,String theme,int size){//Creates barracks, using values from Building
+		super(n,x,y,h,c);
+		addMyActions( "construct");
+		imSize = size;
+		myImage = new ImageView();
+		int index = 0;
+		if (theme.contains("Moon")){
+			index = 0;
+		}else if(theme.contains("Plains")){
+			index = 1;
+		}
+		myImage.setImage(new Image(uRef[index][num]));
+		myImage.setX(x*imSize+1);
+		myImage.setY(y*imSize+1);
+		myImage.setFitHeight(imSize-2);
+		myImage.setFitWidth(imSize-2);
 	}
 	
 }
 
 class Worker extends Unit {//the resource gatherer of the army
 
-	private String state;
+		private String[][] uRef = {{"Images/MoonWorker1.png","Images/MoonWorker2.png","Images/MoonWorker3.png",
+		"Images/MoonWorker4.png"},{"Images/PlainsWorker1.png","Images/PlainsWorker2.png","Images/PlainsWorker3.png",
+		"Images/PlainsWorker4.png"}};
 	
 	Worker (int x, int y){//Creates worker, using values inherited from Unit, and adds possible actions
 		super ("wk",10,0,x,y,2,10);
@@ -708,16 +793,61 @@ class Worker extends Unit {//the resource gatherer of the army
 		addMyActions("collect");
 		addMyActions("attack");
 	}
+	
+	Worker (int x, int y,int num,String theme,int size){//Creates worker, using values inherited from Unit, and adds possible actions
+		super ("wk",10,0,x,y,2,10);
+		addMyActions("move");
+		addMyActions("build");
+		addMyActions("collect");
+		addMyActions("attack");
+		imSize = size;
+		myImage = new ImageView();
+		int index = 0;
+		if (theme.contains("Moon")){
+			index = 0;
+		}else if(theme.contains("Plains")){
+			index = 1;
+		}
+		myImage.setImage(new Image(uRef[index][num]));
+		myImage.setX(x*imSize+1);
+		myImage.setY(y*imSize+1);
+		myImage.setFitHeight(imSize-2);
+		myImage.setFitWidth(imSize-2);
+	}
 
 }
 
 class Soldier extends Unit {//the main fighting unit of the army
 
-  Soldier (int x, int y){//Creates soldier and adds soldiers' actions
+	private String[][] uRef = {{"Images/MoonSoldier1.png","Images/MoonSoldier2.png","Images/MoonSoldier3.png",
+		"Images/MoonSoldier4.png"},{"Images/PlainsSoldier1.png","Images/PlainsSoldier2.png","Images/PlainsSoldier3.png",
+		"Images/PlainsSoldier4.png"}};
+
+	Soldier (int x, int y){//Creates soldier and adds soldiers' actions
  		super ("sd",20,0,x,y,10,20);
-    addMyActions("move");
-    addMyActions("attack");
+		addMyActions("move");
+		addMyActions("attack");
  	}
+	
+	Soldier (int x, int y,int num,String theme,int size){//Creates soldier and adds soldiers' actions
+ 		super ("sd",20,0,x,y,10,20);
+		addMyActions("move");
+		addMyActions("attack");
+		imSize = size;
+		myImage = new ImageView();
+		int index = 0;
+		if (theme.contains("Moon")){
+			index = 0;
+		}else if(theme.contains("Plains")){
+			index = 1;
+		}
+		myImage.setImage(new Image(uRef[index][num]));
+		myImage.setX(x*imSize+1);
+		myImage.setY(y*imSize+1);
+		myImage.setFitHeight(imSize-2);
+		myImage.setFitWidth(imSize-2);
+ 	}
+	
  }
  
  class Tank extends Unit { //another fighting unit similar attributes to soldier. Has range
